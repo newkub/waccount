@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const buttons = {
+const _buttons = {
 	signIn: {
 		to: "/auth/login",
 		label: "Sign In",

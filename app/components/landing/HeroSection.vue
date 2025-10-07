@@ -5,10 +5,11 @@ interface Props {
 	description?: string;
 }
 
-const props = withDefaults(defineProps<Props>(), {
+const _props = withDefaults(defineProps<Props>(), {
 	title: "Welcome to",
 	highlight: "Wrikka Account",
-	description: "Secure and easy-to-use user account management system powered by WorkOS",
+	description:
+		"Secure and easy-to-use user account management system powered by WorkOS",
 });
 </script>
 

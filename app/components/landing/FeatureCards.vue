@@ -3,17 +3,20 @@ const features = [
 	{
 		title: "Secure",
 		icon: "i-mdi-shield-check",
-		description: "Enterprise-grade security with WorkOS authentication, data encryption, and compliance standards",
+		description:
+			"Enterprise-grade security with WorkOS authentication, data encryption, and compliance standards",
 	},
 	{
 		title: "Fast",
 		icon: "i-mdi-lightning-bolt",
-		description: "Lightning-fast authentication via Google, GitHub, Microsoft, or email with magic links",
+		description:
+			"Lightning-fast authentication via Google, GitHub, Microsoft, or email with magic links",
 	},
 	{
 		title: "Customizable",
 		icon: "i-mdi-cog",
-		description: "Fully customizable user profiles, settings, and account management with intuitive interface",
+		description:
+			"Fully customizable user profiles, settings, and account management with intuitive interface",
 	},
 ] as const;
 </script>
