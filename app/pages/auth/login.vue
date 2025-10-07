@@ -1,17 +1,17 @@
 <script setup lang="ts">
+import AuthUI from '~/components/auth/AuthUI.vue';
+
 useHead({
 	title: "Sign In - Account Wrikka",
 });
 
 definePageMeta({
-	middleware: ['guest']
+	middleware: ["guest"],
 });
 </script>
 
 <template>
-	<div class="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-100 flex items-center justify-center px-4">
-		<div class="max-w-md w-full">
-			<LoginForm />
-		</div>
+	<div class="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+		<AuthUI />
 	</div>
 </template>

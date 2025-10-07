@@ -7,24 +7,26 @@ interface Props {
 	showSignInLink?: boolean;
 	title?: string;
 	subtitle?: string;
+	noWrapper?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-	redirectTo: '/auth/login?message=Registration successful. Please sign in.',
+	redirectTo: "/auth/login?message=Registration successful. Please sign in.",
 	showSignInLink: true,
-	title: 'Create Account',
-	subtitle: 'Sign up for a new account',
+	title: "Create Account",
+	subtitle: "Sign up for a new account",
+	noWrapper: false,
 });
 
 const { signUp, loading, error, success, clearMessages } = useAuth();
 
 // Form data with proper type from Effect Schema
 const form = reactive({
-	email: '',
-	password: '',
-	confirmPassword: '',
-	firstName: '',
-	lastName: '',
+	email: "",
+	password: "",
+	confirmPassword: "",
+	firstName: "",
+	lastName: "",
 });
 
 const emit = defineEmits<{
@@ -39,7 +41,9 @@ const validationErrors = ref<ValidationError[]>([]);
 // Computed error ที่รวม error จาก useAuth และ local validation
 const displayError = computed(() => {
 	if (validationErrors.value.length > 0) {
-		return validationErrors.value.map(e => `${e.field}: ${e.message}`).join(', ');
+		return validationErrors.value
+			.map((e) => `${e.field}: ${e.message}`)
+			.join(", ");
 	}
 	return localError.value || error.value;
 });
@@ -73,7 +77,7 @@ const validateForm = (): boolean => {
 	return true;
 };
 
-const handleSubmit = async () => {
+const _handleSubmit = async () => {
 	// Clear previous errors
 	clearMessages();
 
@@ -87,35 +91,43 @@ const handleSubmit = async () => {
 			firstName: form.firstName,
 			lastName: form.lastName,
 		});
-		emit('success');
+		emit("success");
 		await navigateTo(props.redirectTo);
 	} catch (err: any) {
-		emit('error', err?.message || 'Registration failed');
+		emit("error", err?.message || "Registration failed");
 		// Error is handled by useAuth composable
 	}
 };
 
+const handleSubmit = _handleSubmit;
+
 // Watch for password changes to clear mismatch error
-watch(() => form.confirmPassword, () => {
-	if (passwordMismatch.value) {
-		passwordMismatch.value = false;
-		localError.value = null;
-	}
-});
+watch(
+	() => form.confirmPassword,
+	() => {
+		if (passwordMismatch.value) {
+			passwordMismatch.value = false;
+			localError.value = null;
+		}
+	},
+);
 
 // Real-time validation for email
-watch(() => form.email, () => {
-	if (form.email && validationErrors.value.length > 0) {
-		validateForm();
-	}
-});
+watch(
+	() => form.email,
+	() => {
+		if (form.email && validationErrors.value.length > 0) {
+			validateForm();
+		}
+	},
+);
 </script>
 
 <template>
-	<div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-8 border border-primary-100">
-		<div class="text-center mb-8">
-			<h1 class="text-3xl font-bold text-gray-900 mb-2">{{ title }}</h1>
-			<p class="text-gray-600">{{ subtitle }}</p>
+	<div v-if="!noWrapper" class="bg-white rounded-2xl shadow-xl p-8 border border-gray-200 max-w-md mx-auto">
+		<div v-if="title || subtitle" class="text-center mb-8">
+			<h1 v-if="title" class="text-3xl font-bold text-gray-900 mb-2">{{ title }}</h1>
+			<p v-if="subtitle" class="text-gray-600">{{ subtitle }}</p>
 		</div>
 
 		<form @submit.prevent="handleSubmit" class="space-y-4">
@@ -161,7 +173,7 @@ watch(() => form.email, () => {
 					type="email"
 					required
 					:disabled="loading"
-					class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed"
+					class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed"
 					placeholder="john@example.com"
 				/>
 			</div>
@@ -177,7 +189,7 @@ watch(() => form.email, () => {
 					required
 					minlength="8"
 					:disabled="loading"
-					class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed"
+					class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed"
 					placeholder="Minimum 8 characters"
 				/>
 			</div>
@@ -207,35 +219,32 @@ watch(() => form.email, () => {
 			<button
 				type="submit"
 				:disabled="loading || !form.email || !form.password || !form.firstName || !form.lastName || !form.confirmPassword"
-				class="w-full px-4 py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+				class="w-full px-4 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
 			>
-				<i v-if="loading" class="i-mdi-loading animate-spin mr-2"></i>
 				{{ loading ? "Creating account..." : "Create Account" }}
 			</button>
 		</form>
 
 		<div v-if="displayError" class="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
 			<div class="flex items-center">
-				<i class="i-mdi-alert-circle text-red-500 mr-2"></i>
 				<p class="text-red-700 text-sm">{{ displayError }}</p>
 				<button
 					@click="() => { localError = null; clearMessages(); }"
 					class="ml-auto text-red-400 hover:text-red-600"
 				>
-					<i class="i-mdi-close"></i>
+					✕
 				</button>
 			</div>
 		</div>
 
 		<div v-if="success" class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
 			<div class="flex items-center">
-				<i class="i-mdi-check-circle text-green-500 mr-2"></i>
 				<p class="text-green-700 text-sm">{{ success }}</p>
 				<button
 					@click="clearMessages"
 					class="ml-auto text-green-400 hover:text-green-600"
 				>
-					<i class="i-mdi-close"></i>
+					✕
 				</button>
 			</div>
 		</div>
@@ -243,7 +252,7 @@ watch(() => form.email, () => {
 		<div v-if="showSignInLink" class="mt-6 text-center">
 			<p class="text-gray-600">
 				Already have an account?
-				<NuxtLink to="/auth/login" class="text-primary-600 hover:text-primary-700 font-medium">
+				<NuxtLink to="/auth/login" class="text-blue-600 hover:text-blue-700 font-medium">
 					Sign in
 				</NuxtLink>
 			</p>
