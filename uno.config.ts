@@ -1,24 +1,17 @@
-import {
-    defineConfig,
-    presetWind4,
-    presetIcons,
-    transformerDirectives,
-    transformerVariantGroup
-} from 'unocss'
+import { defineConfig, presetWind4, presetIcons } from "unocss";
 
 export default defineConfig({
-    presets: [
-        presetWind4({
-            dark: 'class'
-        }),
-        presetIcons({
-            collections: {
-                mdi: () => import('@iconify-json/mdi/icons.json').then(i => i.default),
-            },
-            extraProperties: {
-                'display': 'inline-block',
-                'vertical-align': 'middle'
-            }
-        })
-    ],
-})
+	presets: [
+		presetWind4({}),
+		presetIcons({
+			collections: {
+				mdi: () =>
+					import("@iconify-json/mdi/icons.json").then((i) => i.default),
+			},
+			extraProperties: {
+				display: "inline-block",
+				"vertical-align": "middle",
+			},
+		}),
+	],
+});
