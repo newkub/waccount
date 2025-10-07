@@ -1,6 +1,6 @@
 export default defineNuxtRouteMiddleware((to) => {
 	// Only apply to auth pages (login, register)
-	const authPages = ['/auth/login', '/auth/register'];
+	const authPages = ["/auth/login", "/auth/register"];
 	const isAuthPage = authPages.includes(to.path);
 
 	if (!isAuthPage) {
@@ -12,7 +12,7 @@ export default defineNuxtRouteMiddleware((to) => {
 
 	if (isAuthenticated.value) {
 		// Redirect to profile or intended page
-		const redirectTo = (to.query.redirect as string) || '/profile';
+		const redirectTo = (to.query.redirect as string) || "/profile";
 		return navigateTo(redirectTo);
 	}
 });

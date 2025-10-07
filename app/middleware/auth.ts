@@ -1,6 +1,6 @@
 export default defineNuxtRouteMiddleware((to) => {
 	// Skip middleware for auth pages and public pages
-	const publicPages = ['/', '/auth/login', '/auth/register'];
+	const publicPages = ["/", "/auth/login", "/auth/register"];
 	const isPublicPage = publicPages.includes(to.path);
 
 	if (isPublicPage) {
@@ -12,6 +12,8 @@ export default defineNuxtRouteMiddleware((to) => {
 
 	if (!isAuthenticated.value) {
 		// Redirect to login page with return URL
-		return navigateTo(`/auth/login?redirect=${encodeURIComponent(to.fullPath)}`);
+		return navigateTo(
+			`/auth/login?redirect=${encodeURIComponent(to.fullPath)}`,
+		);
 	}
 });

@@ -1,7 +1,9 @@
 export default defineNuxtRouteMiddleware((to) => {
 	// Skip for non-protected pages
-	const protectedPages = ['/profile', '/settings'];
-	const isProtectedPage = protectedPages.some(page => to.path.startsWith(page));
+	const protectedPages = ["/profile", "/settings"];
+	const isProtectedPage = protectedPages.some((page) =>
+		to.path.startsWith(page),
+	);
 
 	if (!isProtectedPage) {
 		return;
@@ -11,12 +13,12 @@ export default defineNuxtRouteMiddleware((to) => {
 	const { user, isAuthenticated } = useAuth();
 
 	if (!isAuthenticated.value || !user.value) {
-		return navigateTo('/auth/login');
+		return navigateTo("/auth/login");
 	}
 
 	// Check if email is verified
 	if (!user.value.emailVerified) {
 		// Redirect to email verification prompt
-		return navigateTo('/auth/verify-email');
+		return navigateTo("/auth/verify-email");
 	}
 });
