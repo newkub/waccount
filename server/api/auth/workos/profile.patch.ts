@@ -1,7 +1,7 @@
 // PATCH /api/auth/workos/profile
 // Update user profile
 import { Effect } from "effect";
-import { updateUserProfile } from "~/server/services/user";
+import { updateUserProfile } from "../../../services/user";
 
 export default defineEventHandler(async (event) => {
 	// TODO: Get userId from session/cookie

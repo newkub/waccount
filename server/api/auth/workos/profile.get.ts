@@ -1,7 +1,7 @@
 // GET /api/auth/workos/profile
 // Get current user profile
 import { Effect } from "effect";
-import { getUserProfile } from "~/server/services/user";
+import { getUserProfile } from "../../../services/user";
 
 export default defineEventHandler(async (event) => {
 	// TODO: Get userId from session/cookie

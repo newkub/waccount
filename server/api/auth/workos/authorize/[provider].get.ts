@@ -1,7 +1,7 @@
 // GET /api/auth/workos/authorize/:provider
 // Get OAuth authorization URL
 import { Effect } from "effect";
-import { getAuthorizationUrl } from "~/server/services/auth";
+import { getAuthorizationUrl } from "../../../../services/auth";
 
 export default defineEventHandler(async (event) => {
 	const provider = getRouterParam(event, "provider");

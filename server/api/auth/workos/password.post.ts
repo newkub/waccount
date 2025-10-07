@@ -1,7 +1,7 @@
 // POST /api/auth/workos/password
 // Sign in with email and password
 import { Effect } from "effect";
-import { signInWithPassword } from "~/server/services/auth";
+import { signInWithPassword } from "../../../services/auth";
 
 export default defineEventHandler(async (event) => {
 	const body = await readBody(event);

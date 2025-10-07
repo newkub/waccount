@@ -1,7 +1,7 @@
 // POST /api/auth/workos/magic-link
 // Send magic link for passwordless auth
 import { Effect } from "effect";
-import { sendMagicLink } from "~/server/services/auth";
+import { sendMagicLink } from "../../../services/auth";
 
 export default defineEventHandler(async (event) => {
 	const body = await readBody(event);

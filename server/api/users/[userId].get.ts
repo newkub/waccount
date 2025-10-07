@@ -1,7 +1,7 @@
 // GET /api/users/:userId
 // Get user by ID
 import { Effect } from "effect";
-import { getUserById } from "~/server/services/auth";
+import { getUserById } from "../../services/auth";
 
 export default defineEventHandler(async (event) => {
 	const userId = getRouterParam(event, "userId");
