@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { User } from '~/types';
+import type { User } from "~/types";
 
 interface Props {
 	user: User;
@@ -7,8 +7,10 @@ interface Props {
 }
 
 interface Emits {
-	'update-profile': [data: { firstName?: string; lastName?: string; profilePictureUrl?: string }];
-	'upload-avatar': [file: File];
+	"update-profile": [
+		data: { firstName?: string; lastName?: string; profilePictureUrl?: string },
+	];
+	"upload-avatar": [file: File];
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -18,9 +20,9 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<Emits>();
 
 const form = reactive({
-	firstName: props.user.name?.split(' ')[0] || '',
-	lastName: props.user.name?.split(' ').slice(1).join(' ') || '',
-	profilePictureUrl: props.user.avatar || '',
+	firstName: props.user.name?.split(" ")[0] || "",
+	lastName: props.user.name?.split(" ").slice(1).join(" ") || "",
+	profilePictureUrl: props.user.avatar || "",
 });
 
 const fileInput = ref<HTMLInputElement>();
@@ -28,15 +30,15 @@ const isDragOver = ref(false);
 
 const isFormChanged = computed(() => {
 	return (
-		form.firstName !== (props.user.name?.split(' ')[0] || '') ||
-		form.lastName !== (props.user.name?.split(' ').slice(1).join(' ') || '') ||
-		form.profilePictureUrl !== (props.user.avatar || '')
+		form.firstName !== (props.user.name?.split(" ")[0] || "") ||
+		form.lastName !== (props.user.name?.split(" ").slice(1).join(" ") || "") ||
+		form.profilePictureUrl !== (props.user.avatar || "")
 	);
 });
 
-const handleSubmit = () => {
+const _handleSubmit = () => {
 	if (isFormChanged.value) {
-		emit('update-profile', {
+		emit("update-profile", {
 			firstName: form.firstName.trim() || undefined,
 			lastName: form.lastName.trim() || undefined,
 			profilePictureUrl: form.profilePictureUrl.trim() || undefined,
@@ -44,34 +46,34 @@ const handleSubmit = () => {
 	}
 };
 
-const handleFileSelect = (event: Event) => {
+const _handleFileSelect = (event: Event) => {
 	const target = event.target as HTMLInputElement;
 	const file = target.files?.[0];
-	if (file?.type.startsWith('image/')) {
-		emit('upload-avatar', file);
+	if (file?.type.startsWith("image/")) {
+		emit("upload-avatar", file);
 	}
 };
 
-const handleDrop = (event: DragEvent) => {
+const _handleDrop = (event: DragEvent) => {
 	event.preventDefault();
 	isDragOver.value = false;
 
 	const file = event.dataTransfer?.files[0];
-	if (file?.type.startsWith('image/')) {
-		emit('upload-avatar', file);
+	if (file?.type.startsWith("image/")) {
+		emit("upload-avatar", file);
 	}
 };
 
-const handleDragOver = (event: DragEvent) => {
+const _handleDragOver = (event: DragEvent) => {
 	event.preventDefault();
 	isDragOver.value = true;
 };
 
-const handleDragLeave = () => {
+const _handleDragLeave = () => {
 	isDragOver.value = false;
 };
 
-const triggerFileInput = () => {
+const _triggerFileInput = () => {
 	fileInput.value?.click();
 };
 
@@ -79,9 +81,9 @@ const triggerFileInput = () => {
 watch(
 	() => props.user,
 	(newUser) => {
-		form.firstName = newUser.name?.split(' ')[0] || '';
-		form.lastName = newUser.name?.split(' ').slice(1).join(' ') || '';
-		form.profilePictureUrl = newUser.avatar || '';
+		form.firstName = newUser.name?.split(" ")[0] || "";
+		form.lastName = newUser.name?.split(" ").slice(1).join(" ") || "";
+		form.profilePictureUrl = newUser.avatar || "";
 	},
 	{ deep: true },
 );

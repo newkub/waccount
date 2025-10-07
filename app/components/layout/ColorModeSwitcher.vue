@@ -1,7 +1,7 @@
 <script setup lang="ts">
-const colorMode = useColorMode();
+const _colorMode = useColorMode();
 
-const modes = [
+const _modes = [
 	{ value: "light", icon: "i-mdi-white-balance-sunny", label: "Light" },
 	{ value: "dark", icon: "i-mdi-moon-waning-crescent", label: "Dark" },
 	{ value: "system", icon: "i-mdi-monitor", label: "System" },
