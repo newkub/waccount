@@ -1,9 +1,17 @@
-import type { User } from "~/types";
+import type { User } from '~/types';
+
+interface FetchError {
+	data?: any;
+	status?: number;
+	message?: string;
+	statusText?: string;
+}
 
 /**
  * Auth composable - Pure Vue/Nuxt approach
  * - Uses Vue reactivity system
  * - Leverages Nuxt composables (useAsyncData, useFetch)
+{{ ... }}
  * - Simple error handling with try-catch
  */
 export const useAuth = () => {
@@ -30,14 +38,17 @@ export const useAuth = () => {
 			loading.value = true;
 			error.value = null;
 
-			const response = await $fetch<{ user: User }>("/api/auth/workos/password", {
-				method: "POST",
-				body: { email, password },
-			});
+			const response = await $fetch<{ user: User }>(
+				"/api/auth/workos/password",
+				{
+					method: "POST",
+					body: { email, password },
+				},
+			);
 
 			user.value = response.user;
 			success.value = "Signed in successfully";
-			
+
 			await navigateTo("/profile");
 			return response;
 		} catch (err: any) {
@@ -69,10 +80,12 @@ export const useAuth = () => {
 				},
 			});
 
-			success.value = "Account created successfully. Please check your email for verification.";
+			success.value =
+				"Account created successfully. Please check your email for verification.";
 			return response;
 		} catch (err: any) {
-			error.value = err?.data?.message || err?.message || "Failed to create account";
+			error.value =
+				err?.data?.message || err?.message || "Failed to create account";
 			throw err;
 		} finally {
 			loading.value = false;
@@ -131,10 +144,13 @@ export const useAuth = () => {
 			loading.value = true;
 			error.value = null;
 
-			const response = await $fetch<{ user: User }>("/api/auth/workos/verify-magic-link", {
-				method: "POST",
-				body: { token },
-			});
+			const response = await $fetch<{ user: User }>(
+				"/api/auth/workos/verify-magic-link",
+				{
+					method: "POST",
+					body: { token },
+				},
+			);
 
 			user.value = response.user;
 			await navigateTo("/profile");
@@ -214,7 +230,7 @@ export const useAuth = () => {
 			user.value = null;
 			success.value = "Signed out successfully";
 			await navigateTo("/");
-		} catch (err: any) {
+		} catch (_err: any) {
 			// Clear user even if API call fails
 			user.value = null;
 			await navigateTo("/");
@@ -224,26 +240,24 @@ export const useAuth = () => {
 	};
 
 	/**
-	 * Refresh user data using Nuxt's useAsyncData
+	 * Refresh user data using simple fetch approach
 	 */
 	const refreshUser = async () => {
-		const { data, error: fetchError } = await useAsyncData<{ user: User }>(
-			"auth-user",
-			() => $fetch("/api/auth/workos/refresh"),
-			{
-				lazy: true,
-				server: false,
-			},
-		);
+		try {
+			loading.value = true;
+			error.value = null;
 
-		if (fetchError.value) {
+			const response = await $fetch<{ user: User }>("/api/auth/workos/refresh");
+
+			user.value = response.user || null;
+			return response;
+		} catch (err: any) {
 			user.value = null;
-			error.value = fetchError.value?.message || "Failed to refresh user";
-			throw fetchError.value;
+			error.value = err?.data?.message || err?.message || "Failed to refresh user";
+			throw err;
+		} finally {
+			loading.value = false;
 		}
-
-		user.value = data.value?.user || null;
-		return data.value;
 	};
 
 	/**
@@ -271,7 +285,10 @@ export const useAuth = () => {
 	/**
 	 * Update password
 	 */
-	const updatePassword = async (currentPassword: string, newPassword: string) => {
+	const updatePassword = async (
+		currentPassword: string,
+		newPassword: string,
+	) => {
 		try {
 			loading.value = true;
 			error.value = null;

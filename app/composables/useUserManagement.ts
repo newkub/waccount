@@ -25,7 +25,9 @@ export const useUserManagement = () => {
 	 * Fetch user profile using Nuxt's useAsyncData
 	 */
 	const fetchUserProfile = async (userId?: string) => {
-		const endpoint = userId ? `/api/users/${userId}` : "/api/auth/workos/profile";
+		const endpoint = userId
+			? `/api/users/${userId}`
+			: "/api/auth/workos/profile";
 
 		const { data, error: fetchError } = await useAsyncData(
 			`user-profile-${userId || "me"}`,
@@ -57,10 +59,13 @@ export const useUserManagement = () => {
 			updating.value = true;
 			error.value = null;
 
-			const response = await $fetch<{ profile: UserProfile }>("/api/auth/workos/profile", {
-				method: "PATCH",
-				body: data,
-			});
+			const response = await $fetch<{ profile: UserProfile }>(
+				"/api/auth/workos/profile",
+				{
+					method: "PATCH",
+					body: data,
+				},
+			);
 
 			profile.value = response.profile;
 			success.value = "Profile updated successfully";
@@ -84,10 +89,13 @@ export const useUserManagement = () => {
 			const formData = new FormData();
 			formData.append("avatar", file);
 
-			const response = await $fetch<{ avatarUrl: string }>("/api/auth/workos/profile/avatar", {
-				method: "POST",
-				body: formData,
-			});
+			const response = await $fetch<{ avatarUrl: string }>(
+				"/api/auth/workos/profile/avatar",
+				{
+					method: "POST",
+					body: formData,
+				},
+			);
 
 			if (profile.value) {
 				profile.value = {
@@ -137,7 +145,9 @@ export const useUserManagement = () => {
 			loading.value = true;
 			error.value = null;
 
-			const response = await $fetch<{ activities: any[] }>("/api/auth/workos/activities");
+			const response = await $fetch<{ activities: any[] }>(
+				"/api/auth/workos/activities",
+			);
 			return response.activities;
 		} catch (err: any) {
 			error.value = err?.data?.message || "Failed to fetch activities";
@@ -160,7 +170,8 @@ export const useUserManagement = () => {
 				body: { email: newEmail },
 			});
 
-			success.value = "Email update request sent. Please check your new email for verification.";
+			success.value =
+				"Email update request sent. Please check your new email for verification.";
 		} catch (err: any) {
 			error.value = err?.data?.message || "Failed to update email";
 			throw err;
