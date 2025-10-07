@@ -4,10 +4,15 @@ import checker from "vite-plugin-checker";
 export default defineNuxtConfig({
 	compatibilityDate: "2025-07-15",
 	devtools: { enabled: true },
-	modules: ["@vueuse/nuxt", "@unocss/nuxt", "@nuxtjs/color-mode", "@scalar/nuxt"],
+	modules: [
+		"@vueuse/nuxt",
+		"@unocss/nuxt",
+		"@nuxtjs/color-mode",
+		"@scalar/nuxt",
+	],
 	css: ["@unocss/reset/tailwind-compat.css"],
 	nitro: {
-		preset: 'cloudflare',
+		preset: "cloudflare",
 		experimental: {
 			openAPI: true,
 		},
@@ -31,5 +36,4 @@ export default defineNuxtConfig({
 			}),
 		],
 	},
-
 });

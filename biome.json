@@ -30,7 +30,7 @@
 			},
 			"style": {
 				"useNodejsImportProtocol": "off",
-				"noCommonJs" :"error"
+				"noCommonJs": "error"
 			}
 		},
 		"domains": {
