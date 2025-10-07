@@ -64,7 +64,9 @@ export const UserManagementState = Schema.Struct({
 	error: Schema.NullOr(Schema.String),
 	success: Schema.NullOr(Schema.String),
 });
-export type UserManagementState = Schema.Schema.Type<typeof UserManagementState>;
+export type UserManagementState = Schema.Schema.Type<
+	typeof UserManagementState
+>;
 
 // ============================================================================
 // API Response Schemas (FP)
@@ -137,13 +139,17 @@ export const ProfileUpdateFormData = Schema.Struct({
 	lastName: Schema.optional(Schema.String),
 	profilePictureUrl: Schema.optional(Schema.String),
 });
-export type ProfileUpdateFormData = Schema.Schema.Type<typeof ProfileUpdateFormData>;
+export type ProfileUpdateFormData = Schema.Schema.Type<
+	typeof ProfileUpdateFormData
+>;
 
 export const PasswordUpdateFormData = Schema.Struct({
 	currentPassword: Schema.String.pipe(Schema.minLength(8)),
 	newPassword: Schema.String.pipe(Schema.minLength(8)),
 });
-export type PasswordUpdateFormData = Schema.Schema.Type<typeof PasswordUpdateFormData>;
+export type PasswordUpdateFormData = Schema.Schema.Type<
+	typeof PasswordUpdateFormData
+>;
 
 // ============================================================================
 // Error Schemas (FP)
@@ -159,3 +165,11 @@ export const ValidationError = Schema.Struct({
 	message: Schema.String,
 });
 export type ValidationError = Schema.Schema.Type<typeof ValidationError>;
+
+export const FetchError = Schema.Struct({
+	data: Schema.optional(Schema.Unknown),
+	status: Schema.optional(Schema.Number),
+	message: Schema.optional(Schema.String),
+	statusText: Schema.optional(Schema.String),
+});
+export type FetchError = Schema.Schema.Type<typeof FetchError>;
