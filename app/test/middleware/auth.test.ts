@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import authMiddleware from "~/middleware/auth";
 
 // Mock Nuxt functions
@@ -19,10 +19,10 @@ describe("Auth Middleware", () => {
 	});
 
 	it("should redirect unauthenticated users to login", () => {
-		const to = { path: "/profile" };
-		const from = { path: "/" };
+		const to = { path: "/profile", name: undefined, params: {}, query: {}, hash: "", fullPath: "/profile", matched: [], redirectedFrom: undefined, meta: {} } as any;
+		const from = { path: "/", name: undefined, params: {}, query: {}, hash: "", fullPath: "/", matched: [], redirectedFrom: undefined, meta: {} } as any;
 
-		const result = authMiddleware(to, from);
+		const _result = authMiddleware(to, from);
 
 		expect(mockNavigateTo).toHaveBeenCalledWith("/auth/login");
 	});

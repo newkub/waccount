@@ -19,7 +19,9 @@ describe("LoginForm", () => {
 		const passwordInput = wrapper.find('input[type="password"]');
 
 		// Test empty inputs - submit button should be disabled
-		expect(wrapper.find('[type="submit"]').attributes("disabled")).toBeDefined();
+		expect(
+			wrapper.find('[type="submit"]').attributes("disabled"),
+		).toBeDefined();
 
 		// Test valid inputs
 		await emailInput.setValue("test@example.com");

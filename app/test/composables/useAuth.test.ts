@@ -34,7 +34,7 @@ describe("useAuth", () => {
 		const { user } = useAuth();
 
 		// Mock user login
-		const mockUser = {
+		const _mockUser = {
 			id: "1",
 			email: "test@example.com",
 			name: "John Doe",

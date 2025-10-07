@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
-// @ts-ignore - Vitest will resolve this at runtime
+// @ts-expect-error - Vitest will resolve this at runtime
 import ProfileForm from "../../components/user/ProfileForm.vue";
 
 const mockUser = {

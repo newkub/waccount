@@ -40,7 +40,7 @@ describe("Index Page", () => {
 	});
 
 	it("should handle demo login clicks", async () => {
-		const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+		const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => { });
 		const wrapper = mount(IndexPage);
 
 		const googleDemoButton = wrapper.find('button:contains("Demo Google")');
