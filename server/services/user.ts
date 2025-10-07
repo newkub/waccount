@@ -1,7 +1,7 @@
 // User management service using WorkOS SDK
 import { Effect, pipe } from "effect";
 import { getWorkOS } from "../integrations/workos";
-import { UserProfile, UpdateProfileData } from "~/types";
+import { UserProfile, type UpdateProfileData } from "~/types";
 
 /**
  * Get user profile by ID
@@ -17,27 +17,22 @@ export const getUserProfile = (userId: string) =>
 			catch: (err: any) =>
 				new Error(err?.message || "Failed to fetch user profile"),
 		}),
-		Effect.map(
-			(user) => ({
-				id: user.id,
-				email: user.email,
-				name: user.firstName
-					? `${user.firstName} ${user.lastName || ""}`.trim()
-					: user.email,
-				avatar: user.profilePictureUrl,
-				createdAt: user.createdAt,
-				updatedAt: user.updatedAt,
-			}),
-		),
+		Effect.map((user) => ({
+			id: user.id,
+			email: user.email,
+			name: user.firstName
+				? `${user.firstName} ${user.lastName || ""}`.trim()
+				: user.email,
+			avatar: user.profilePictureUrl,
+			createdAt: user.createdAt,
+			updatedAt: user.updatedAt,
+		})),
 	);
 
 /**
  * Update user profile
  */
-export const updateUserProfile = (
-	userId: string,
-	data: UpdateProfileData,
-) =>
+export const updateUserProfile = (userId: string, data: UpdateProfileData) =>
 	pipe(
 		Effect.tryPromise({
 			try: async () => {
@@ -55,18 +50,16 @@ export const updateUserProfile = (
 			catch: (err: any) =>
 				new Error(err?.message || "Failed to update profile"),
 		}),
-		Effect.map(
-			(user) => ({
-				id: user.id,
-				email: user.email,
-				name: user.firstName
-					? `${user.firstName} ${user.lastName || ""}`.trim()
-					: user.email,
-				avatar: user.profilePictureUrl,
-				createdAt: user.createdAt,
-				updatedAt: user.updatedAt,
-			}),
-		),
+		Effect.map((user) => ({
+			id: user.id,
+			email: user.email,
+			name: user.firstName
+				? `${user.firstName} ${user.lastName || ""}`.trim()
+				: user.email,
+			avatar: user.profilePictureUrl,
+			createdAt: user.createdAt,
+			updatedAt: user.updatedAt,
+		})),
 	);
 
 /**
