@@ -17,10 +17,16 @@ const navItems = [
 		href: (accountId: string) => `/${accountId}/profile`
 	},
 	{
-		id: 'settings',
-		label: 'Settings',
+		id: 'security',
+		label: 'Security',
+		icon: 'i-mdi-shield-lock',
+		href: (accountId: string) => `/${accountId}/security`
+	},
+	{
+		id: 'account',
+		label: 'Account',
 		icon: 'i-mdi-cog',
-		href: (accountId: string) => `/${accountId}/settings`
+		href: (accountId: string) => `/${accountId}/account`
 	}
 ];
 

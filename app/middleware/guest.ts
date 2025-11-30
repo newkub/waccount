@@ -1,6 +1,15 @@
+/**
+ * Guest middleware
+ * - Prevents authenticated users from accessing auth pages
+ * - Redirects authenticated users to account page
+ */
 export default defineNuxtRouteMiddleware((to) => {
-	// Only apply to auth pages (login, register)
-	const authPages = ["/auth/login", "/auth/register"];
+	// Only apply to auth pages
+	const authPages = [
+		"/auth/signin",
+		"/auth/reset-password",
+		"/auth/forgot-password"
+	];
 	const isAuthPage = authPages.includes(to.path);
 
 	if (!isAuthPage) {
@@ -11,8 +20,8 @@ export default defineNuxtRouteMiddleware((to) => {
 	const { isAuthenticated } = useAuth();
 
 	if (isAuthenticated.value) {
-		// Redirect to profile or intended page
-		const redirectTo = (to.query.redirect as string) || "/profile";
+		// Redirect to account page or intended page
+		const redirectTo = (to.query.redirect as string) || "/account";
 		return navigateTo(redirectTo);
 	}
 });

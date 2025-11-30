@@ -10,6 +10,20 @@ export default defineNuxtConfig({
 		"@nuxtjs/color-mode",
 		"@scalar/nuxt",
 	],
+	
+	// Runtime configuration
+	runtimeConfig: {
+		// Private keys (server-side only)
+		workosApiKey: process.env.WORKOS_API_KEY,
+		
+		// Public keys (available on client-side)
+		public: {
+			workosClientId: process.env.WORKOS_CLIENT_ID,
+			workosRedirectUri: process.env.WORKOS_REDIRECT_URI || 'http://localhost:3000',
+			appUrl: process.env.APP_URL || 'http://localhost:3000',
+		},
+	},
+	
 	nitro: {
 		preset: "cloudflare",
 		experimental: {
@@ -28,7 +42,6 @@ export default defineNuxtConfig({
 			checker({
 				typescript : true,
 				vueTsc: true,
-				oxlint : true
 			}),
 		],
 	},

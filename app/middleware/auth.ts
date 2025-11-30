@@ -1,7 +1,18 @@
+/**
+ * Authentication middleware
+ * - Protects routes that require authentication
+ * - Redirects unauthenticated users to sign-in page
+ */
 export default defineNuxtRouteMiddleware((to) => {
-	// Skip middleware for auth pages and public pages
-	const publicPages = ["/", "/auth/login", "/auth/register"];
-	const isPublicPage = publicPages.includes(to.path);
+	// Skip middleware for public pages
+	const publicPages = [
+		"/",
+		"/auth/signin",
+		"/auth/reset-password",
+		"/auth/forgot-password",
+		"/auth/magic-link"
+	];
+	const isPublicPage = publicPages.some(page => to.path.startsWith(page));
 
 	if (isPublicPage) {
 		return;
@@ -11,9 +22,9 @@ export default defineNuxtRouteMiddleware((to) => {
 	const { isAuthenticated } = useAuth();
 
 	if (!isAuthenticated.value) {
-		// Redirect to login page with return URL
+		// Redirect to sign-in page with return URL
 		return navigateTo(
-			`/auth/login?redirect=${encodeURIComponent(to.fullPath)}`,
+			`/auth/signin?redirect=${encodeURIComponent(to.fullPath)}`,
 		);
 	}
 });
