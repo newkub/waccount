@@ -1,7 +1,6 @@
 // GET /api/users/:userId
 // Get user by ID
-import { Effect } from "effect";
-import { getUserById } from "../../services/auth";
+import { getWorkOS } from "../../lib/workos";
 
 export default defineEventHandler(async (event) => {
 	const userId = getRouterParam(event, "userId");
@@ -14,7 +13,11 @@ export default defineEventHandler(async (event) => {
 	}
 
 	try {
-		const user = await Effect.runPromise(getUserById(userId));
+		const workos = getWorkOS();
+		
+		// Get user from WorkOS
+		const user = await workos.userManagement.getUser(userId);
+		
 		return { user };
 	} catch (error: any) {
 		throw createError({
