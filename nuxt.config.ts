@@ -25,13 +25,10 @@ export default defineNuxtConfig({
 	// Vite configuration
 	vite: {
 		plugins: [
-			// Type checking with vue-tsc and biome
 			checker({
+				typescript : true,
 				vueTsc: true,
-				biome: {
-					command: "check",
-				},
-				eslint: false, // ใช้ biome แทน eslint
+				oxlint : true
 			}),
 		],
 	},
