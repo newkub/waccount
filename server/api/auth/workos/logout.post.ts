@@ -1,10 +1,8 @@
 // POST /api/auth/workos/logout
 // Sign out user
 export default defineEventHandler(async (event) => {
-	// Clear cookies/session
-	deleteCookie(event, "user_id");
-	deleteCookie(event, "access_token");
-	deleteCookie(event, "refresh_token");
+	// Clear WorkOS session cookie
+	deleteCookie(event, "workos_session");
 
 	return {
 		success: true,
