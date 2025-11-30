@@ -1,7 +1,6 @@
 // POST /api/auth/workos/register
 // Register new user
-import { Effect } from "effect";
-import { signUpWithPassword } from "../../../services/auth";
+import { getWorkOS } from "../../lib/workos";
 
 export default defineEventHandler(async (event) => {
 	const body = await readBody(event);
@@ -15,11 +14,19 @@ export default defineEventHandler(async (event) => {
 	}
 
 	try {
-		const result = await Effect.runPromise(
-			signUpWithPassword(email, password, { firstName, lastName }),
-		);
-		return result;
+		const workos = getWorkOS();
+		
+		// Create user with WorkOS
+		const user = await workos.userManagement.createUser({
+			email,
+			password,
+			firstName: firstName || '',
+			lastName: lastName || '',
+		});
+
+		return { user };
 	} catch (error: any) {
+		console.error("Registration error:", error);
 		throw createError({
 			statusCode: 400,
 			message: error.message || "Registration failed",

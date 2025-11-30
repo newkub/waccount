@@ -1,13 +1,12 @@
 // PATCH /api/auth/workos/profile
 // Update user profile
-import { Effect } from "effect";
-import { updateUserProfile } from "../../../services/user";
+import { getWorkOS } from "../../lib/workos";
 
 export default defineEventHandler(async (event) => {
-	// TODO: Get userId from session/cookie
-	const userId = getCookie(event, "user_id");
+	// Get session token from cookie
+	const sessionToken = getCookie(event, "workos_session");
 
-	if (!userId) {
+	if (!sessionToken) {
 		throw createError({
 			statusCode: 401,
 			message: "Not authenticated",
@@ -17,9 +16,22 @@ export default defineEventHandler(async (event) => {
 	const body = await readBody(event);
 
 	try {
-		const profile = await Effect.runPromise(updateUserProfile(userId, body));
-		return { profile };
+		const workos = getWorkOS();
+		
+		// First get user from session
+		const { user } = await workos.userManagement.authenticateWithRefreshToken({
+			refreshToken: sessionToken,
+		});
+
+		// Update user profile
+		const updatedUser = await workos.userManagement.updateUser({
+			userId: user.id,
+			...body,
+		});
+
+		return { profile: updatedUser };
 	} catch (error: any) {
+		console.error("Profile update error:", error);
 		throw createError({
 			statusCode: 500,
 			message: error.message || "Failed to update profile",
