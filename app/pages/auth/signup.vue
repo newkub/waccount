@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import AuthUI from '~/components/auth/AuthUI.vue';
+import EnhancedAuthUI from '~/components/EnhancedAuthUI.vue';
 
 useHead({
 	title: "Sign Up - Account Wrikka",
@@ -11,7 +11,5 @@ definePageMeta({
 </script>
 
 <template>
-	<div class="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-		<AuthUI />
-	</div>
+	<EnhancedAuthUI mode="signup" />
 </template>
