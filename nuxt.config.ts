@@ -10,7 +10,6 @@ export default defineNuxtConfig({
 		"@nuxtjs/color-mode",
 		"@scalar/nuxt",
 	],
-	css: ["@unocss/reset/tailwind-compat.css"],
 	nitro: {
 		preset: "cloudflare",
 		experimental: {
