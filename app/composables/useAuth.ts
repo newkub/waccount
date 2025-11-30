@@ -171,7 +171,7 @@ export const useAuth = () => {
 			user.value = null;
 			success.value = "Signed out successfully";
 			await navigateTo("/");
-		} catch (_err: any) {
+		} catch {
 			// Clear user even if API call fails
 			user.value = null;
 			await navigateTo("/");
