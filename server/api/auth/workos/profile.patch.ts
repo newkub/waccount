@@ -1,6 +1,6 @@
 // PATCH /api/auth/workos/profile
 // Update user profile
-import { getWorkOS } from "../../lib/workos";
+import { getWorkOS, getWorkOSClientId } from "../../../lib/workos";
 
 export default defineEventHandler(async (event) => {
 	// Get session token from cookie
@@ -21,6 +21,7 @@ export default defineEventHandler(async (event) => {
 		// First get user from session
 		const { user } = await workos.userManagement.authenticateWithRefreshToken({
 			refreshToken: sessionToken,
+			clientId: getWorkOSClientId(),
 		});
 
 		// Update user profile

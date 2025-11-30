@@ -1,6 +1,6 @@
 // GET /api/auth/workos/refresh
 // Refresh user session
-import { getWorkOS, getWorkOSClientId } from "../../lib/workos";
+import { getWorkOS, getWorkOSClientId } from "../../../lib/workos";
 
 export default defineEventHandler(async (event) => {
 	const sessionToken = getCookie(event, "workos_session");

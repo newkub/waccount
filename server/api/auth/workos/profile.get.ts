@@ -1,6 +1,6 @@
 // GET /api/auth/workos/profile
 // Get current user profile
-import { getWorkOS } from "../../lib/workos";
+import { getWorkOS } from "../../../lib/workos";
 
 export default defineEventHandler(async (event) => {
 	// Get session token from cookie

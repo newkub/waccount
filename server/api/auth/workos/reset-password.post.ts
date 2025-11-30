@@ -1,6 +1,6 @@
 // POST /api/auth/workos/reset-password
 // Send password reset email
-import { getWorkOS, getWorkOSRedirectUri } from "../../lib/workos";
+import { getWorkOS, getWorkOSRedirectUri } from "../../../lib/workos";
 
 export default defineEventHandler(async (event) => {
 	const body = await readBody(event);
@@ -16,11 +16,15 @@ export default defineEventHandler(async (event) => {
 	try {
 		const workos = getWorkOS();
 		
-		// Send password reset email
-		await workos.passwordless.sendMagicLink({
+		// Create passwordless session for reset
+		const session = await workos.passwordless.createSession({
 			email,
-			redirectUri: `${getWorkOSRedirectUri()}/auth/reset-password`,
+			type: 'MagicLink',
+			redirectURI: `${getWorkOSRedirectUri()}/auth/reset-password/callback`,
 		});
+
+		// Send password reset email
+		await workos.passwordless.sendSession(session.id);
 
 		return {
 			success: true,

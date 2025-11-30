@@ -1,6 +1,6 @@
 // POST /api/auth/workos/register
 // Register new user
-import { getWorkOS } from "../../lib/workos";
+import { getWorkOS } from "../../../lib/workos";
 
 export default defineEventHandler(async (event) => {
 	const body = await readBody(event);

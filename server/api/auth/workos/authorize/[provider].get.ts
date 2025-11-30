@@ -1,6 +1,6 @@
 // GET /api/auth/workos/authorize/:provider
 // Get OAuth authorization URL
-import { getWorkOS, getWorkOSClientId, getWorkOSRedirectUri } from "../../../../../lib/workos";
+import { getWorkOS, getWorkOSClientId, getWorkOSRedirectUri } from "../../../../lib/workos";
 
 export default defineEventHandler(async (event) => {
 	const provider = getRouterParam(event, "provider");

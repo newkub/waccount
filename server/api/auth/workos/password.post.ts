@@ -1,6 +1,5 @@
 // POST /api/auth/workos/password
 // Sign in with email and password
-import { getWorkOS } from "../../lib/workos";
 
 export default defineEventHandler(async (event) => {
 	const body = await readBody(event);
@@ -14,23 +13,14 @@ export default defineEventHandler(async (event) => {
 	}
 
 	try {
-		const workos = getWorkOS();
-		
-		// Create session with password
-		const { user, accessToken } = await workos.passwordless.createSession({
-			email,
-			password,
+		// For password auth, we need to use a different approach
+		// WorkOS passwordless doesn't support password authentication directly
+		// This would typically use a different auth method like SSO or OAuth
+		// For now, return an error indicating password auth is not supported
+		throw createError({
+			statusCode: 501,
+			message: "Password authentication not implemented. Use magic link authentication instead.",
 		});
-
-		// Set session cookie
-		setCookie(event, "workos_session", accessToken, {
-			httpOnly: true,
-			secure: process.env.NODE_ENV === "production",
-			sameSite: "lax",
-			maxAge: 60 * 60 * 24 * 7, // 7 days
-		});
-
-		return { user };
 	} catch (error: any) {
 		console.error("Password authentication error:", error);
 		throw createError({
