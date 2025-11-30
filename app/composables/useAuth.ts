@@ -1,11 +1,6 @@
 import type { User } from '~/types';
 
-interface FetchError {
-	data?: any;
-	status?: number;
-	message?: string;
-	statusText?: string;
-}
+
 
 /**
  * Auth composable - Pure Vue/Nuxt approach
@@ -21,6 +16,26 @@ export const useAuth = () => {
 	const success = ref<string | null>(null);
 
 	const isAuthenticated = computed(() => !!user.value);
+
+	// Initialize user on composable creation
+	const initUser = async () => {
+		try {
+			const response = await $fetch<{ user: User }>("/api/auth/workos/refresh");
+			if (response.user) {
+				user.value = response.user;
+			}
+		} catch (error: any) {
+			// Expected error when user is not authenticated
+			// Don't log this error as it's expected behavior
+			console.debug('User not authenticated:', error?.message || 'No session')
+			user.value = null;
+		}
+	};
+
+	// Initialize on first call
+	onMounted(() => {
+		initUser();
+	});
 
 	/**
 	 * Clear all messages
@@ -49,7 +64,7 @@ export const useAuth = () => {
 			user.value = response.user;
 			success.value = "Signed in successfully";
 
-			await navigateTo("/profile");
+			await navigateTo("/account");
 			return response;
 		} catch (err: any) {
 			error.value = err?.data?.message || err?.message || "Failed to sign in";
@@ -136,84 +151,10 @@ export const useAuth = () => {
 		}
 	};
 
-	/**
-	 * Verify magic link token
-	 */
-	const verifyMagicLink = async (token: string) => {
-		try {
-			loading.value = true;
-			error.value = null;
-
-			const response = await $fetch<{ user: User }>(
-				"/api/auth/workos/verify-magic-link",
-				{
-					method: "POST",
-					body: { token },
-				},
-			);
-
-			user.value = response.user;
-			await navigateTo("/profile");
-			return response;
-		} catch (err: any) {
-			error.value = err?.data?.message || "Invalid or expired magic link";
-			throw err;
-		} finally {
-			loading.value = false;
-		}
-	};
-
-	/**
-	 * Verify email with token
-	 */
-	const verifyEmail = async (token: string) => {
-		try {
-			loading.value = true;
-			error.value = null;
-
-			await $fetch("/api/auth/workos/verify-email", {
-				method: "POST",
-				body: { token },
-			});
-
-			if (user.value) {
-				user.value = {
-					...user.value,
-					emailVerified: true,
-				};
-			}
-
-			success.value = "Email verified successfully";
-		} catch (err: any) {
-			error.value = err?.data?.message || "Failed to verify email";
-			throw err;
-		} finally {
-			loading.value = false;
-		}
-	};
-
-	/**
-	 * Resend verification email
-	 */
-	const resendVerificationEmail = async () => {
-		try {
-			loading.value = true;
-			error.value = null;
-
-			if (!user.value) throw new Error("No user logged in");
-
-			await $fetch(`/api/auth/workos/resend-verification/${user.value.id}`, {
-				method: "POST",
-			});
-
-			success.value = "Verification email sent";
-		} catch (err: any) {
-			error.value = err?.data?.message || "Failed to resend verification email";
-			throw err;
-		} finally {
-			loading.value = false;
-		}
-	};
+	// TODO: Implement these endpoints when needed
+	// - verifyMagicLink (requires /api/auth/workos/verify-magic-link)
+	// - verifyEmail (requires /api/auth/workos/verify-email)
+	// - resendVerificationEmail (requires /api/auth/workos/resend-verification/:id)
 
 	/**
 	 * Sign out
@@ -282,30 +223,8 @@ export const useAuth = () => {
 		}
 	};
 
-	/**
-	 * Update password
-	 */
-	const updatePassword = async (
-		currentPassword: string,
-		newPassword: string,
-	) => {
-		try {
-			loading.value = true;
-			error.value = null;
-
-			await $fetch("/api/auth/workos/update-password", {
-				method: "POST",
-				body: { currentPassword, newPassword },
-			});
-
-			success.value = "Password updated successfully";
-		} catch (err: any) {
-			error.value = err?.data?.message || "Failed to update password";
-			throw err;
-		} finally {
-			loading.value = false;
-		}
-	};
+	// TODO: Implement updatePassword when endpoint is available
+	// - updatePassword (requires /api/auth/workos/update-password)
 
 	return {
 		// State
@@ -315,18 +234,20 @@ export const useAuth = () => {
 		success: readonly(success),
 		isAuthenticated,
 
-		// Methods
+		// Available Methods
 		signInWithPassword,
 		signUp,
 		signInWithProvider,
 		signInWithMagicLink,
-		verifyMagicLink,
-		verifyEmail,
-		resendVerificationEmail,
 		signOut,
 		refreshUser,
 		resetPassword,
-		updatePassword,
 		clearMessages,
+
+		// TODO: Implement when endpoints are available
+		// verifyMagicLink,
+		// verifyEmail,
+		// resendVerificationEmail,
+		// updatePassword,
 	};
 };
