@@ -44,12 +44,12 @@ describe("Index Page", () => {
 		const wrapper = mount(IndexPage);
 
 		const googleDemoButton = wrapper.find('button:contains("Demo Google")');
-		if (googleDemoButton.exists()) {
-			await googleDemoButton.trigger("click");
-			expect(consoleSpy).toHaveBeenCalledWith(
-				"Demo: Trying to login with google",
-			);
-		}
+		expect(googleDemoButton.exists()).toBe(true);
+		
+		await googleDemoButton.trigger("click");
+		expect(consoleSpy).toHaveBeenCalledWith(
+			"Demo: Trying to login with google",
+		);
 
 		consoleSpy.mockRestore();
 	});

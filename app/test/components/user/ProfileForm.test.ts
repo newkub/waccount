@@ -68,9 +68,9 @@ describe("ProfileForm", () => {
 
 		expect(wrapper.emitted("uploadAvatar")).toBeTruthy();
 		const uploadEvents = wrapper.emitted("uploadAvatar");
-		if (uploadEvents && uploadEvents[0]) {
-			expect(uploadEvents[0][0]).toBeInstanceOf(File);
-		}
+		expect(uploadEvents).toBeTruthy();
+		expect(uploadEvents![0]).toBeDefined();
+		expect(uploadEvents![0]![0]).toBeInstanceOf(File);
 	});
 
 	it("should show loading state", () => {
