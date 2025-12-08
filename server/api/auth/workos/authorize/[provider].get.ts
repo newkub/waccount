@@ -1,33 +1,32 @@
-// GET /api/auth/workos/authorize/:provider
-// Get OAuth authorization URL
-import { getWorkOS, getWorkOSClientId, getWorkOSRedirectUri } from "../../../../lib/workos";
+import { getWorkOS, getWorkOSClientId, getWorkOSRedirectUri } from '../../../../lib/workos';
 
 export default defineEventHandler(async (event) => {
-	const provider = getRouterParam(event, "provider");
+  try {
+    const provider = event.context.params?.provider as string;
 
-	if (!provider) {
-		throw createError({
-			statusCode: 400,
-			message: "Provider is required",
-		});
-	}
+    if (!provider) {
+      throw new Error('Provider not specified');
+    }
 
-	try {
-		const workos = getWorkOS();
-		
-		// Generate authorization URL
-		const authorizationUrl = workos.userManagement.getAuthorizationUrl({
-			provider,
-			clientId: getWorkOSClientId(),
-			redirectUri: `${getWorkOSRedirectUri()}/auth/callback`,
-		});
+    const workos = getWorkOS();
+    const clientId = getWorkOSClientId();
+    const redirectUri = getWorkOSRedirectUri();
 
-		return { authorizationUrl };
-	} catch (error: any) {
-		console.error("OAuth authorization error:", error);
-		throw createError({
-			statusCode: 500,
-			message: error.message || "Failed to get authorization URL",
-		});
-	}
+    const authorizationUrl = await workos.sso.getAuthorizationUrl({
+      provider,
+      redirectUri,
+      clientId,
+    });
+
+    return sendRedirect(event, authorizationUrl);
+  } catch (error) {
+    console.error('Authorization error:', error);
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to generate authorization URL',
+      data: {
+        message: error instanceof Error ? error.message : 'Unknown error',
+      },
+    });
+  }
 });

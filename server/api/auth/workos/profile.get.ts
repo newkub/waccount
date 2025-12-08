@@ -1,33 +1,57 @@
-// GET /api/auth/workos/profile
-// Get current user profile
-import { getWorkOS } from "../../../lib/workos";
+import { getWorkOS } from '../../../lib/workos'
 
 export default defineEventHandler(async (event) => {
-	// Get session token from cookie
-	const sessionToken = getCookie(event, "workos_session");
+  try {
+    const userId = getCookie(event, 'workos_user_id')
+    
+    if (!userId) {
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'Not authenticated'
+      })
+    }
 
-	if (!sessionToken) {
-		throw createError({
-			statusCode: 401,
-			message: "Not authenticated",
-		});
-	}
+    const workos = getWorkOS()
+    
+    const user = await workos.userManagement.getUser(userId)
 
-	try {
-		const workos = getWorkOS();
-		
-		// Get user from session token
-		const { user } = await workos.userManagement.authenticateWithRefreshToken({
-			refreshToken: sessionToken,
-			clientId: process.env.WORKOS_CLIENT_ID!,
-		});
+    if (!user) {
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'User not found'
+      })
+    }
 
-		return { profile: user };
-	} catch (error: any) {
-		console.error("Profile fetch error:", error);
-		throw createError({
-			statusCode: 401,
-			message: error.message || "Failed to fetch profile",
-		});
-	}
-});
+    return {
+      profile: {
+        id: user.id,
+        email: user.email,
+        name: user.firstName && user.lastName 
+          ? `${user.firstName} ${user.lastName}` 
+          : user.email,
+        avatar: user.profilePictureUrl,
+        bio: '',
+        phone: '',
+        company: '',
+        location: '',
+        website: '',
+        createdAt: user.createdAt || new Date().toISOString(),
+        updatedAt: user.updatedAt || new Date().toISOString(),
+      }
+    }
+  } catch (error) {
+    console.error('Profile fetch error:', error)
+    
+    if (error instanceof Error && 'statusCode' in error) {
+      throw error
+    }
+
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to fetch profile',
+      data: {
+        message: error instanceof Error ? error.message : 'Unknown error'
+      }
+    })
+  }
+})

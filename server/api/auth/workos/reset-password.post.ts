@@ -1,40 +1,43 @@
-// POST /api/auth/workos/reset-password
-// Send password reset email
-import { getWorkOS, getWorkOSRedirectUri } from "../../../lib/workos";
+import { getWorkOS } from '../../../lib/workos'
 
 export default defineEventHandler(async (event) => {
-	const body = await readBody(event);
-	const { email } = body;
+  try {
+    const body = await readBody(event)
+    const { email } = body
 
-	if (!email) {
-		throw createError({
-			statusCode: 400,
-			message: "Email is required",
-		});
-	}
+    if (!email) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Email is required'
+      })
+    }
 
-	try {
-		const workos = getWorkOS();
-		
-		// Create passwordless session for reset
-		const session = await workos.passwordless.createSession({
-			email,
-			type: 'MagicLink',
-			redirectURI: `${getWorkOSRedirectUri()}/auth/reset-password/callback`,
-		});
+    const workos = getWorkOS()
+    const config = useRuntimeConfig()
 
-		// Send password reset email
-		await workos.passwordless.sendSession(session.id);
+    // Send password reset email
+    await workos.userManagement.sendPasswordResetEmail({
+      email,
+      passwordResetUrl: `${config.public.appUrl}/auth/reset-password`
+    })
 
-		return {
-			success: true,
-			message: "Password reset email sent successfully",
-		};
-	} catch (error: any) {
-		console.error("Password reset error:", error);
-		throw createError({
-			statusCode: 400,
-			message: error.message || "Failed to send password reset email",
-		});
-	}
-});
+    return {
+      success: true,
+      message: 'Password reset email sent'
+    }
+  } catch (error) {
+    console.error('Reset password error:', error)
+    
+    if (error instanceof Error && 'statusCode' in error) {
+      throw error
+    }
+
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to send reset email',
+      data: {
+        message: error instanceof Error ? error.message : 'Unknown error'
+      }
+    })
+  }
+})

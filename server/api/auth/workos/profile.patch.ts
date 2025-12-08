@@ -1,41 +1,71 @@
-// PATCH /api/auth/workos/profile
-// Update user profile
-import { getWorkOS, getWorkOSClientId } from "../../../lib/workos";
+import { getWorkOS } from '../../../lib/workos'
 
 export default defineEventHandler(async (event) => {
-	// Get session token from cookie
-	const sessionToken = getCookie(event, "workos_session");
+  try {
+    const userId = getCookie(event, 'workos_user_id')
+    
+    if (!userId) {
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'Not authenticated'
+      })
+    }
 
-	if (!sessionToken) {
-		throw createError({
-			statusCode: 401,
-			message: "Not authenticated",
-		});
-	}
+    const body = await readBody(event)
+    const { firstName, lastName, profilePictureUrl } = body
 
-	const body = await readBody(event);
+    const workos = getWorkOS()
+    
+    const user = await workos.userManagement.getUser(userId)
 
-	try {
-		const workos = getWorkOS();
-		
-		// First get user from session
-		const { user } = await workos.userManagement.authenticateWithRefreshToken({
-			refreshToken: sessionToken,
-			clientId: getWorkOSClientId(),
-		});
+    if (!user) {
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'User not found'
+      })
+    }
 
-		// Update user profile
-		const updatedUser = await workos.userManagement.updateUser({
-			userId: user.id,
-			...body,
-		});
+    // Update user
+    const updateData: any = {
+      userId,
+      firstName: firstName || user.firstName,
+      lastName: lastName || user.lastName,
+    }
+    if (profilePictureUrl) {
+      updateData.profilePictureUrl = profilePictureUrl
+    }
+    const updatedUser = await workos.userManagement.updateUser(updateData)
 
-		return { profile: updatedUser };
-	} catch (error: any) {
-		console.error("Profile update error:", error);
-		throw createError({
-			statusCode: 500,
-			message: error.message || "Failed to update profile",
-		});
-	}
-});
+    return {
+      profile: {
+        id: updatedUser.id,
+        email: updatedUser.email,
+        name: updatedUser.firstName && updatedUser.lastName 
+          ? `${updatedUser.firstName} ${updatedUser.lastName}` 
+          : updatedUser.email,
+        avatar: updatedUser.profilePictureUrl,
+        bio: '',
+        phone: '',
+        company: '',
+        location: '',
+        website: '',
+        createdAt: updatedUser.createdAt || new Date().toISOString(),
+        updatedAt: updatedUser.updatedAt || new Date().toISOString(),
+      }
+    }
+  } catch (error) {
+    console.error('Profile update error:', error)
+    
+    if (error instanceof Error && 'statusCode' in error) {
+      throw error
+    }
+
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to update profile',
+      data: {
+        message: error instanceof Error ? error.message : 'Unknown error'
+      }
+    })
+  }
+})
