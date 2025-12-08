@@ -1,16 +1,10 @@
-// WorkOS initialization plugin
-// Initializes WorkOS SDK when Nuxt server starts
-import { initWorkOS } from "../lib/workos";
+import { initWorkOS } from '../lib/workos';
 
-export default defineNitroPlugin((nitroApp) => {
+export default defineNitroPlugin((_nitroApp) => {
+  const runtimeConfig = useRuntimeConfig();
   try {
-    // Initialize WorkOS with runtime config
-    // Note: runtimeConfig is available through process.env in Nitro
-    initWorkOS(nitroApp)
-    console.log('🚀 WorkOS plugin initialized successfully')
+    initWorkOS(runtimeConfig);
   } catch (error) {
-    console.error('💥 Failed to initialize WorkOS plugin:', error)
-    // Don't throw error here to allow server to start
-    // WorkOS functions will throw when called if not properly initialized
+    console.error('Failed to initialize WorkOS during server startup:', error);
   }
-})
+});
