@@ -3,6 +3,8 @@
  * - Prevents authenticated users from accessing auth pages
  * - Redirects authenticated users to account page
  */
+import { useAuth } from '~/composables/auth';
+
 export default defineNuxtRouteMiddleware((to) => {
 	// Only apply to auth pages
 	const authPages = [
@@ -17,7 +19,7 @@ export default defineNuxtRouteMiddleware((to) => {
 	}
 
 	// Check if user is already authenticated
-	const { isAuthenticated } = useAuth();
+		const { isAuthenticated } = useAuth();
 
 	if (isAuthenticated.value) {
 		// Redirect to account page or intended page

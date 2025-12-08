@@ -3,6 +3,8 @@
  * - Protects routes that require authentication
  * - Redirects unauthenticated users to sign-in page
  */
+import { useAuth } from '~/composables/auth';
+
 export default defineNuxtRouteMiddleware((to) => {
 	// Skip middleware for public pages
 	const publicPages = [
@@ -19,7 +21,7 @@ export default defineNuxtRouteMiddleware((to) => {
 	}
 
 	// Check if user is authenticated
-	const { isAuthenticated } = useAuth();
+		const { isAuthenticated } = useAuth();
 
 	if (!isAuthenticated.value) {
 		// Redirect to sign-in page with return URL

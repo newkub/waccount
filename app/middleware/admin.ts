@@ -3,6 +3,8 @@
  * - Validates user authentication and admin privileges
  * - Supports both role-based and flag-based admin access
  */
+import { useAuth } from '~/composables/auth';
+
 export default defineNuxtRouteMiddleware((to) => {
 	// Skip for non-admin pages
 	const adminPages = ["/admin", "/admin/"];
@@ -13,7 +15,7 @@ export default defineNuxtRouteMiddleware((to) => {
 	}
 
 	// Check if user is authenticated and has admin role
-	const { user, isAuthenticated } = useAuth();
+		const { user, isAuthenticated } = useAuth();
 
 	// Check authentication
 	if (!isAuthenticated.value || !user.value) {
