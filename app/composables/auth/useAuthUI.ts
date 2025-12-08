@@ -1,4 +1,5 @@
-import { ref, computed } from 'vue'
+import { ref, computed, readonly } from 'vue'
+import { useAuth } from '~/composables/auth'
 
 interface AuthForm {
   email: string
@@ -31,6 +32,7 @@ export const useAuthUI = (initialMode: 'signin' | 'signup' = 'signin') => {
     signInWithPassword, 
     signUp, 
     signInWithProvider,
+    signInWithMagicLink,
     loading,
     error,
     success,
@@ -101,12 +103,20 @@ export const useAuthUI = (initialMode: 'signin' | 'signup' = 'signin') => {
     state.value.activeTab = mode
   }
 
+  // Create a writable ref for form
+  const formRef = computed({
+    get: () => state.value.form,
+    set: (value) => {
+      state.value.form = value
+    }
+  })
+
   return {
     // State
     state: readonly(state),
     activeTab: computed(() => state.value.activeTab),
     showEmailForm: computed(() => state.value.showEmailForm),
-    form: computed(() => state.value.form),
+    form: formRef,
     
     // Computed
     title,
@@ -130,6 +140,7 @@ export const useAuthUI = (initialMode: 'signin' | 'signup' = 'signin') => {
     signInWithPassword,
     signUp,
     signInWithProvider,
+    signInWithMagicLink,
     clearMessages,
   }
 }

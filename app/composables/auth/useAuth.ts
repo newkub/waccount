@@ -115,11 +115,7 @@ export const useAuth = () => {
 			loading.value = true;
 			error.value = null;
 
-			const response = await $fetch<{ authorizationUrl: string }>(
-				`/api/auth/workos/authorize/${provider}`,
-			);
-
-			window.location.href = response.authorizationUrl;
+			window.location.href = `/api/auth/workos/authorize/${provider}`;
 		} catch (err: any) {
 			error.value = err?.data?.message || `Failed to sign in with ${provider}`;
 			throw err;
