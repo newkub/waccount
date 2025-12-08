@@ -8,8 +8,8 @@ defineProps<Props>()
 </script>
 
 <template>
-  <div class="text-center mb-8">
-    <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ title }}</h1>
-    <p class="text-gray-600">{{ subtitle }}</p>
+  <div class="text-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ title }}</h1>
+    <p class="text-base text-gray-600">{{ subtitle }}</p>
   </div>
 </template>

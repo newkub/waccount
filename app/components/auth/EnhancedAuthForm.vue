@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useGeneratePassword } from '~/composables/useGeneratePassword'
+import { useGeneratePassword } from '~/composables/shared'
 
 interface Props {
   activeTab: 'signin' | 'signup'
