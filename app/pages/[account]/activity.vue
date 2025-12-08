@@ -1,246 +1,28 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-
-// TypeScript interfaces
-interface Activity {
-  id: string
-  type: 'login' | 'password' | 'profile' | 'organization' | 'security' | 'connection'
-  action: string
-  description: string
-  timestamp: string
-  ipAddress: string
-  location: string
-  userAgent: string
-  success: boolean
-  metadata?: Record<string, any>
-}
-
-interface Metadata {
-  provider?: string
-  sessionId?: string
-  method?: string
-  fields?: string[]
-  reason?: string
-  email?: string
-  organizationId?: string
-  role?: string
-}
+import { onMounted } from 'vue'
+import { useActivity } from '~/composables/account/useActivity'
+import { formatTimestamp } from '~/utils/formatters'
+import { getActivityIcon, getActivityColor } from '~/utils/activityHelpers'
 
 definePageMeta({
   layout: 'account',
   middleware: ['auth']
 })
 
+import { useAuth } from '~/composables/auth';
+
 const { user } = useAuth()
-const loading = ref(false)
-const activities = ref<Activity[]>([])
-const filter = ref('all')
-const dateRange = ref('7d')
+const { 
+  loading, 
+  filter, 
+  dateRange, 
+  fetchActivities, 
+  filteredActivities, 
+  exportActivities, 
+  getActivityStats 
+} = useActivity()
 
-// Mock data - จะเชื่อมกับ WorkOS Audit Logs API
-const mockActivities: Activity[] = [
-  {
-    id: 'audit_001',
-    type: 'login',
-    action: 'sign_in',
-    description: 'Signed in with Google',
-    ipAddress: '192.168.1.100',
-    userAgent: 'Chrome 120.0.0.0 (Windows)',
-    location: 'Bangkok, Thailand',
-    timestamp: '2024-03-20T10:30:00Z',
-    success: true,
-    metadata: {
-      provider: 'Google',
-      sessionId: 'sess_123'
-    }
-  },
-  {
-    id: 'audit_002',
-    type: 'password',
-    action: 'change',
-    description: 'Password changed successfully',
-    ipAddress: '192.168.1.100',
-    userAgent: 'Chrome 120.0.0.0 (Windows)',
-    location: 'Bangkok, Thailand',
-    timestamp: '2024-03-19T15:45:00Z',
-    success: true,
-    metadata: {
-      method: 'web'
-    }
-  },
-  {
-    id: 'audit_003',
-    type: 'profile',
-    action: 'update',
-    description: 'Profile information updated',
-    ipAddress: '192.168.1.100',
-    userAgent: 'Chrome 120.0.0.0 (Windows)',
-    location: 'Bangkok, Thailand',
-    timestamp: '2024-03-18T09:20:00Z',
-    success: true,
-    metadata: {
-      fields: ['name', 'avatar']
-    }
-  },
-  {
-    id: 'audit_004',
-    type: 'login',
-    action: 'failed_attempt',
-    description: 'Failed sign in attempt',
-    ipAddress: '185.220.101.182',
-    userAgent: 'Mozilla/5.0 (Unknown)',
-    location: 'Unknown',
-    timestamp: '2024-03-17T22:15:00Z',
-    success: false,
-    metadata: {
-      reason: 'invalid_credentials',
-      email: 'unknown@example.com'
-    }
-  },
-  {
-    id: 'audit_005',
-    type: 'organization',
-    action: 'join',
-    description: 'Joined organization "Wrikka Team"',
-    ipAddress: '192.168.1.100',
-    userAgent: 'Chrome 120.0.0.0 (Windows)',
-    location: 'Bangkok, Thailand',
-    timestamp: '2024-03-15T14:30:00Z',
-    success: true,
-    metadata: {
-      organizationId: 'org_123',
-      role: 'member'
-    }
-  }
-]
-
-// Initialize data
-onMounted(async () => {
-	activities.value = mockActivities
-})
-
-const filteredActivities = computed(() => {
-	let filtered = activities.value
-	
-	// Filter by type
-	if (filter.value !== 'all') {
-		filtered = filtered.filter(activity => activity.type === filter.value)
-	}
-	
-	// Filter by date range
-	const now = new Date()
-	const days = parseInt(dateRange.value.replace('d', ''))
-	const cutoffDate = new Date(now.getTime() - (days * 24 * 60 * 60 * 1000))
-	
-	filtered = filtered.filter(activity => 
-		new Date(activity.timestamp) >= cutoffDate
-	)
-	
-	return filtered.sort((a, b) => 
-		new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-	)
-})
-
-const getActivityIcon = (type: string, action: string) => {
-	const iconMap: { [key: string]: string } = {
-		'login_sign_in': 'mdi:login',
-		'login_sign_out': 'mdi:logout',
-		'login_failed_attempt': 'mdi:login-alert',
-		'password_change': 'mdi:key-change',
-		'password_reset': 'mdi:key-reset',
-		'profile_update': 'mdi:account-edit',
-		'organization_join': 'mdi:account-multiple-plus',
-		'organization_leave': 'mdi:account-multiple-minus',
-		'security_enable_2fa': 'mdi:shield-check',
-		'security_disable_2fa': 'mdi:shield-off',
-		'connection_add': 'mdi:link-plus',
-		'connection_remove': 'mdi:link-minus'
-	}
-	return iconMap[`${type}_${action}`] || 'mdi:information'
-}
-
-const getActivityColor = (type: string, success: boolean) => {
-	if (!success) return 'text-red-600 bg-red-50'
-	
-	const colorMap: { [key: string]: string } = {
-		'login': 'text-blue-600 bg-blue-50',
-		'password': 'text-orange-600 bg-orange-50',
-		'profile': 'text-green-600 bg-green-50',
-		'organization': 'text-purple-600 bg-purple-50',
-		'security': 'text-red-600 bg-red-50',
-		'connection': 'text-indigo-600 bg-indigo-50'
-	}
-	return colorMap[type] || 'text-gray-600 bg-gray-50'
-}
-
-const formatTimestamp = (timestamp: string) => {
-	const date = new Date(timestamp)
-	const now = new Date()
-	const diffMs = now.getTime() - date.getTime()
-	const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-	const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-
-	if (diffHours < 1) {
-		return 'Just now'
-	} else if (diffHours < 24) {
-		return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`
-	} else if (diffDays < 7) {
-		return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`
-	} else {
-		return date.toLocaleDateString()
-	}
-}
-
-const exportActivities = async () => {
-	try {
-		loading.value = true
-		// TODO: เชื่อมกับ WorkOS Audit Logs API
-		console.log('Exporting activities...')
-		
-		// Create CSV
-		const headers = ['Date', 'Type', 'Action', 'Description', 'IP Address', 'Location', 'Success']
-		const csvContent = [
-			headers.join(','),
-			...filteredActivities.value.map(activity => [
-				new Date(activity.timestamp).toISOString(),
-				activity.type,
-				activity.action,
-				activity.description,
-				activity.ipAddress,
-				activity.location,
-				activity.success
-			].join(','))
-		].join('\n')
-		
-		// Download file
-		const blob = new Blob([csvContent], { type: 'text/csv' })
-		const url = URL.createObjectURL(blob)
-		const a = document.createElement('a')
-		a.href = url
-		a.download = `activity-log-${new Date().toISOString().split('T')[0]}.csv`
-		a.click()
-		URL.revokeObjectURL(url)
-	} catch (error) {
-		console.error('Failed to export activities:', error)
-	} finally {
-		loading.value = false
-	}
-}
-
-const getActivityStats = computed(() => {
-	const stats = {
-		total: filteredActivities.value.length,
-		successful: filteredActivities.value.filter(a => a.success).length,
-		failed: filteredActivities.value.filter(a => !a.success).length,
-		byType: {} as Record<string, number>
-	}
-	
-	filteredActivities.value.forEach(activity => {
-		stats.byType[activity.type] = (stats.byType[activity.type] || 0) + 1
-	})
-	
-	return stats
-})
+onMounted(fetchActivities)
 </script>
 
 <template>
@@ -350,7 +132,11 @@ const getActivityStats = computed(() => {
 							<Icon :name="getActivityIcon(activity.type, activity.action)" class="w-5 h-5" />
 						</div>
 						<div class="flex-1 min-w-0">
-							<!-- ... (no changes) -->
+							<div>
+								<div class="flex items-center gap-2 mb-1">
+									<h4 class="font-medium text-gray-900">{{ activity.description }}</h4>
+									<span class="text-sm text-gray-500">{{ formatTimestamp(activity.timestamp) }}</span>
+								</div>
 							</div>
 							<div class="flex items-center gap-4 text-sm text-gray-600">
 								<span class="flex items-center gap-1">

@@ -4,6 +4,8 @@ definePageMeta({
 	middleware: ['auth']
 });
 
+import { useAuth } from '~/composables/auth';
+
 const { user } = useAuth();
 </script>
 

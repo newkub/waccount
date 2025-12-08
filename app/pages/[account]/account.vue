@@ -1,95 +1,32 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { onMounted } from 'vue'
+import { useAccount } from '~/composables/account/useAccount'
 
 definePageMeta({
 	layout: 'account',
 	middleware: ['auth']
 });
 
+import { useAuth } from '~/composables/auth';
+
 const { user, signOut } = useAuth();
-const loading = ref(false);
-const preferences = ref({
-	emailNotifications: true,
-	marketingEmails: false,
-	twoFactorEnabled: false
-});
+const {
+  loading,
+  preferences,
+  organizations,
+  fetchAccountData,
+  isOrganizationAdmin,
+  updatePreference,
+  deleteAccount,
+  enableTwoFactor,
+} = useAccount()
 
-// Mock WorkOS organization data
-const organizations = ref([
-	{
-		id: 'org_123',
-		name: 'Wrikka Team',
-		role: 'admin',
-		plan: 'enterprise',
-		memberCount: 15
-	}
-]);
+onMounted(fetchAccountData)
 
-// Initialize data from WorkOS
-onMounted(async () => {
-	try {
-		// TODO: เชื่อมกับ WorkOS Organizations API
-		// const orgs = await $fetch('/api/workos/organizations');
-		// organizations.value = orgs;
-		
-		// TODO: เชื่อมกับ WorkOS User Preferences API
-		// const prefs = await $fetch('/api/workos/user/preferences');
-		// preferences.value = prefs;
-	} catch (error) {
-		console.error('Failed to load account data:', error);
-	}
-});
-
-const isOrganizationAdmin = computed(() => {
-	return organizations.value.some(org => org.role === 'admin');
-});
-
-const updatePreference = async (key: keyof typeof preferences.value, value: any) => {
-	try {
-		loading.value = true;
-		// TODO: เชื่อมกับ WorkOS User Preferences API
-		console.log('Updating preference:', key, value);
-		
-		preferences.value[key] = value;
-	} catch (error) {
-		console.error('Failed to update preference:', error);
-	} finally {
-		loading.value = false;
-	}
-};
-
-const deleteAccount = async () => {
-	if (!confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
-		return;
-	}
-	
-	try {
-		loading.value = true;
-		// TODO: เชื่อมกับ WorkOS User Management API
-		console.log('Deleting account...');
-		
-		// Sign out and redirect
-		await signOut();
-	} catch (error) {
-		console.error('Failed to delete account:', error);
-	} finally {
-		loading.value = false;
-	}
-};
-
-const enableTwoFactor = async () => {
-	try {
-		loading.value = true;
-		// TODO: เชื่อมกับ WorkOS MFA API
-		console.log('Enabling 2FA...');
-		
-		preferences.value.twoFactorEnabled = true;
-	} catch (error) {
-		console.error('Failed to enable 2FA:', error);
-	} finally {
-		loading.value = false;
-	}
-};
+const handleDeleteAccount = async () => {
+  await deleteAccount()
+  await signOut()
+}
 </script>
 
 <template>

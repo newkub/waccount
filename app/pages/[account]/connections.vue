@@ -1,183 +1,28 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-
-// TypeScript interfaces
-interface Connection {
-	id: string
-	provider: string
-	type: 'sso' | 'integration'
-	status: 'active' | 'error' | 'expired'
-	email: string
-	connectedAt: string
-	lastUsed: string
-	permissions: string[]
-	workspace?: string
-}
-
-interface Provider {
-	id: string
-	name: string
-	type: 'sso' | 'integration'
-	description: string
-	icon: string
-	color: string
-}
+import { onMounted } from 'vue'
+import { useConnections } from '~/composables/account/useConnections'
+import { getProviderIcon, getConnectionStatusColor } from '~/utils/connectionHelpers'
 
 definePageMeta({
 	layout: 'account',
 	middleware: ['auth']
 })
 
+import { useAuth } from '~/composables/auth';
+
 const { user } = useAuth()
-const loading = ref(false)
-const connections = ref<Connection[]>([])
-const availableProviders = ref<Provider[]>([])
+const {
+  loading,
+  availableProviders,
+  fetchConnections,
+  ssoConnections,
+  integrations,
+  connectProvider,
+  disconnectProvider,
+  refreshConnection,
+} = useConnections()
 
-// Mock data - จะเชื่อมกับ WorkOS Connections API
-const mockConnections: Connection[] = [
-	{
-		id: 'conn_google_123',
-		provider: 'Google',
-		type: 'sso',
-		status: 'active',
-		email: user.value?.email || '',
-		connectedAt: '2024-01-15',
-		lastUsed: '2024-03-20',
-		permissions: ['email', 'profile', 'calendar']
-	},
-	{
-		id: 'conn_slack_456',
-		provider: 'Slack',
-		type: 'integration',
-		status: 'active',
-		email: user.value?.email || '',
-		connectedAt: '2024-02-10',
-		lastUsed: '2024-03-19',
-		workspace: 'wrikka-team',
-		permissions: ['channels:read', 'messages:write']
-	}
-]
-
-const mockProviders: Provider[] = [
-	{
-		id: 'microsoft',
-		name: 'Microsoft 365',
-		type: 'sso',
-		description: 'Connect with Microsoft Azure AD',
-		icon: 'mdi:microsoft',
-		color: 'blue'
-	},
-	{
-		id: 'slack',
-		name: 'Slack',
-		type: 'integration',
-		description: 'Connect your Slack workspace',
-		icon: 'mdi:slack',
-		color: 'purple'
-	},
-	{
-		id: 'github',
-		name: 'GitHub',
-		type: 'integration',
-		description: 'Connect your GitHub account',
-		icon: 'mdi:github',
-		color: 'gray'
-	},
-	{
-		id: 'notion',
-		name: 'Notion',
-		type: 'integration',
-		description: 'Sync with Notion workspace',
-		icon: 'simple-icons:notion',
-		color: 'black'
-	}
-]
-
-// Initialize data
-onMounted(async () => {
-	connections.value = mockConnections
-	availableProviders.value = mockProviders
-})
-
-const activeConnections = computed(() => {
-	return connections.value.filter(conn => conn.status === 'active')
-})
-
-const ssoConnections = computed(() => {
-	return connections.value.filter(conn => conn.type === 'sso')
-})
-
-const integrations = computed(() => {
-	return connections.value.filter(conn => conn.type === 'integration')
-})
-
-const connectProvider = async (providerId: string) => {
-	try {
-		loading.value = true
-		// TODO: เชื่อมกับ WorkOS Connections API
-		console.log('Connecting to provider:', providerId)
-		
-		// Redirect to OAuth flow
-		window.location.href = `/api/auth/workos/authorize/${providerId}`
-	} catch (error) {
-		console.error('Failed to connect provider:', error)
-	} finally {
-		loading.value = false
-	}
-}
-
-const disconnectProvider = async (connectionId: string) => {
-	try {
-		loading.value = true
-		// TODO: เชื่อมกับ WorkOS Connections API
-		console.log('Disconnecting provider:', connectionId)
-		
-		// Remove from connections
-		connections.value = connections.value.filter(conn => conn.id !== connectionId)
-	} catch (error) {
-		console.error('Failed to disconnect provider:', error)
-	} finally {
-		loading.value = false
-	}
-}
-
-const refreshConnection = async (connectionId: string) => {
-	try {
-		loading.value = true
-		// TODO: เชื่อมกับ WorkOS Connections API
-		console.log('Refreshing connection:', connectionId)
-		
-		// Update last used time
-		const connection = connections.value.find(conn => conn.id === connectionId)
-		if (connection) {
-			connection.lastUsed = new Date().toISOString().split('T')[0] || ''
-		}
-	} catch (error) {
-		console.error('Failed to refresh connection:', error)
-	} finally {
-		loading.value = false
-	}
-}
-
-const getProviderIcon = (providerName: string): string => {
-	const iconMap: { [key: string]: string } = {
-		'Google': 'mdi:google',
-		'Slack': 'mdi:slack',
-		'Microsoft': 'mdi:microsoft',
-		'GitHub': 'mdi:github',
-		'Notion': 'simple-icons:notion'
-	}
-	return iconMap[providerName] || 'mdi:account'
-}
-
-const getStatusColor = (status: string) => {
-	switch (status) {
-		case 'active': return 'text-green-600 bg-green-50'
-		case 'error': return 'text-red-600 bg-red-50'
-		case 'expired': return 'text-yellow-600 bg-yellow-50'
-		default: return 'text-gray-600 bg-gray-50'
-	}
-}
+onMounted(fetchConnections)
 </script>
 
 <template>
@@ -229,7 +74,7 @@ const getStatusColor = (status: string) => {
 								</div>
 							</div>
 							<div class="flex items-center gap-2">
-								<span :class="['px-2 py-1 text-xs rounded-full', getStatusColor(connection.status)]">
+								<span :class="['px-2 py-1 text-xs rounded-full', getConnectionStatusColor(connection.status)]">
 									{{ connection.status }}
 								</span>
 								<button 

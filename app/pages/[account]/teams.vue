@@ -1,118 +1,27 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-
-// TypeScript interfaces
-interface Organization {
-	id: string
-	name: string
-	role: 'admin' | 'member' | 'owner'
-	members: number
-	createdAt: string
-	domain?: string
-}
-
-interface Invitation {
-	id: string
-	organizationName: string
-	role: string
-	invitedBy: string
-	createdAt: string
-}
+import { onMounted } from 'vue'
+import { useTeams } from '~/composables/account/useTeams'
 
 definePageMeta({
 	layout: 'account',
 	middleware: ['auth']
 })
 
+import { useAuth } from '~/composables/auth';
+
 const { user } = useAuth()
-const loading = ref(false)
-const organizations = ref<Organization[]>([])
-const invitations = ref<Invitation[]>([])
+const {
+  loading,
+  organizations,
+  invitations,
+  fetchTeamsData,
+  isOrganizationAdmin,
+  acceptInvitation,
+  declineInvitation,
+  leaveOrganization,
+} = useTeams()
 
-// Mock data - จะเชื่อมกับ WorkOS Organizations API
-const mockOrganizations: Organization[] = [
-	{
-		id: 'org_123',
-		name: 'Wrikka Team',
-		role: 'admin',
-		members: 5,
-		createdAt: '2024-01-15',
-		domain: 'wrikka.com'
-	},
-	{
-		id: 'org_456', 
-		name: 'Dev Team',
-		role: 'member',
-		members: 12,
-		createdAt: '2024-02-20',
-		domain: 'dev.local'
-	}
-]
-
-const mockInvitations: Invitation[] = [
-	{
-		id: 'inv_789',
-		organizationName: 'Marketing Team',
-		role: 'member',
-		invitedBy: 'john.doe@company.com',
-		createdAt: '2024-03-10'
-	}
-]
-
-// Initialize data
-onMounted(async () => {
-	organizations.value = mockOrganizations
-	invitations.value = mockInvitations
-})
-
-const isOrganizationAdmin = computed(() => {
-	return organizations.value.some(org => org.role === 'admin')
-})
-
-const acceptInvitation = async (invitationId: string) => {
-	try {
-		loading.value = true
-		// TODO: เชื่อมกับ WorkOS API
-		console.log('Accepting invitation:', invitationId)
-		
-		// Remove from invitations
-		invitations.value = invitations.value.filter(inv => inv.id !== invitationId)
-	} catch (error) {
-		console.error('Failed to accept invitation:', error)
-	} finally {
-		loading.value = false
-	}
-}
-
-const declineInvitation = async (invitationId: string) => {
-	try {
-		loading.value = true
-		// TODO: เชื่อมกับ WorkOS API
-		console.log('Declining invitation:', invitationId)
-		
-		// Remove from invitations
-		invitations.value = invitations.value.filter(inv => inv.id !== invitationId)
-	} catch (error) {
-		console.error('Failed to decline invitation:', error)
-	} finally {
-		loading.value = false
-	}
-}
-
-const leaveOrganization = async (orgId: string) => {
-	try {
-		loading.value = true
-		// TODO: เชื่อมกับ WorkOS API
-		console.log('Leaving organization:', orgId)
-		
-		// Remove from organizations
-		organizations.value = organizations.value.filter(org => org.id !== orgId)
-	} catch (error) {
-		console.error('Failed to leave organization:', error)
-	} finally {
-		loading.value = false
-	}
-}
+onMounted(fetchTeamsData)
 </script>
 
 <template>

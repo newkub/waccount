@@ -1,270 +1,32 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-
-// TypeScript interfaces
-interface Subscription {
-	id: string
-	plan: string
-	status: 'active' | 'canceled' | 'past_due'
-	currentPeriodStart: string
-	currentPeriodEnd: string
-	cancelAtPeriodEnd: boolean
-	amount: number
-	currency: string
-	features: string[]
-}
-
-interface Invoice {
-	id: string
-	date: string
-	amount: number
-	currency: string
-	status: 'paid' | 'pending' | 'failed'
-	description: string
-	downloadUrl: string
-}
-
-interface UsageMetric {
-	current: number | string
-	limit: number | string
-	percentage: number
-}
-
-interface Usage {
-	users: UsageMetric
-	api: UsageMetric
-	storage: UsageMetric
-	integrations: UsageMetric
-}
+import { onMounted } from 'vue'
+import { useBilling } from '~/composables/account/useBilling'
+import { formatCurrency, formatDate } from '~/utils/formatters'
+import { getBillingStatusColor, getUsageColor } from '~/utils/billingHelpers'
 
 definePageMeta({
 	layout: 'account',
 	middleware: ['auth']
 })
 
+import { useAuth } from '~/composables/auth';
+
 const { user } = useAuth()
-const loading = ref(false)
-const subscription = ref<Subscription | null>(null)
-const invoices = ref<Invoice[]>([])
-const usage = ref<Usage>({} as Usage)
+const {
+  loading,
+  subscription,
+  invoices,
+  usage,
+  planOptions,
+  fetchBillingData,
+  currentPlan,
+  daysUntilRenewal,
+  changePlan,
+  cancelSubscription,
+  downloadInvoice,
+} = useBilling()
 
-// Mock data - จะเชื่อมกับ WorkOS Organizations & Subscriptions
-const mockSubscription: Subscription = {
-	id: 'sub_123',
-	plan: 'pro',
-	status: 'active',
-	currentPeriodStart: '2024-03-01',
-	currentPeriodEnd: '2024-04-01',
-	cancelAtPeriodEnd: false,
-	amount: 2999, // $29.99
-	currency: 'USD',
-	features: [
-		'Unlimited users',
-		'Advanced analytics',
-		'Priority support',
-		'Custom integrations',
-		'Enterprise security'
-	]
-}
-
-const mockInvoices: Invoice[] = [
-	{
-		id: 'inv_001',
-		date: '2024-03-01',
-		amount: 2999,
-		currency: 'USD',
-		status: 'paid',
-		description: 'Pro Plan - March 2024',
-		downloadUrl: '#'
-	},
-	{
-		id: 'inv_002',
-		date: '2024-02-01',
-		amount: 2999,
-		currency: 'USD',
-		status: 'paid',
-		description: 'Pro Plan - February 2024',
-		downloadUrl: '#'
-	},
-	{
-		id: 'inv_003',
-		date: '2024-01-01',
-		amount: 1999,
-		currency: 'USD',
-		status: 'paid',
-		description: 'Basic Plan - January 2024',
-		downloadUrl: '#'
-	}
-]
-
-const mockUsage: Usage = {
-	users: {
-		current: 15,
-		limit: 'unlimited',
-		percentage: 0
-	},
-	api: {
-		current: 45000,
-		limit: 100000,
-		percentage: 45
-	},
-	storage: {
-		current: 2.3, // GB
-		limit: 10, // GB
-		percentage: 23
-	},
-	integrations: {
-		current: 8,
-		limit: 'unlimited',
-		percentage: 0
-	}
-}
-
-// Initialize data
-onMounted(async () => {
-	subscription.value = mockSubscription
-	invoices.value = mockInvoices
-	usage.value = mockUsage
-})
-
-const planOptions = [
-	{
-		id: 'basic',
-		name: 'Basic',
-		price: 1999,
-		currency: 'USD',
-		features: [
-			'Up to 5 users',
-			'Basic analytics',
-			'Email support',
-			'Standard integrations',
-			'Basic security'
-		],
-		popular: false
-	},
-	{
-		id: 'pro',
-		name: 'Pro',
-		price: 2999,
-		currency: 'USD',
-		features: [
-			'Unlimited users',
-			'Advanced analytics',
-			'Priority support',
-			'Custom integrations',
-			'Enterprise security'
-		],
-		popular: true
-	},
-	{
-		id: 'enterprise',
-		name: 'Enterprise',
-		price: 9999,
-		currency: 'USD',
-		features: [
-			'Unlimited everything',
-			'Custom analytics',
-			'Dedicated support',
-			'White-label integrations',
-			'Advanced security & compliance',
-			'Custom contracts',
-			'SLA guarantees'
-		],
-		popular: false
-	}
-]
-
-const formatCurrency = (amount: number, currency: string = 'USD') => {
-	return new Intl.NumberFormat('en-US', {
-		style: 'currency',
-		currency
-	}).format(amount / 100)
-}
-
-const formatDate = (dateString: string) => {
-	return new Date(dateString).toLocaleDateString('en-US', {
-		year: 'numeric',
-		month: 'long',
-		day: 'numeric'
-	})
-}
-
-const getStatusColor = (status: string) => {
-	switch (status) {
-		case 'active': return 'text-green-600 bg-green-50'
-		case 'canceled': return 'text-red-600 bg-red-50'
-		case 'past_due': return 'text-yellow-600 bg-yellow-50'
-		default: return 'text-gray-600 bg-gray-50'
-	}
-}
-
-const getUsageColor = (percentage: number) => {
-	if (percentage >= 90) return 'text-red-600 bg-red-50'
-	if (percentage >= 70) return 'text-yellow-600 bg-yellow-50'
-	return 'text-green-600 bg-green-50'
-}
-
-const currentPlan = computed(() => {
-	return planOptions.find(plan => plan.id === subscription.value?.plan)
-})
-
-const changePlan = async (newPlanId: string) => {
-	try {
-		loading.value = true
-		// TODO: เชื่อมกับ WorkOS Subscriptions API
-		console.log('Changing plan to:', newPlanId)
-		
-		// Update subscription
-		if (subscription.value) {
-			subscription.value = {
-				...subscription.value,
-				plan: newPlanId,
-				amount: planOptions.find(p => p.id === newPlanId)?.price || 0
-			}
-		}
-	} catch (error) {
-		console.error('Failed to change plan:', error)
-	} finally {
-		loading.value = false
-	}
-}
-
-const cancelSubscription = async () => {
-	try {
-		loading.value = true
-		// TODO: เชื่อมกับ WorkOS Subscriptions API
-		console.log('Canceling subscription...')
-		
-		// Update subscription
-		if (subscription.value) {
-			subscription.value = {
-				...subscription.value,
-				cancelAtPeriodEnd: true
-			}
-		}
-	} catch (error) {
-		console.error('Failed to cancel subscription:', error)
-	} finally {
-		loading.value = false
-	}
-}
-
-const downloadInvoice = (invoiceId: string) => {
-	// TODO: เชื่อมกับ WorkOS Invoices API
-	console.log('Downloading invoice:', invoiceId)
-	window.open('#', '_blank')
-}
-
-const daysUntilRenewal = computed(() => {
-	if (!subscription.value || subscription.value.cancelAtPeriodEnd) return 0
-	
-	const endDate = new Date(subscription.value.currentPeriodEnd)
-	const now = new Date()
-	const diffTime = endDate.getTime() - now.getTime()
-	const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-	
-	return Math.max(0, diffDays)
-})
+onMounted(fetchBillingData)
 </script>
 
 <template>
@@ -287,7 +49,7 @@ const daysUntilRenewal = computed(() => {
 							{{ currentPlan?.name }} • {{ formatCurrency(subscription?.amount || 0) }}/month
 						</p>
 					</div>
-					<span :class="['px-3 py-1 text-sm rounded-full', getStatusColor(subscription?.status || 'active')]">
+					<span :class="['px-3 py-1 text-sm rounded-full', getBillingStatusColor(subscription?.status || 'active')]">
 						{{ subscription?.cancelAtPeriodEnd ? 'Cancels Soon' : (subscription?.status || 'Active') }}
 					</span>
 				</div>
@@ -424,7 +186,7 @@ const daysUntilRenewal = computed(() => {
 								<h4 class="font-medium text-gray-900">{{ invoice.description }}</h4>
 								<div class="flex items-center gap-4 text-sm text-gray-600 mt-1">
 									<span>{{ formatDate(invoice.date) }}</span>
-									<span :class="['px-2 py-1 text-xs rounded-full', getStatusColor(invoice.status)]">
+									<span :class="['px-2 py-1 text-xs rounded-full', getBillingStatusColor(invoice.status)]">
 										{{ invoice.status }}
 									</span>
 								</div>

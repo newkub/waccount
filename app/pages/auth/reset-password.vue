@@ -9,6 +9,8 @@ definePageMeta({
 	middleware: ["guest"],
 });
 
+import { useAuth } from '~/composables/auth';
+
 const { resetPassword, loading, error, success, clearMessages } = useAuth()
 
 const form = ref({
@@ -20,7 +22,6 @@ const handleSubmit = async () => {
     clearMessages()
     await resetPassword(form.value.email)
   } catch (err: any) {
-    // Error is handled by useAuth composable
     console.error('Reset password error:', err)
   }
 }
@@ -30,8 +31,8 @@ const handleSubmit = async () => {
 	<div class="min-h-screen flex items-center justify-center px-4">
 		<div class="bg-white rounded-2xl shadow-xl border border-gray-200 max-w-md mx-auto overflow-hidden p-8">
 			<div class="text-center mb-8">
-				<h1 class="text-3xl font-bold text-gray-900 mb-2">Reset Password</h1>
-				<p class="text-gray-600">Enter your email to receive password reset instructions</p>
+				<h1 class="text-2xl font-bold text-gray-900 mb-2">Reset Password</h1>
+				<p class="text-base text-gray-600">Enter your email to receive password reset instructions</p>
 			</div>
 
 			<form @submit.prevent="handleSubmit" class="space-y-6">
