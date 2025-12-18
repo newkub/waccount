@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { ref, computed } from 'vue';
 import { useUserState } from '~/app/composables/useUserState';
 import type { User } from '~/app/shared/types';
