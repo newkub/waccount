@@ -1,13 +1,44 @@
 import { getWorkOS, getWorkOSClientId } from "../integrations/workos";
 import { mapWorkOSUserToUser } from "./user";
+import { callWorkOS } from "./api";
+import type { H3Event } from 'h3';
 
-const callWorkOS = async <T>(apiCall: () => Promise<T>, errorMessage: string): Promise<T> => {
-    try {
-        return await apiCall();
-    } catch (err: unknown) {
-        console.error(`WorkOS Error: ${errorMessage}`, err);
-        const message = err instanceof Error ? err.message : errorMessage;
-        throw new Error(message);
+export const refreshSession = async (refreshToken: string) => {
+    const workos = getWorkOS();
+    const result = await callWorkOS(
+        () => workos.userManagement.authenticateWithRefreshToken({
+            clientId: getWorkOSClientId(),
+            refreshToken,
+        }),
+        "Failed to refresh session"
+    );
+    return {
+        user: mapWorkOSUserToUser(result.user),
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
+    };
+};
+
+export const clearAuthCookies = (event: H3Event) => {
+    deleteCookie(event, "workos-session");
+    deleteCookie(event, "workos-refresh");
+};
+
+export const setAuthCookies = (event: H3Event, accessToken: string, refreshToken?: string) => {
+    setCookie(event, "workos-session", accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 7, // 7 days
+    });
+
+    if (refreshToken) {
+        setCookie(event, "workos-refresh", refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            maxAge: 60 * 60 * 24 * 30, // 30 days
+        });
     }
 };
 
@@ -87,13 +118,4 @@ export const verifyEmail = (token: string, userId: string) => {
         () => workos.userManagement.verifyEmail({ userId, code: token }),
         "Failed to verify email"
     ).then(() => ({ success: true }));
-};
-
-export const getUserById = async (userId: string) => {
-    const workos = getWorkOS();
-    const user = await callWorkOS(
-        () => workos.userManagement.getUser(userId),
-        "Failed to fetch user"
-    );
-    return mapWorkOSUserToUser(user);
 };

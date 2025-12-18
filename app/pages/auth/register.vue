@@ -4,12 +4,11 @@ useHead({
 });
 
 definePageMeta({
+	layout: "auth",
 	middleware: ["guest"],
 });
 </script>
 
 <template>
-	<div class="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-		<AuthUI />
-	</div>
+	<AuthUI />
 </template>

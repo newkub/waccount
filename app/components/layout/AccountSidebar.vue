@@ -9,10 +9,16 @@ defineProps<{
 </script>
 
 <template>
-  <div class="lg:bg-white/80 lg:backdrop-blur-md lg:rounded-2xl lg:shadow-xl lg:border lg:border-primary-100 lg:p-6 lg:m-4">
-    <LayoutAccountSidebarHeader />
-    <LayoutAccountSidebarUserInfo :user="user" />
-    <LayoutAccountSidebarNav :user="user" :nav-items="navItems" :current-tab="currentTab" />
-    <LayoutAccountSidebarFooter />
+  <div class="h-full flex flex-col bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800">
+    <div class="p-6">
+      <LayoutAccountSidebarHeader />
+      <LayoutAccountSidebarUserInfo :user="user" />
+    </div>
+    <div class="flex-1 overflow-y-auto px-6">
+      <LayoutAccountSidebarNav :user="user" :nav-items="navItems" :current-tab="currentTab" />
+    </div>
+    <div class="p-6 mt-auto">
+      <LayoutAccountSidebarFooter />
+    </div>
   </div>
 </template>

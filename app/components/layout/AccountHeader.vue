@@ -1,39 +1,42 @@
 <script setup lang="ts">
-import type { User } from '~/app/shared/types/user';
+const props = defineProps<{
+  currentTab: string;
+}>();
 
-defineProps<{ currentTab: string; user: User | null }>();
+defineEmits(['toggle-mobile-menu']);
+
+const pageInfo = computed(() => {
+  const titles: Record<string, { title: string; subtitle: string }> = {
+    profile: {
+      title: 'Profile Management',
+      subtitle: 'Manage your personal information and activity.',
+    },
+    settings: {
+      title: 'Account Settings',
+      subtitle: 'Configure your preferences and security.',
+    },
+  };
+  return titles[props.currentTab] || titles.profile;
+});
 </script>
 
 <template>
-  <div
-    class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-primary-100 p-6 mb-8"
-  >
-    <div class="flex items-center justify-between">
-      <div>
-        <h1 class="text-3xl font-bold text-gray-900">
-          {{ currentTab === 'profile' ? 'Profile Management' : 'Account Settings' }}
-        </h1>
-        <p class="text-gray-600 mt-1">
-          {{
-            currentTab === 'profile'
-              ? 'Manage your personal information and profile'
-              : 'Configure your account preferences and security'
-          }}
-        </p>
-      </div>
+  <header class="sticky top-0 z-20 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center">
+          <button @click="$emit('toggle-mobile-menu')" class="lg:hidden p-2 -ml-2 mr-2 text-gray-600 dark:text-gray-300">
+            <i class="i-mdi-menu text-2xl"></i>
+          </button>
+          <div>
+            <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ pageInfo.title }}</h1>
+          </div>
+        </div>
 
-      <!-- Breadcrumb -->
-      <div class="hidden md:flex items-center gap-2 text-sm text-gray-500">
-        <NuxtLink to="/" class="hover:text-primary-600">Home</NuxtLink>
-        <i class="i-mdi-chevron-right"></i>
-        <NuxtLink :to="`/${user?.id}/profile`" class="hover:text-primary-600"
-          >Account</NuxtLink
-        >
-        <i class="i-mdi-chevron-right"></i>
-        <span class="text-gray-900 font-medium">{{ 
-          currentTab === 'profile' ? 'Profile' : 'Settings'
-        }}</span>
+        <div class="flex items-center gap-4">
+          <LayoutColorModeSwitcher />
+        </div>
       </div>
     </div>
-  </div>
+  </header>
 </template>

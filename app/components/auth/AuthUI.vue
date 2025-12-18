@@ -3,7 +3,7 @@ const activeTab = ref<'login' | 'register'>('login');
 </script>
 
 <template>
-  <div class="bg-white rounded-2xl shadow-xl border border-gray-200 max-w-md mx-auto overflow-hidden">
+  <div>
     <div class="p-8">
       <AuthOAuthProviders />
     </div>

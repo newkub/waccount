@@ -1,13 +1,13 @@
-// POST /api/auth/workos/logout
-// Sign out user
-export default defineEventHandler(async (event) => {
-	// Clear cookies/session
-	deleteCookie(event, "user_id");
-	deleteCookie(event, "access_token");
-	deleteCookie(event, "refresh_token");
+import { clearAuthCookies } from "../../../utils/auth";
 
-	return {
-		success: true,
-		message: "Logged out successfully",
-	};
+export default defineEventHandler((event) => {
+    try {
+        clearAuthCookies(event);
+        return { success: true, message: "Logged out successfully" };
+    } catch (error: any) {
+        throw createError({
+            statusCode: 500,
+            statusMessage: error.message || "Failed to log out",
+        });
+    }
 });
