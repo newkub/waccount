@@ -1,7 +1,6 @@
 // GET /api/users/:userId
 // Get user by ID
-import { Effect } from "effect";
-import { getUserById } from "../../services/auth";
+import { getUserById } from "../../utils/auth";
 
 export default defineEventHandler(async (event) => {
 	const userId = getRouterParam(event, "userId");
@@ -14,12 +13,13 @@ export default defineEventHandler(async (event) => {
 	}
 
 	try {
-		const user = await Effect.runPromise(getUserById(userId));
+		const user = await getUserById(userId);
 		return { user };
-	} catch (error: any) {
+	} catch (error: unknown) {
+		const message = error instanceof Error ? error.message : "User not found";
 		throw createError({
 			statusCode: 404,
-			message: error.message || "User not found",
+			message,
 		});
 	}
 });

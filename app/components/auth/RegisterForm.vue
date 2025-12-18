@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { Schema } from "effect";
-import { RegisterFormData, type ValidationError } from "~/types";
+import type { RegisterFormData } from "~/app/shared/types/auth";
 
 interface Props {
 	redirectTo?: string;
@@ -20,8 +19,13 @@ const props = withDefaults(defineProps<Props>(), {
 
 const { signUp, loading, error, success, clearMessages } = useAuth();
 
+interface ValidationError {
+	field: string;
+	message: string;
+}
+
 // Form data with proper type from Effect Schema
-const form = reactive({
+const form = reactive<RegisterFormData & { confirmPassword: string }>({
 	email: "",
 	password: "",
 	confirmPassword: "",
@@ -38,7 +42,7 @@ const passwordMismatch = ref(false);
 const localError = ref<string | null>(null);
 const validationErrors = ref<ValidationError[]>([]);
 
-// Computed error ที่รวม error จาก useAuth และ local validation
+// Computed error that combines errors from useAuth and local validation
 const displayError = computed(() => {
 	if (validationErrors.value.length > 0) {
 		return validationErrors.value
@@ -49,7 +53,7 @@ const displayError = computed(() => {
 });
 
 /**
- * Validate form using Effect Schema
+ * Validate form using simple validation
  * Returns true if valid, false otherwise
  */
 const validateForm = (): boolean => {
@@ -57,17 +61,20 @@ const validateForm = (): boolean => {
 	localError.value = null;
 	passwordMismatch.value = false;
 
-	// Validate with Effect Schema
-	const result = Schema.decodeUnknownEither(RegisterFormData)(form);
-
-	if (result._tag === "Left") {
-		// Schema validation failed
-		const error = result.left;
-		localError.value = String(error);
+	// Email validation
+	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+	if (!form.email || !emailRegex.test(form.email)) {
+		localError.value = "Invalid email address";
 		return false;
 	}
 
-	// Additional password confirmation check
+	// Password validation
+	if (!form.password || form.password.length < 8) {
+		localError.value = "Password must be at least 8 characters";
+		return false;
+	}
+
+	// Password confirmation check
 	if (form.password !== form.confirmPassword) {
 		passwordMismatch.value = true;
 		localError.value = "Passwords do not match";
@@ -77,11 +84,11 @@ const validateForm = (): boolean => {
 	return true;
 };
 
-const _handleSubmit = async () => {
+const handleSubmit = async () => {
 	// Clear previous errors
 	clearMessages();
 
-	// Validate form with Effect Schema
+	// Validate form
 	if (!validateForm()) {
 		return;
 	}
@@ -93,13 +100,11 @@ const _handleSubmit = async () => {
 		});
 		emit("success");
 		await navigateTo(props.redirectTo);
-	} catch (err: any) {
-		emit("error", err?.message || "Registration failed");
+	} catch (err: unknown) {
+		emit("error", (err as Error)?.message || "Registration failed");
 		// Error is handled by useAuth composable
 	}
 };
-
-const handleSubmit = _handleSubmit;
 
 // Watch for password changes to clear mismatch error
 watch(
@@ -124,7 +129,7 @@ watch(
 </script>
 
 <template>
-	<div v-if="!noWrapper" class="bg-white rounded-2xl shadow-xl p-8 border border-gray-200 max-w-md mx-auto">
+	<component :is="props.noWrapper ? 'div' : 'UiCard'" :class="{ 'p-8 max-w-md mx-auto': !props.noWrapper }">
 		<div v-if="title || subtitle" class="text-center mb-8">
 			<h1 v-if="title" class="text-3xl font-bold text-gray-900 mb-2">{{ title }}</h1>
 			<p v-if="subtitle" class="text-gray-600">{{ subtitle }}</p>
@@ -136,13 +141,12 @@ watch(
 					<label for="firstName" class="block text-sm font-medium text-gray-700 mb-2">
 						First Name
 					</label>
-					<input
+					<UiInput
 						id="firstName"
 						v-model="form.firstName"
 						type="text"
 						required
 						:disabled="loading"
-						class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed"
 						placeholder="John"
 					/>
 				</div>
@@ -151,13 +155,12 @@ watch(
 					<label for="lastName" class="block text-sm font-medium text-gray-700 mb-2">
 						Last Name
 					</label>
-					<input
+					<UiInput
 						id="lastName"
 						v-model="form.lastName"
 						type="text"
 						required
 						:disabled="loading"
-						class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed"
 						placeholder="Doe"
 					/>
 				</div>
@@ -167,13 +170,12 @@ watch(
 				<label for="email" class="block text-sm font-medium text-gray-700 mb-2">
 					Email Address
 				</label>
-				<input
+				<UiInput
 					id="email"
 					v-model="form.email"
 					type="email"
 					required
 					:disabled="loading"
-					class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed"
 					placeholder="john@example.com"
 				/>
 			</div>
@@ -182,14 +184,13 @@ watch(
 				<label for="password" class="block text-sm font-medium text-gray-700 mb-2">
 					Password
 				</label>
-				<input
+				<UiInput
 					id="password"
 					v-model="form.password"
 					type="password"
 					required
 					minlength="8"
 					:disabled="loading"
-					class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed"
 					placeholder="Minimum 8 characters"
 				/>
 			</div>
@@ -198,17 +199,14 @@ watch(
 				<label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-2">
 					Confirm Password
 				</label>
-				<input
+				<UiInput
 					id="confirmPassword"
 					v-model="form.confirmPassword"
 					type="password"
 					required
 					minlength="8"
 					:disabled="loading"
-					:class="[
-						'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed',
-						passwordMismatch ? 'border-red-300' : 'border-gray-300'
-					]"
+					:class="{ 'border-red-300': passwordMismatch }"
 					placeholder="Confirm your password"
 				/>
 				<p v-if="passwordMismatch" class="mt-1 text-sm text-red-600">
@@ -216,13 +214,13 @@ watch(
 				</p>
 			</div>
 
-			<button
+			<UiButton
 				type="submit"
-				:disabled="loading || !form.email || !form.password || !form.firstName || !form.lastName || !form.confirmPassword"
-				class="w-full px-4 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+				:loading="loading"
+				:disabled="!form.email || !form.password || !form.firstName || !form.lastName || !form.confirmPassword"
 			>
-				{{ loading ? "Creating account..." : "Create Account" }}
-			</button>
+				Create Account
+			</UiButton>
 		</form>
 
 		<div v-if="displayError" class="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -249,7 +247,7 @@ watch(
 			</div>
 		</div>
 
-		<div v-if="showSignInLink" class="mt-6 text-center">
+		<div v-if="props.showSignInLink" class="mt-6 text-center">
 			<p class="text-gray-600">
 				Already have an account?
 				<NuxtLink to="/auth/login" class="text-blue-600 hover:text-blue-700 font-medium">
@@ -257,5 +255,5 @@ watch(
 				</NuxtLink>
 			</p>
 		</div>
-	</div>
+	</component>
 </template>

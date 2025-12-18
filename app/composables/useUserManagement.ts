@@ -1,4 +1,18 @@
-import type { UserProfile, UpdateProfileData } from "~/types";
+import type { UserProfile, UpdateProfileData } from "~/app/shared/types/user";
+
+interface FetchError {
+	data?: { message?: string };
+	status?: number;
+	message?: string;
+	statusText?: string;
+}
+
+interface Activity {
+	id: string;
+	type: string;
+	timestamp: string;
+	[key: string]: unknown;
+}
 
 /**
  * User Management composable - Pure Vue/Nuxt approach
@@ -7,7 +21,7 @@ import type { UserProfile, UpdateProfileData } from "~/types";
  * - Simple async/await patterns
  */
 export const useUserManagement = () => {
-	const profile = ref<UserProfile | null>(null);
+	const profile = useState<UserProfile | null>("profile", () => null);
 	const loading = ref(false);
 	const updating = ref(false);
 	const error = ref<string | null>(null);
@@ -70,8 +84,9 @@ export const useUserManagement = () => {
 			profile.value = response.profile;
 			success.value = "Profile updated successfully";
 			return response.profile;
-		} catch (err: any) {
-			error.value = err?.data?.message || "Failed to update profile";
+		} catch (err: unknown) {
+			const fetchError = err as FetchError;
+			error.value = fetchError?.data?.message || "Failed to update profile";
 			throw err;
 		} finally {
 			updating.value = false;
@@ -106,8 +121,10 @@ export const useUserManagement = () => {
 
 			success.value = "Profile picture uploaded successfully";
 			return response.avatarUrl;
-		} catch (err: any) {
-			error.value = err?.data?.message || "Failed to upload profile picture";
+		} catch (err: unknown) {
+			const fetchError = err as FetchError;
+			error.value =
+				fetchError?.data?.message || "Failed to upload profile picture";
 			throw err;
 		} finally {
 			updating.value = false;
@@ -129,8 +146,9 @@ export const useUserManagement = () => {
 			profile.value = null;
 			success.value = "Account deleted successfully";
 			await navigateTo("/");
-		} catch (err: any) {
-			error.value = err?.data?.message || "Failed to delete account";
+		} catch (err: unknown) {
+			const fetchError = err as FetchError;
+			error.value = fetchError?.data?.message || "Failed to delete account";
 			throw err;
 		} finally {
 			loading.value = false;
@@ -145,12 +163,13 @@ export const useUserManagement = () => {
 			loading.value = true;
 			error.value = null;
 
-			const response = await $fetch<{ activities: any[] }>(
+			const response = await $fetch<{ activities: Activity[] }>(
 				"/api/auth/workos/activities",
 			);
 			return response.activities;
-		} catch (err: any) {
-			error.value = err?.data?.message || "Failed to fetch activities";
+		} catch (err: unknown) {
+			const fetchError = err as FetchError;
+			error.value = fetchError?.data?.message || "Failed to fetch activities";
 			throw err;
 		} finally {
 			loading.value = false;
@@ -172,8 +191,9 @@ export const useUserManagement = () => {
 
 			success.value =
 				"Email update request sent. Please check your new email for verification.";
-		} catch (err: any) {
-			error.value = err?.data?.message || "Failed to update email";
+		} catch (err: unknown) {
+			const fetchError = err as FetchError;
+			error.value = fetchError?.data?.message || "Failed to update email";
 			throw err;
 		} finally {
 			updating.value = false;

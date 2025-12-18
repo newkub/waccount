@@ -1,6 +1,6 @@
 // GET /api/auth/workos/refresh
 // Refresh user session
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (_event) => {
 	// TODO: Implement session management
 	// For now return mock response
 	return {

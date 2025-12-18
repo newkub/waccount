@@ -1,7 +1,6 @@
 // GET /api/auth/workos/profile
 // Get current user profile
-import { Effect } from "effect";
-import { getUserProfile } from "../../../services/user";
+import { getUserProfile } from "../../../utils/user";
 
 export default defineEventHandler(async (event) => {
 	// TODO: Get userId from session/cookie
@@ -15,12 +14,14 @@ export default defineEventHandler(async (event) => {
 	}
 
 	try {
-		const profile = await Effect.runPromise(getUserProfile(userId));
+		const profile = await getUserProfile(userId);
 		return { profile };
-	} catch (error: any) {
+	} catch (error: unknown) {
+		const message =
+			error instanceof Error ? error.message : "Failed to fetch profile";
 		throw createError({
 			statusCode: 500,
-			message: error.message || "Failed to fetch profile",
+			message,
 		});
 	}
 });

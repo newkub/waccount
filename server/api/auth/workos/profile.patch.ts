@@ -1,7 +1,6 @@
 // PATCH /api/auth/workos/profile
 // Update user profile
-import { Effect } from "effect";
-import { updateUserProfile } from "../../../services/user";
+import { updateUserProfile } from "../../../utils/user";
 
 export default defineEventHandler(async (event) => {
 	// TODO: Get userId from session/cookie
@@ -17,12 +16,14 @@ export default defineEventHandler(async (event) => {
 	const body = await readBody(event);
 
 	try {
-		const profile = await Effect.runPromise(updateUserProfile(userId, body));
+		const profile = await updateUserProfile(userId, body);
 		return { profile };
-	} catch (error: any) {
+	} catch (error: unknown) {
+		const message =
+			error instanceof Error ? error.message : "Failed to update profile";
 		throw createError({
 			statusCode: 500,
-			message: error.message || "Failed to update profile",
+			message,
 		});
 	}
 });

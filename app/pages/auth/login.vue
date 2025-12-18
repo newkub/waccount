@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import AuthUI from '~/components/auth/AuthUI.vue';
-
 useHead({
-	title: "Sign In - Account Wrikka",
+	title: "Login - Account Wrikka",
 });
 
 definePageMeta({

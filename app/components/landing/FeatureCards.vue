@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const features = [
+const _features = [
 	{
 		title: "Secure",
 		icon: "i-mdi-shield-check",

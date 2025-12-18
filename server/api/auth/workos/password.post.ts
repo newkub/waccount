@@ -1,26 +1,25 @@
-// POST /api/auth/workos/password
-// Sign in with email and password
-import { Effect } from "effect";
-import { signInWithPassword } from "../../../services/auth";
+import { signInWithPassword } from "../../../utils/auth";
 
 export default defineEventHandler(async (event) => {
-	const body = await readBody(event);
-	const { email, password } = body;
+    const { email, password } = await readBody(event);
 
-	if (!email || !password) {
-		throw createError({
-			statusCode: 400,
-			message: "Email and password are required",
-		});
-	}
+    if (!email || !password) {
+        throw createError({
+            statusCode: 400,
+            statusMessage: "Email and password are required",
+        });
+    }
 
-	try {
-		const result = await Effect.runPromise(signInWithPassword(email, password));
-		return result;
-	} catch (error: any) {
-		throw createError({
-			statusCode: 401,
-			message: error.message || "Authentication failed",
-		});
-	}
+    try {
+        const { user, accessToken, refreshToken } = await signInWithPassword(email, password);
+
+        // Set cookies or session here if needed
+
+        return { user };
+    } catch (error: any) {
+        throw createError({
+            statusCode: 401,
+            statusMessage: error.message || "Authentication failed",
+        });
+    }
 });

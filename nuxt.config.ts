@@ -8,31 +8,25 @@ export default defineNuxtConfig({
 		"@vueuse/nuxt",
 		"@unocss/nuxt",
 		"@nuxtjs/color-mode",
-		"@scalar/nuxt",
 	],
-	css: ["@unocss/reset/tailwind-compat.css"],
 	nitro: {
-		preset: "cloudflare",
+		preset: "cloudflare_module",
+		cloudflare: {
+			deployConfig: true,
+			nodeCompat: true,
+		},
 		experimental: {
 			openAPI: true,
 		},
 	},
-	// Scalar API Documentation (optional)
-	// scalar: {
-	// 	theme: 'nuxt',
-	// 	url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=yaml',
-	// },
-
-	// Vite configuration
 	vite: {
 		plugins: [
-			// Type checking with vue-tsc and biome
 			checker({
 				vueTsc: true,
+				/*
 				biome: {
-					command: "check",
-				},
-				eslint: false, // ใช้ biome แทน eslint
+					command: "lint",
+				},*/
 			}),
 		],
 	},

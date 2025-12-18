@@ -1,28 +1,22 @@
-// POST /api/auth/workos/register
-// Register new user
-import { Effect } from "effect";
-import { signUpWithPassword } from "../../../services/auth";
+import { signUpWithPassword } from "../../../utils/auth";
 
 export default defineEventHandler(async (event) => {
-	const body = await readBody(event);
-	const { email, password, firstName, lastName } = body;
+    const { email, password, firstName, lastName } = await readBody(event);
 
-	if (!email || !password) {
-		throw createError({
-			statusCode: 400,
-			message: "Email and password are required",
-		});
-	}
+    if (!email || !password) {
+        throw createError({
+            statusCode: 400,
+            statusMessage: "Email and password are required",
+        });
+    }
 
-	try {
-		const result = await Effect.runPromise(
-			signUpWithPassword(email, password, { firstName, lastName }),
-		);
-		return result;
-	} catch (error: any) {
-		throw createError({
-			statusCode: 400,
-			message: error.message || "Registration failed",
-		});
-	}
+    try {
+        const { user, message } = await signUpWithPassword(email, password, { firstName, lastName });
+        return { user, message };
+    } catch (error: any) {
+        throw createError({
+            statusCode: 400,
+            statusMessage: error.message || "Registration failed",
+        });
+    }
 });

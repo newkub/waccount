@@ -1,7 +1,6 @@
 // GET /api/auth/workos/authorize/:provider
 // Get OAuth authorization URL
-import { Effect } from "effect";
-import { getAuthorizationUrl } from "../../../../services/auth";
+import { getAuthorizationUrl } from "../../../../utils/auth";
 
 export default defineEventHandler(async (event) => {
 	const provider = getRouterParam(event, "provider");
@@ -14,12 +13,16 @@ export default defineEventHandler(async (event) => {
 	}
 
 	try {
-		const result = await Effect.runPromise(getAuthorizationUrl(provider));
+		const result = getAuthorizationUrl(provider);
 		return result;
-	} catch (error: any) {
+	} catch (error: unknown) {
+		const message =
+			error instanceof Error
+				? error.message
+				: "Failed to get authorization URL";
 		throw createError({
 			statusCode: 500,
-			message: error.message || "Failed to get authorization URL",
+			message,
 		});
 	}
 });
