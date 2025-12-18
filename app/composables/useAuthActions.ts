@@ -46,7 +46,7 @@ export const useAuthActions = () => {
      * Initiates the OAuth sign-in process for a given provider.
      * @param {string} provider The OAuth provider to use (e.g., 'google', 'github').
      */
-    const signInWithProvider = (provider: string) =>
+    const signInWithOAuth = (provider: string) =>
         apiHandler.handle(
             () => $fetch<{ authorizationUrl: string }>(`/api/auth/workos/authorize/${provider}`),
             {
@@ -97,7 +97,7 @@ export const useAuthActions = () => {
     return {
         signInWithPassword,
         signUp,
-        signInWithProvider,
+        signInWithOAuth,
         signOut,
         refreshUser,
     };
