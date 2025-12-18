@@ -8,6 +8,7 @@ export default defineNuxtConfig({
 		"@vueuse/nuxt",
 		"@unocss/nuxt",
 		"@nuxtjs/color-mode",
+		"@vueuse/motion/nuxt",
 	],
 	nitro: {
 		preset: "cloudflare_module",
@@ -29,5 +30,10 @@ export default defineNuxtConfig({
 				},*/
 			}),
 		],
+	},
+	runtimeConfig: {
+		workosApiKey: "", // NUXT_WORKOS_API_KEY
+		workosClientId: "", // NUXT_WORKOS_CLIENT_ID
+		workosRedirectUri: "", // NUXT_WORKOS_REDIRECT_URI
 	},
 });

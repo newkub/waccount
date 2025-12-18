@@ -80,11 +80,12 @@ export const signUpWithPassword = async (email: string, password: string, userDa
 export const getAuthorizationUrl = (provider: string) => {
     const workos = getWorkOS();
     const clientId = getWorkOSClientId();
+    const config = useRuntimeConfig();
     return { 
         authorizationUrl: workos.userManagement.getAuthorizationUrl({
             clientId,
             provider,
-            redirectUri: process.env.WORKOS_REDIRECT_URI || "",
+            redirectUri: config.workosRedirectUri,
         })
     };
 };
