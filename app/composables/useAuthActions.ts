@@ -1,9 +1,19 @@
 import type { User } from '~/shared/types';
 
+/**
+ * @module useAuthActions
+ * @description A composable that provides all authentication-related actions, such as signing in, signing out, and signing up.
+ * It uses `useUserState` for state management and `useApiHandler` for API call handling.
+ */
 export const useAuthActions = () => {
     const { user, loading, error, success, setUser } = useUserState();
     const apiHandler = useApiHandler(loading, error, success);
 
+    /**
+     * Signs in a user with their email and password.
+     * @param {string} email The user's email.
+     * @param {string} password The user's password.
+     */
     const signInWithPassword = (email: string, password: string) =>
         apiHandler.handle(
             () => $fetch<{ user: User }>('/api/auth/workos/password', { method: 'POST', body: { email, password } }),
@@ -17,6 +27,12 @@ export const useAuthActions = () => {
             }
         );
 
+    /**
+     * Registers a new user.
+     * @param {string} email The new user's email.
+     * @param {string} password The new user's password.
+     * @param {object} [userData] Optional user data like first and last name.
+     */
     const signUp = (email: string, password: string, userData?: { firstName?: string; lastName?: string }) =>
         apiHandler.handle(
             () => $fetch('/api/auth/workos/register', { method: 'POST', body: { email, password, ...userData } }),
@@ -26,6 +42,10 @@ export const useAuthActions = () => {
             }
         );
 
+    /**
+     * Initiates the OAuth sign-in process for a given provider.
+     * @param {string} provider The OAuth provider to use (e.g., 'google', 'github').
+     */
     const signInWithProvider = (provider: string) =>
         apiHandler.handle(
             () => $fetch<{ authorizationUrl: string }>(`/api/auth/workos/authorize/${provider}`),
@@ -37,6 +57,9 @@ export const useAuthActions = () => {
             }
         );
 
+    /**
+     * Signs out the current user, clears their state, and redirects to the homepage.
+     */
     const signOut = () =>
         apiHandler.handle(
             () => $fetch('/api/auth/workos/logout', { method: 'POST' }),
@@ -54,6 +77,9 @@ export const useAuthActions = () => {
             }
         );
 
+    /**
+     * Refreshes the current user's session and updates the user state.
+     */
     const refreshUser = () =>
         apiHandler.handle(
             () => $fetch<{ user: User }>('/api/auth/workos/refresh'),

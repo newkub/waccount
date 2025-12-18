@@ -35,7 +35,8 @@
     "@workos-inc/node": "^7.77.0",
     "nuxt": "^4.2.2",
     "vue": "^3.5.26",
-    "wrangler": "^4.56.0"
+    "wrangler": "^4.56.0",
+    "zod": "^4.2.1"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.10",

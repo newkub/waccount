@@ -10,6 +10,7 @@ This project is a Nuxt 3 application designed with a modular and scalable archit
 - **Authentication Provider**: WorkOS
 - **Linting & Formatting**: BiomeJS
 - **Testing**: Vitest
+- **Schema Validation**: Zod
 
 ## Directory Structure & Conventions
 
@@ -25,7 +26,7 @@ The project follows the standard Nuxt 3 directory structure, with specific conve
   - **`api/`**: API endpoints, primarily acting as a proxy to the WorkOS service.
   - **`utils/`**: Server-side helper functions, abstracting away direct WorkOS SDK calls (e.g., `auth.ts`, `user.ts`, `api.ts`).
 - **`shared/`**: Isomorphic code shared between the client and server.
-  - **`types/`**: Centralized TypeScript type definitions.
+  - **`types/`**: Centralized TypeScript type definitions and Zod schemas for runtime data validation.
 
 ## Authentication Workflow
 
