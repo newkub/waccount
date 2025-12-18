@@ -1,22 +1,22 @@
-import { signInWithPassword } from "../../../utils/auth";
+import { signInWithPassword, setAuthCookies } from "../../../utils/auth";
+import { readValidatedBody } from "../../../utils/api";
+import { LoginFormDataSchema } from "~/shared/types";
 
 export default defineEventHandler(async (event) => {
-    const { email, password } = await readBody(event);
-
-    if (!email || !password) {
-        throw createError({
-            statusCode: 400,
-            statusMessage: "Email and password are required",
-        });
-    }
-
     try {
+        const { email, password } = await readValidatedBody(event, LoginFormDataSchema);
+
         const { user, accessToken, refreshToken } = await signInWithPassword(email, password);
 
-        // Set cookies or session here if needed
+        setAuthCookies(event, accessToken, refreshToken);
 
         return { user };
     } catch (error: any) {
+        // If the error is a Zod validation error, it will have a statusCode of 400
+        if (error.statusCode === 400) {
+            throw error;
+        }
+
         throw createError({
             statusCode: 401,
             statusMessage: error.message || "Authentication failed",

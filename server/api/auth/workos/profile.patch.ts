@@ -1,21 +1,24 @@
 import { updateUserProfile } from "../../../utils/user";
+import { readValidatedBody } from "../../../utils/api";
+import { UpdateProfileDataSchema } from "~/shared/types";
 
 export default defineEventHandler(async (event) => {
     try {
-        // TODO: Replace with a more secure session management
         const userId = getCookie(event, "user_id");
         if (!userId) {
-            throw new Error("Not authenticated");
+            throw createError({ statusCode: 401, statusMessage: "Not authenticated" });
         }
 
-        const body = await readBody(event);
+        const body = await readValidatedBody(event, UpdateProfileDataSchema);
         const profile = await updateUserProfile(userId, body);
         return { profile };
 
     } catch (error: any) {
-        const statusCode = error.message === "Not authenticated" ? 401 : 500;
+        if (error.statusCode === 400) {
+            throw error; // Re-throw Zod validation error
+        }
         throw createError({
-            statusCode,
+            statusCode: 500,
             statusMessage: error.message || "Failed to update profile",
         });
     }

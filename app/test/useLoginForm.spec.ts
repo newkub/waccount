@@ -1,30 +1,28 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { reactive, ref } from 'vue';
+
+// Mock dependencies
+const mockSignInWithPassword = vi.fn();
+const mockClearMessages = vi.fn();
+
+vi.mock('#imports', () => ({
+  useAuth: vi.fn(() => ({
+    signInWithPassword: mockSignInWithPassword,
+    loading: ref(false),
+    error: ref(null),
+    clearMessages: mockClearMessages,
+  })),
+  reactive,
+}));
+
 import { useLoginForm } from '~/app/composables/useLoginForm';
 
 describe('useLoginForm', () => {
-  const mockSignInWithPassword = vi.fn();
-  const mockClearMessages = vi.fn();
   let emit: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
     emit = vi.fn();
-
-    // Mock the global useAuth provided by Nuxt
-    vi.stubGlobal('useAuth', vi.fn(() => ({
-      signInWithPassword: mockSignInWithPassword,
-      loading: ref(false),
-      error: ref(null),
-      clearMessages: mockClearMessages,
-    })));
-
-    // Also stub other auto-imports if they are used directly in the composable
-    vi.stubGlobal('reactive', reactive);
-  });
-
-  afterEach(() => {
-    vi.unstubAllGlobals();
   });
 
   it('should initialize with an empty form', () => {
