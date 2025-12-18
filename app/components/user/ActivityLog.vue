@@ -1,38 +1,62 @@
 <script setup lang="ts">
-interface Activity {
-	id: string;
-	type: string;
-	timestamp: string;
-	[key: string]: unknown;
-}
+import type { Activity } from '~/shared/types';
 
-defineProps<{
-	activities: Activity[];
-	loading?: boolean;
+const props = defineProps<{
+  activities: Activity[];
+  loading?: boolean;
 }>();
+
+const { getActivityIcon } = useActivity();
+
+const formattedActivities = computed(() => 
+  props.activities.map(activity => ({
+    ...activity,
+    icon: getActivityIcon(activity.type),
+    formattedTimestamp: formatTimeAgo(activity.timestamp),
+    formattedType: activity.type.replace(/\./g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+  }))
+);
 </script>
 
 <template>
-  <div class="bg-white/80 backdrop-blur-md rounded-xl shadow-lg p-6 border border-primary-100">
-    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-      <i class="i-mdi-history text-primary-600"></i>
-      Activity Log
-    </h3>
+  <SettingsSection title="Activity Log" icon="i-mdi-history">
     <div v-if="loading" class="text-center py-8">
       <i class="i-mdi-loading animate-spin text-3xl text-primary-500"></i>
-      <p class="mt-2 text-gray-500">Loading activities...</p>
+      <p class="mt-2 text-gray-500 dark:text-gray-400">Loading activities...</p>
     </div>
-    <div v-else-if="activities.length === 0" class="text-center py-8 text-gray-500">
-      No activities found.
+    <div v-else-if="activities.length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400">
+      No recent activities found.
     </div>
-    <ul v-else class="space-y-4">
-      <li v-for="activity in activities" :key="activity.id" class="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
-        <i class="i-mdi-information-outline text-gray-500"></i>
+    <TransitionGroup v-else tag="ul" name="list" class="space-y-3">
+      <li 
+        v-for="activity in formattedActivities" 
+        :key="activity.id" 
+        class="flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700/50"
+      >
+        <div class="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
+          <i :class="[activity.icon, 'text-xl text-gray-500 dark:text-gray-400']"></i>
+        </div>
         <div class="flex-1">
-          <p class="font-medium text-gray-800">{{ activity.type }}</p>
-          <p class="text-sm text-gray-500">{{ new Date(activity.timestamp).toLocaleString() }}</p>
+          <p class="font-medium text-gray-800 dark:text-gray-100">{{ activity.formattedType }}</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">{{ activity.formattedTimestamp }}</p>
         </div>
       </li>
-    </ul>
-  </div>
+    </TransitionGroup>
+  </SettingsSection>
 </template>
+
+<style scoped>
+.list-move,
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s ease;
+}
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+.list-leave-active {
+  position: absolute;
+}
+</style>

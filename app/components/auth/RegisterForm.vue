@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { RegisterFormData } from '~/shared/types';
 
 interface Props {
   redirectTo?: string;
