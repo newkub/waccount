@@ -7,8 +7,12 @@ const emit = defineEmits<(e: 'update:modelValue', tab: 'login' | 'register') => 
 </script>
 
 <template>
-  <div class="flex border-b border-gray-200">
+  <div role="tablist" class="flex border-b border-gray-200">
     <button
+      id="tab-login"
+      role="tab"
+      :aria-selected="modelValue === 'login'"
+      aria-controls="tabpanel-login"
       @click="emit('update:modelValue', 'login')"
       :class="[
         'flex-1 py-4 px-6 text-center font-medium transition-colors',
@@ -20,6 +24,10 @@ const emit = defineEmits<(e: 'update:modelValue', tab: 'login' | 'register') => 
       เข้าสู่ระบบ
     </button>
     <button
+      id="tab-register"
+      role="tab"
+      :aria-selected="modelValue === 'register'"
+      aria-controls="tabpanel-register"
       @click="emit('update:modelValue', 'register')"
       :class="[
         'flex-1 py-4 px-6 text-center font-medium transition-colors',

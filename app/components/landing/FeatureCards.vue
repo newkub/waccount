@@ -31,8 +31,11 @@ const features = [
 
       <div class="grid md:grid-cols-3 gap-8">
         <div
-          v-for="feature in features"
+          v-for="(feature, index) in features"
           :key="feature.title"
+          v-motion
+          :initial="{ opacity: 0, y: 50 }"
+          :visibleOnce="{ opacity: 1, y: 0, transition: { delay: index * 100 } }"
           class="relative group bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl p-8 text-center overflow-hidden transition-all duration-300 border border-gray-200/50 dark:border-gray-700/50 hover:border-primary-500/50 dark:hover:border-primary-500/50"
         >
           <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary-500 to-secondary-500 opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
