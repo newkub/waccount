@@ -3,7 +3,7 @@ export type UserProfile = User;
 export interface UpdateProfileData {
 	firstName?: string;
 	lastName?: string;
-	profilePictureUrl?: string;
+	avatar?: string;
 }
 
 export interface User {
@@ -12,7 +12,14 @@ export interface User {
 	firstName: string | null;
 	lastName: string | null;
 	emailVerified: boolean;
-	profilePictureUrl: string | null;
+	avatar: string | null;
 	createdAt: string;
 	updatedAt: string;
+}
+
+export interface Activity {
+	id: string;
+	type: string;
+	timestamp: string;
+	[key: string]: unknown;
 }

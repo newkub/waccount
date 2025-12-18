@@ -1,220 +1,107 @@
-import type { UserProfile, UpdateProfileData } from "~/app/shared/types/user";
+import type { UserProfile, UpdateProfileData, Activity } from '~/shared/types';
 
-interface FetchError {
-	data?: { message?: string };
-	status?: number;
-	message?: string;
-	statusText?: string;
-}
-
-interface Activity {
-	id: string;
-	type: string;
-	timestamp: string;
-	[key: string]: unknown;
-}
-
-/**
- * User Management composable - Pure Vue/Nuxt approach
- * - Uses Vue reactivity system
- * - Leverages Nuxt composables
- * - Simple async/await patterns
- */
 export const useUserManagement = () => {
-	const profile = useState<UserProfile | null>("profile", () => null);
-	const loading = ref(false);
-	const updating = ref(false);
-	const error = ref<string | null>(null);
-	const success = ref<string | null>(null);
+    const profile = useState<UserProfile | null>('profile', () => null);
+    const loading = ref(false);
+    const updating = ref(false);
+    const error = ref<string | null>(null);
+    const success = ref<string | null>(null);
 
-	/**
-	 * Clear messages
-	 */
-	const clearMessages = () => {
-		error.value = null;
-		success.value = null;
-	};
+    const apiHandler = useApiHandler(loading, error, success);
+    const updatingApiHandler = useApiHandler(updating, error, success);
 
-	/**
-	 * Fetch user profile using Nuxt's useAsyncData
-	 */
-	const fetchUserProfile = async (userId?: string) => {
-		const endpoint = userId
-			? `/api/users/${userId}`
-			: "/api/auth/workos/profile";
+    const clearMessages = () => {
+        error.value = null;
+        success.value = null;
+    };
 
-		const { data, error: fetchError } = await useAsyncData(
-			`user-profile-${userId || "me"}`,
-			() => $fetch<{ profile?: UserProfile; user?: UserProfile }>(endpoint),
-			{
-				lazy: true,
-				server: false,
-			},
-		);
+    const fetchUserProfile = async (userId?: string) => {
+        const endpoint = userId ? `/api/users/${userId}` : '/api/auth/workos/profile';
+        const { data, error: fetchError } = await useAsyncData(
+            `user-profile-${userId || 'me'}`,
+            () => $fetch<{ profile?: UserProfile; user?: UserProfile }>(endpoint),
+            { lazy: true, server: false }
+        );
 
-		if (fetchError.value) {
-			error.value = fetchError.value?.message || "Failed to fetch profile";
-			throw fetchError.value;
-		}
+        if (fetchError.value) {
+            error.value = fetchError.value?.message || 'Failed to fetch profile';
+            return null;
+        }
 
-		if (data.value) {
-			profile.value = data.value.profile || data.value.user || null;
-			return data.value.profile || data.value.user;
-		}
+        const userProfile = data.value?.profile || data.value?.user || null;
+        profile.value = userProfile;
+        return userProfile;
+    };
 
-		return null;
-	};
+    const updateUserProfile = (data: UpdateProfileData) =>
+        updatingApiHandler.handle(
+            () => $fetch<{ profile: UserProfile }>('/api/auth/workos/profile', { method: 'PATCH', body: data }),
+            {
+                successMessage: 'Profile updated successfully',
+                errorMessage: 'Failed to update profile',
+                onSuccess: (result: { profile: UserProfile } | null) => {
+                    if (result) profile.value = result.profile;
+                },
+            }
+        );
 
-	/**
-	 * Update user profile data
-	 */
-	const updateUserProfile = async (data: UpdateProfileData) => {
-		try {
-			updating.value = true;
-			error.value = null;
+    const uploadUserAvatar = (file: File) => {
+        const formData = new FormData();
+        formData.append('avatar', file);
+        return updatingApiHandler.handle(
+            () => $fetch<{ avatarUrl: string }>('/api/auth/workos/profile/avatar', { method: 'POST', body: formData }),
+            {
+                successMessage: 'Profile picture uploaded successfully',
+                errorMessage: 'Failed to upload profile picture',
+                onSuccess: (result: { avatarUrl: string } | null) => {
+                    if (result && profile.value) {
+                        profile.value.avatar = result.avatarUrl;
+                    }
+                },
+            }
+        );
+    };
 
-			const response = await $fetch<{ profile: UserProfile }>(
-				"/api/auth/workos/profile",
-				{
-					method: "PATCH",
-					body: data,
-				},
-			);
+    const deleteAccount = () =>
+        apiHandler.handle(
+            () => $fetch('/api/auth/workos/account', { method: 'DELETE' }),
+            {
+                successMessage: 'Account deleted successfully',
+                errorMessage: 'Failed to delete account',
+                onSuccess: async () => {
+                    profile.value = null;
+                    await navigateTo('/');
+                },
+            }
+        );
 
-			profile.value = response.profile;
-			success.value = "Profile updated successfully";
-			return response.profile;
-		} catch (err: unknown) {
-			const fetchError = err as FetchError;
-			error.value = fetchError?.data?.message || "Failed to update profile";
-			throw err;
-		} finally {
-			updating.value = false;
-		}
-	};
+    const getUserActivities = () =>
+        apiHandler.handle(
+            () => $fetch<{ activities: Activity[] }>('/api/auth/workos/activities'),
+            { errorMessage: 'Failed to fetch activities' }
+        );
 
-	/**
-	 * Upload user avatar
-	 */
-	const uploadUserAvatar = async (file: File) => {
-		try {
-			updating.value = true;
-			error.value = null;
+    const updateEmail = (newEmail: string) =>
+        updatingApiHandler.handle(
+            () => $fetch('/api/auth/workos/email', { method: 'PATCH', body: { email: newEmail } }),
+            {
+                successMessage: 'Email update request sent. Please check your new email for verification.',
+                errorMessage: 'Failed to update email',
+            }
+        );
 
-			const formData = new FormData();
-			formData.append("avatar", file);
-
-			const response = await $fetch<{ avatarUrl: string }>(
-				"/api/auth/workos/profile/avatar",
-				{
-					method: "POST",
-					body: formData,
-				},
-			);
-
-			if (profile.value) {
-				profile.value = {
-					...profile.value,
-					avatar: response.avatarUrl,
-				};
-			}
-
-			success.value = "Profile picture uploaded successfully";
-			return response.avatarUrl;
-		} catch (err: unknown) {
-			const fetchError = err as FetchError;
-			error.value =
-				fetchError?.data?.message || "Failed to upload profile picture";
-			throw err;
-		} finally {
-			updating.value = false;
-		}
-	};
-
-	/**
-	 * Delete user account
-	 */
-	const deleteAccount = async () => {
-		try {
-			loading.value = true;
-			error.value = null;
-
-			await $fetch("/api/auth/workos/account", {
-				method: "DELETE",
-			});
-
-			profile.value = null;
-			success.value = "Account deleted successfully";
-			await navigateTo("/");
-		} catch (err: unknown) {
-			const fetchError = err as FetchError;
-			error.value = fetchError?.data?.message || "Failed to delete account";
-			throw err;
-		} finally {
-			loading.value = false;
-		}
-	};
-
-	/**
-	 * Get user activities
-	 */
-	const getUserActivities = async () => {
-		try {
-			loading.value = true;
-			error.value = null;
-
-			const response = await $fetch<{ activities: Activity[] }>(
-				"/api/auth/workos/activities",
-			);
-			return response.activities;
-		} catch (err: unknown) {
-			const fetchError = err as FetchError;
-			error.value = fetchError?.data?.message || "Failed to fetch activities";
-			throw err;
-		} finally {
-			loading.value = false;
-		}
-	};
-
-	/**
-	 * Update email
-	 */
-	const updateEmail = async (newEmail: string) => {
-		try {
-			updating.value = true;
-			error.value = null;
-
-			await $fetch("/api/auth/workos/email", {
-				method: "PATCH",
-				body: { email: newEmail },
-			});
-
-			success.value =
-				"Email update request sent. Please check your new email for verification.";
-		} catch (err: unknown) {
-			const fetchError = err as FetchError;
-			error.value = fetchError?.data?.message || "Failed to update email";
-			throw err;
-		} finally {
-			updating.value = false;
-		}
-	};
-
-	return {
-		// State
-		profile: readonly(profile),
-		loading: readonly(loading),
-		updating: readonly(updating),
-		error: readonly(error),
-		success: readonly(success),
-
-		// Methods
-		fetchUserProfile,
-		updateUserProfile,
-		uploadUserAvatar,
-		deleteAccount,
-		getUserActivities,
-		updateEmail,
-		clearMessages,
-	};
+    return {
+        profile: readonly(profile),
+        loading: readonly(loading),
+        updating: readonly(updating),
+        error: readonly(error),
+        success: readonly(success),
+        fetchUserProfile,
+        updateUserProfile,
+        uploadUserAvatar,
+        deleteAccount,
+        getUserActivities,
+        updateEmail,
+        clearMessages,
+    };
 };
