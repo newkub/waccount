@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { User } from '~/shared/types';
+import type { User, NavItem } from '~/shared/types';
 
 defineProps<{
   user: User | null;
-  navItems: { id: string; icon: string; label: string; href: (id: string) => string }[];
+  navItems: NavItem[];
   currentTab: string;
 }>();
 </script>

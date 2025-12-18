@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import type { User } from "~/shared/types";
+import type { User, NavItem } from "~/shared/types";
 
 interface Props {
-	user: User | null;
-	navItems: any[];
-	currentTab: string;
+  user: User | null;
+  navItems: NavItem[];
+  currentTab: string;
 }
 
 defineProps<Props>();
-const emit = defineEmits(["close"]);
+defineEmits(['close']);
 </script>
 
 <template>

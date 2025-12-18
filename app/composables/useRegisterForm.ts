@@ -1,7 +1,7 @@
-import type { RegisterFormData } from '~/shared/types/auth';
+import type { RegisterFormData, RegisterFormEmit } from '~/shared/types';
 
 export const useRegisterForm = (
-    emit: (event: 'success' | 'error', ...args: any[]) => void,
+    emit: RegisterFormEmit,
     redirectTo: string
 ) => {
     const { signUp, loading, error, success, clearMessages } = useAuth();
