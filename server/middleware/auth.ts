@@ -1,34 +1,40 @@
-import { refreshSession, setAuthCookies } from '../utils/auth';
+import { refreshSession, setAuthCookies, clearAuthCookies } from '../utils/auth';
+import { getUserProfile } from '../utils/user';
 
-// This middleware runs on every request to the server.
-// It checks for a refresh token and attempts to refresh the session if the access token is not present or invalid.
 export default defineEventHandler(async (event) => {
-  // Public routes do not need session checks
   const path = getRequestPath(event);
-  if (path.startsWith('/api/auth/workos') || path === '/') {
+  // Public routes that don't need user context
+  const publicRoutes = ['/api/auth/workos/login', '/api/auth/workos/register', '/api/auth/workos/callback', '/api/auth/workos/magic-link', '/'];
+  if (publicRoutes.some(p => path.startsWith(p))) {
     return;
   }
 
-  const accessToken = getCookie(event, 'workos-session');
+  try {
+    const userId = getCookie(event, 'user-id');
+    const accessToken = getCookie(event, 'workos-session');
 
-  // If we have an access token, we can assume the user is authenticated for this request.
-  // A robust solution would verify the token's signature and expiration here.
-  // For this project's current structure, we rely on the refresh mechanism.
-  if (accessToken) {
-    return;
-  }
+    if (userId && accessToken) {
+      // We have a user and a session, fetch the full user profile
+      // A more optimized approach might be to store a lean user object in the session cookie
+      // or use a separate session store like Redis.
+      event.context.user = await getUserProfile(userId);
+      return; // User is authenticated
+    }
 
-  const refreshToken = getCookie(event, 'workos-refresh');
-
-  if (refreshToken) {
-    try {
+    const refreshToken = getCookie(event, 'workos-refresh');
+    if (refreshToken) {
+      // Access token is missing or expired, try to refresh
       const { user, accessToken: newAccessToken, refreshToken: newRefreshToken } = await refreshSession(refreshToken);
-      setAuthCookies(event, newAccessToken, newRefreshToken);
+      setAuthCookies(event, user.id, newAccessToken, newRefreshToken);
       event.context.user = user;
-    } catch (error) {
-      console.error('Session refresh failed in middleware:', error);
-      // If refresh fails, clear context and let the endpoint handle the unauthorized access
+    } else {
+      // No session information, user is not authenticated
       event.context.user = null;
     }
+  } catch (error) {
+    console.error('Auth middleware error:', error);
+    // If any error occurs (e.g., invalid token, failed refresh), clear cookies and context
+    clearAuthCookies(event);
+    event.context.user = null;
   }
 });

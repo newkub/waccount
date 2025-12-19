@@ -1,4 +1,5 @@
 import { getWorkOS, getWorkOSClientId } from "../integrations/workos";
+import type { User } from '../../shared/types';
 import { mapWorkOSUserToUser } from "./user";
 import { callWorkOS } from "./api";
 import type { H3Event } from 'h3';
@@ -22,23 +23,22 @@ export const refreshSession = async (refreshToken: string) => {
 export const clearAuthCookies = (event: H3Event) => {
     deleteCookie(event, "workos-session");
     deleteCookie(event, "workos-refresh");
+    deleteCookie(event, "user-id");
 };
 
-export const setAuthCookies = (event: H3Event, accessToken: string, refreshToken?: string) => {
-    setCookie(event, "workos-session", accessToken, {
+export const setAuthCookies = (event: H3Event, userId: string, accessToken: string, refreshToken?: string) => {
+    const cookieOptions = {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 60 * 60 * 24 * 7, // 7 days
-    });
+        sameSite: "lax" as const,
+    };
+
+    setCookie(event, "user-id", userId, { ...cookieOptions, maxAge: 60 * 60 * 24 * 30 }); // 30 days
+
+    setCookie(event, "workos-session", accessToken, { ...cookieOptions, maxAge: 60 * 60 * 24 * 7 }); // 7 days
 
     if (refreshToken) {
-        setCookie(event, "workos-refresh", refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
-            maxAge: 60 * 60 * 24 * 30, // 30 days
-        });
+        setCookie(event, "workos-refresh", refreshToken, { ...cookieOptions, maxAge: 60 * 60 * 24 * 30 }); // 30 days
     }
 };
 
@@ -74,6 +74,22 @@ export const signUpWithPassword = async (email: string, password: string, userDa
     return {
         user: mapWorkOSUserToUser(result),
         message: "Account created successfully. Please verify your email.",
+    };
+};
+
+export const authenticateWithCode = async (code: string) => {
+    const workos = getWorkOS();
+    const result = await callWorkOS(
+        () => workos.userManagement.authenticateWithCode({
+            clientId: getWorkOSClientId(),
+            code,
+        }),
+        'Failed to authenticate with OAuth provider'
+    );
+    return {
+        user: mapWorkOSUserToUser(result.user),
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
     };
 };
 

@@ -1,6 +1,4 @@
-import { getWorkOS, getWorkOSClientId } from "../../../integrations/workos";
-import { setAuthCookies } from "../../../utils/auth";
-import { callWorkOS } from "../../../utils/api";
+import { setAuthCookies, authenticateWithCode } from "../../../utils/auth";
 
 export default defineEventHandler(async (event) => {
     const { code } = getQuery(event);
@@ -10,19 +8,13 @@ export default defineEventHandler(async (event) => {
     }
 
     try {
-        const workos = getWorkOS();
-        const result = await callWorkOS(
-            () => workos.userManagement.authenticateWithCode({
-                clientId: getWorkOSClientId(),
-                code,
-            }),
-            'Failed to authenticate with OAuth provider'
-        );
+        const { user, accessToken, refreshToken } = await authenticateWithCode(code as string);
 
-        setAuthCookies(event, result.accessToken, result.refreshToken);
+        setAuthCookies(event, user.id, accessToken, refreshToken);
         
-        // Redirect to the user's profile page after successful login
-        return sendRedirect(event, `/${result.user.id}/profile`);
+        // @ai: The redirect URL should probably go to a generic dashboard/account page, not a user-specific one.
+        // For now, I'll keep it, but this is a candidate for improvement.
+        return sendRedirect(event, `/${user.id}/profile`);
 
     } catch (error: any) {
         console.error('OAuth callback error:', error);

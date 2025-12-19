@@ -1,6 +1,7 @@
 import { refreshSession, setAuthCookies } from "../../../utils/auth";
+import { defineApiHandler } from "../../../utils/api";
 
-export default defineEventHandler(async (event) => {
+export default defineApiHandler(async (event) => {
     const refreshToken = getCookie(event, "workos-refresh");
 
     if (!refreshToken) {
@@ -10,20 +11,9 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    try {
         const { user, accessToken, refreshToken: newRefreshToken } = await refreshSession(refreshToken);
 
-        setAuthCookies(event, accessToken, newRefreshToken);
+    setAuthCookies(event, user.id, accessToken, newRefreshToken);
 
-        return { user };
-    } catch (error: any) {
-        // If refresh fails, clear cookies to force re-login
-        deleteCookie(event, "workos-session");
-        deleteCookie(event, "workos-refresh");
-        
-        throw createError({
-            statusCode: 401,
-            statusMessage: error.message || "Session refresh failed",
-        });
-    }
+    return { user };
 });

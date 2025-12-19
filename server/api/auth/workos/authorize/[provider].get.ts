@@ -1,6 +1,7 @@
 import { getAuthorizationUrl } from "../../../../utils/auth";
+import { defineApiHandler } from "../../../../utils/api";
 
-export default defineEventHandler((event) => {
+export default defineApiHandler((event) => {
     const provider = getRouterParam(event, "provider");
 
     if (!provider) {
@@ -10,13 +11,6 @@ export default defineEventHandler((event) => {
         });
     }
 
-    try {
         const { authorizationUrl } = getAuthorizationUrl(provider);
-        return { authorizationUrl };
-    } catch (error: any) {
-        throw createError({
-            statusCode: 500,
-            statusMessage: error.message || "Failed to get authorization URL",
-        });
-    }
+    return { authorizationUrl };
 });
