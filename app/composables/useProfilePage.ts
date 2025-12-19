@@ -1,21 +1,23 @@
 import type { UpdateProfileData } from '~/shared/types';
 
 export const useProfilePage = () => {
-    const { user, refreshUser, resendVerificationEmail } = useAuth();
-    const {
+    const { user, refreshUser } = useAuth();
+            const {
         updateUserProfile,
         uploadUserAvatar,
         getUserActivities,
-        error,
-        success,
-        clearMessages,
         loading,
+        resendVerificationEmail,
     } = useUserManagement();
 
-    const { data: activities, pending: activitiesLoading } = useAsyncData(
+        const { data: activities, pending: activitiesLoading } = useAsyncData(
         'user-activities',
         () => getUserActivities(),
-        { lazy: true }
+        {
+            lazy: true,
+            // Transform the result to get the activities array directly
+            transform: (response) => response?.activities || [],
+        }
     );
 
     const handleUpdateProfile = async (updateData: UpdateProfileData) => {
@@ -30,19 +32,17 @@ export const useProfilePage = () => {
         await refreshUser(); // Refresh main user state
     };
 
-    const handleResendVerification = async () => {
+        const handleResendVerification = async () => {
         if (!user.value) return;
+        // This now correctly calls the function from useUserManagement
         await resendVerificationEmail();
     };
 
-    return {
+        return {
         user,
         activities,
         activitiesLoading,
-        error,
-        success,
         loading,
-        clearMessages,
         handleUpdateProfile,
         handleUploadAvatar,
         handleResendVerification,

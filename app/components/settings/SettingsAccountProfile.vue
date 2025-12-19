@@ -16,7 +16,7 @@ const { user } = useAuth();
       </div>
     </div>
     <NuxtLink
-      :to="`/${user.id}/profile`"
+      to="/account"
       class="block w-full px-4 py-2 bg-primary-600 text-white text-center font-medium rounded-lg hover:bg-primary-700 transition-colors"
     >
       Edit Profile

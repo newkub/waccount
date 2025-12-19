@@ -5,7 +5,7 @@ const { user } = useAuth();
 <template>
   <div v-if="user" class="flex items-center gap-3">
     <NuxtLink
-      :to="`/${user.id}/profile`"
+      to="/account"
       class="p-2 hover:bg-white/60 rounded-lg transition-colors"
     >
       <i class="i-mdi-arrow-left text-2xl text-gray-600"></i>

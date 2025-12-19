@@ -33,17 +33,16 @@ interface ApiHandlerOptions<T> {
  * @param {Ref<string | null>} success A ref to store success messages.
  * @returns An object containing the `handle` function.
  */
-export const useApiHandler = (loading: Ref<boolean>, error: Ref<string | null>, success: Ref<string | null>) => {
+export const useApiHandler = (loading: Ref<boolean>) => {
+    const { addToast } = useToasts();
     /**
      * Executes an API call and handles its lifecycle (loading, success, error).
      * @param {() => Promise<T>} apiCall The function that performs the API call.
      * @param {ApiHandlerOptions<T>} options Configuration for handling the API call lifecycle.
      * @returns {Promise<T | null>} The result of the API call, or null if an error occurred.
      */
-        const handle = async <T>(apiCall: () => Promise<T>, options: ApiHandlerOptions<T>): Promise<T | null> => {
+            const handle = async <T>(apiCall: () => Promise<T>, options: ApiHandlerOptions<T>): Promise<T | null> => {
         loading.value = true;
-        error.value = null;
-        success.value = null;
 
         try {
             const result = await apiCall();
@@ -52,15 +51,15 @@ export const useApiHandler = (loading: Ref<boolean>, error: Ref<string | null>, 
                 await options.onSuccess(result);
             }
 
-            if (options.successMessage) {
-                success.value = options.successMessage;
+                        if (options.successMessage) {
+                addToast(options.successMessage, 'success');
             }
 
             return result;
         } catch (err: unknown) {
             const fetchError = err as FetchError;
-            const message = fetchError?.data?.message || fetchError?.message || options.errorMessage;
-            error.value = message;
+                        const message = fetchError?.data?.message || fetchError?.message || options.errorMessage;
+            addToast(message, 'error');
 
             if (options.onError) {
                 await options.onError(err);

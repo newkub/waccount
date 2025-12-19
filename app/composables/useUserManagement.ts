@@ -2,19 +2,13 @@ import type { UserProfile, UpdateProfileData, Activity } from '../../shared/type
 
 export const useUserManagement = () => {
     const profile = useState<UserProfile | null>('profile', () => null);
-    const loading = ref(false);
+        const loading = ref(false);
     const updating = ref(false);
-    const error = ref<string | null>(null);
-    const success = ref<string | null>(null);
 
-    const apiHandler = useApiHandler(loading, error, success);
-    const updatingApiHandler = useApiHandler(updating, error, success);
+    const apiHandler = useApiHandler(loading);
+    const updatingApiHandler = useApiHandler(updating);
 
-    const clearMessages = () => {
-        error.value = null;
-        success.value = null;
-    };
-
+    
         const fetchUserProfile = (userId?: string) => {
         const endpoint = userId ? `/api/users/${userId}` : '/api/auth/workos/profile';
                 return apiHandler.handle<{ profile?: UserProfile; user?: UserProfile }>(
@@ -77,7 +71,16 @@ export const useUserManagement = () => {
             { errorMessage: 'Failed to fetch activities' }
         );
 
-        const updateEmail = (newEmail: string) =>
+            const resendVerificationEmail = () =>
+        apiHandler.handle(
+            () => $fetch('/api/auth/workos/verify-email', { method: 'POST' }),
+            {
+                successMessage: 'Verification email has been sent.',
+                errorMessage: 'Failed to send verification email.',
+            }
+        );
+
+    const updateEmail = (newEmail: string) =>
         updatingApiHandler.handle<{ success: boolean }>(
             () => $fetch('/api/auth/workos/email', { method: 'PATCH', body: { email: newEmail } }),
             {
@@ -86,18 +89,16 @@ export const useUserManagement = () => {
             }
         );
 
-    return {
+        return {
         profile: readonly(profile),
         loading: readonly(loading),
         updating: readonly(updating),
-        error: readonly(error),
-        success: readonly(success),
         fetchUserProfile,
         updateUserProfile,
         uploadUserAvatar,
         deleteAccount,
         getUserActivities,
-        updateEmail,
-        clearMessages,
+                updateEmail,
+        resendVerificationEmail,
     };
 };

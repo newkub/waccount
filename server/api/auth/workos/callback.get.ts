@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
         
         // @ai: The redirect URL should probably go to a generic dashboard/account page, not a user-specific one.
         // For now, I'll keep it, but this is a candidate for improvement.
-        return sendRedirect(event, `/${user.id}/profile`);
+        return sendRedirect(event, '/account');
 
     } catch (error: any) {
         console.error('OAuth callback error:', error);
