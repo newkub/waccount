@@ -4,8 +4,7 @@ const { signInWithOAuth } = useAuth();
 const oauthProviders = [
   { name: 'Google', icon: 'i-mdi-google', class: 'bg-red-500 hover:bg-red-600', provider: 'google' },
   { name: 'GitHub', icon: 'i-mdi-github', class: 'bg-gray-800 hover:bg-gray-900', provider: 'github' },
-];
-</script>
+];</script>
 
 <template>
   <div>

@@ -33,14 +33,14 @@ interface ApiHandlerOptions<T> {
  * @param {Ref<string | null>} success A ref to store success messages.
  * @returns An object containing the `handle` function.
  */
-export const useApiHandler = <T>(loading: Ref<boolean>, error: Ref<string | null>, success: Ref<string | null>) => {
+export const useApiHandler = (loading: Ref<boolean>, error: Ref<string | null>, success: Ref<string | null>) => {
     /**
      * Executes an API call and handles its lifecycle (loading, success, error).
      * @param {() => Promise<T>} apiCall The function that performs the API call.
      * @param {ApiHandlerOptions<T>} options Configuration for handling the API call lifecycle.
      * @returns {Promise<T | null>} The result of the API call, or null if an error occurred.
      */
-    const handle = async (apiCall: () => Promise<T>, options: ApiHandlerOptions<T>) => {
+        const handle = async <T>(apiCall: () => Promise<T>, options: ApiHandlerOptions<T>): Promise<T | null> => {
         loading.value = true;
         error.value = null;
         success.value = null;

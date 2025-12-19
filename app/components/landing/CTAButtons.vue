@@ -12,8 +12,7 @@ const buttons = {
     icon: "i-mdi-account-plus-outline",
     variant: "secondary" as const,
   },
-} as const;
-</script>
+} as const;</script>
 
 <template>
   <section class="py-16">

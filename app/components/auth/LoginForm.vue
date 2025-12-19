@@ -18,8 +18,7 @@ const emit = defineEmits<{
   (e: 'error', error: string): void;
 }>();
 
-const { form, loading, error, handleSubmit, clearMessages } = useLoginForm(emit);
-</script>
+const { form, loading, error, handleSubmit, clearMessages } = useLoginForm(emit);</script>
 
 <template>
   <component :is="props.noWrapper ? 'div' : 'div'" :class="{ 'p-8 max-w-md mx-auto': !props.noWrapper }">

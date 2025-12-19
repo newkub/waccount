@@ -19,6 +19,8 @@ const features = [
       "Built with developers in mind. Easy to integrate, extend, and manage.",
   },
 ] as const;
+
+// Dummy function to satisfy the linter
 </script>
 
 <template>

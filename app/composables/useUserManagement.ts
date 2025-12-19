@@ -1,4 +1,4 @@
-import type { UserProfile, UpdateProfileData, Activity } from '~/shared/types';
+import type { UserProfile, UpdateProfileData, Activity } from '../../shared/types';
 
 export const useUserManagement = () => {
     const profile = useState<UserProfile | null>('profile', () => null);
@@ -15,26 +15,22 @@ export const useUserManagement = () => {
         success.value = null;
     };
 
-    const fetchUserProfile = async (userId?: string) => {
+        const fetchUserProfile = (userId?: string) => {
         const endpoint = userId ? `/api/users/${userId}` : '/api/auth/workos/profile';
-        const { data, error: fetchError } = await useAsyncData(
-            `user-profile-${userId || 'me'}`,
+                return apiHandler.handle<{ profile?: UserProfile; user?: UserProfile }>(
             () => $fetch<{ profile?: UserProfile; user?: UserProfile }>(endpoint),
-            { lazy: true, server: false }
+            {
+                errorMessage: 'Failed to fetch profile',
+                onSuccess: (result) => {
+                    const userProfile = result?.profile || result?.user || null;
+                    profile.value = userProfile;
+                },
+            }
         );
-
-        if (fetchError.value) {
-            error.value = fetchError.value?.message || 'Failed to fetch profile';
-            return null;
-        }
-
-        const userProfile = data.value?.profile || data.value?.user || null;
-        profile.value = userProfile;
-        return userProfile;
     };
 
-    const updateUserProfile = (data: UpdateProfileData) =>
-        updatingApiHandler.handle(
+        const updateUserProfile = (data: UpdateProfileData) =>
+        updatingApiHandler.handle<{ profile: UserProfile }>(
             () => $fetch<{ profile: UserProfile }>('/api/auth/workos/profile', { method: 'PATCH', body: data }),
             {
                 successMessage: 'Profile updated successfully',
@@ -48,7 +44,7 @@ export const useUserManagement = () => {
     const uploadUserAvatar = (file: File) => {
         const formData = new FormData();
         formData.append('avatar', file);
-        return updatingApiHandler.handle(
+                return updatingApiHandler.handle<{ avatarUrl: string }>(
             () => $fetch<{ avatarUrl: string }>('/api/auth/workos/profile/avatar', { method: 'POST', body: formData }),
             {
                 successMessage: 'Profile picture uploaded successfully',
@@ -62,8 +58,8 @@ export const useUserManagement = () => {
         );
     };
 
-    const deleteAccount = () =>
-        apiHandler.handle(
+        const deleteAccount = () =>
+        apiHandler.handle<{ success: boolean }>(
             () => $fetch('/api/auth/workos/account', { method: 'DELETE' }),
             {
                 successMessage: 'Account deleted successfully',
@@ -76,13 +72,13 @@ export const useUserManagement = () => {
         );
 
     const getUserActivities = () =>
-        apiHandler.handle(
+        apiHandler.handle<{ activities: Activity[] }>(
             () => $fetch<{ activities: Activity[] }>('/api/auth/workos/activities'),
             { errorMessage: 'Failed to fetch activities' }
         );
 
-    const updateEmail = (newEmail: string) =>
-        updatingApiHandler.handle(
+        const updateEmail = (newEmail: string) =>
+        updatingApiHandler.handle<{ success: boolean }>(
             () => $fetch('/api/auth/workos/email', { method: 'PATCH', body: { email: newEmail } }),
             {
                 successMessage: 'Email update request sent. Please check your new email for verification.',

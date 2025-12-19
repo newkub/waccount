@@ -20,16 +20,7 @@ const emit = defineEmits<{
   (e: 'error', error: string): void;
 }>();
 
-const {
-  form,
-  loading,
-  success,
-  displayError,
-  passwordMismatch,
-  handleSubmit,
-  clearAllErrors,
-} = useRegisterForm(emit, props.redirectTo);
-</script>
+const { form, loading, success, displayError, passwordMismatch, handleSubmit, clearAllErrors } = useRegisterForm(emit, props.redirectTo);</script>
 
 <template>
   <component :is="props.noWrapper ? 'div' : 'div'" :class="{ 'p-8 max-w-md mx-auto': !props.noWrapper }">
