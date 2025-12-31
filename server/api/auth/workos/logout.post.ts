@@ -1,7 +1,15 @@
-import { clearAuthCookies } from "../../../utils/auth";
-import { defineApiHandler } from "../../../utils/api";
+import { defineEventHandler } from "h3";
+import { clearSealedSessionCookie, loadSessionFromCookie } from "../../../utils/authkit-session";
 
-export default defineApiHandler((event) => {
-    clearAuthCookies(event);
-    return { success: true, message: "Logged out successfully" };
+export default defineEventHandler(async (event) => {
+	const session = await loadSessionFromCookie(event);
+
+	clearSealedSessionCookie(event);
+
+	if (!session) {
+		return { success: true };
+	}
+
+	const logoutUrl = await session.getLogoutUrl();
+	return { success: true, logoutUrl };
 });

@@ -1,27 +1,32 @@
 <script setup lang="ts">
-import type { User, NavItem } from "~/shared/types";
+import type { NavItem, User } from "../../../shared/types";
 
 interface Props {
-  user: User | null;
-  navItems: NavItem[];
-  currentTab: string;
+	user: User | null;
+	navItems: NavItem[];
+	currentTab: string;
 }
 
 defineProps<Props>();
-defineEmits(['close']);
+defineEmits(["close"]);
 </script>
 
 <template>
-  <div>
-    <!-- Mobile Menu Overlay -->
-    <div
-      class="lg:hidden fixed inset-0 bg-black/50 z-40"
-      @click="$emit('close')"
-    ></div>
+	<div>
+		<!-- Mobile Menu Overlay -->
+		<div
+			class="lg:hidden fixed inset-0 bg-black/50 z-40"
+			@click="$emit('close')"
+		>
+		</div>
 
-    <!-- Mobile Menu -->
-    <div class="fixed z-50 lg:hidden">
-      <AccountSidebar :user="user" :nav-items="navItems" :current-tab="currentTab" />
-    </div>
-  </div>
+		<!-- Mobile Menu -->
+		<div class="fixed z-50 lg:hidden">
+			<LayoutAccountSidebar
+				:user="user"
+				:nav-items="navItems"
+				:current-tab="currentTab"
+			/>
+		</div>
+	</div>
 </template>

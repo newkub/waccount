@@ -1,13 +1,12 @@
-import { sendVerificationEmail } from '../../../utils/user';
-import { defineApiHandler } from '../../../utils/api';
+import { defineEventHandler } from "h3";
+import { requireAuthenticatedAuthkitSession } from "../../../utils/authkit-guard";
+import { getWorkosAuthkitConfig } from "../../../utils/authkit-session";
 
-export default defineApiHandler(async (event) => {
-  if (!event.context.user?.id) {
-    throw createError({ statusCode: 401, statusMessage: 'Not authenticated' });
-  }
-  const userId = event.context.user.id;
+export default defineEventHandler(async (event) => {
+	const { user } = await requireAuthenticatedAuthkitSession(event);
+	const { workos } = getWorkosAuthkitConfig();
 
-  await sendVerificationEmail(userId);
+	await workos.userManagement.sendVerificationEmail({ userId: user.id });
 
-  return { success: true, message: 'Verification email sent.' };
+	return { success: true };
 });

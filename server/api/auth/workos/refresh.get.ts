@@ -1,19 +1,26 @@
-import { refreshSession, setAuthCookies } from "../../../utils/auth";
-import { defineApiHandler } from "../../../utils/api";
+import { defineEventHandler } from "h3";
+import { loadSessionFromCookie, setSealedSessionCookie } from "../../../utils/authkit-session";
+import { mapWorkosUserToAppUser } from "../../../utils/workos-user";
 
-export default defineApiHandler(async (event) => {
-    const refreshToken = getCookie(event, "workos-refresh");
+export default defineEventHandler(async (event) => {
+	const session = await loadSessionFromCookie(event);
+	if (!session) {
+		return { user: null };
+	}
 
-    if (!refreshToken) {
-        throw createError({
-            statusCode: 401,
-            statusMessage: "No refresh token found",
-        });
-    }
+	const authResponse = await session.authenticate();
+	if (authResponse.authenticated) {
+		return { user: mapWorkosUserToAppUser(authResponse.user) };
+	}
 
-        const { user, accessToken, refreshToken: newRefreshToken } = await refreshSession(refreshToken);
+	const refreshResponse = await session.refresh();
+	if (!refreshResponse.authenticated) {
+		return { user: null };
+	}
 
-    setAuthCookies(event, user.id, accessToken, newRefreshToken);
+	if (refreshResponse.sealedSession) {
+		setSealedSessionCookie(event, refreshResponse.sealedSession);
+	}
 
-    return { user };
+	return { user: mapWorkosUserToAppUser(refreshResponse.user) };
 });

@@ -1,10 +1,12 @@
 export default defineEventHandler(async (event) => {
-	const config = useRuntimeConfig(event);
-	const session = await useSession(event, {
-		password: config.nuxtSecret,
-	});
+	if (!event.context.session) {
+		throw createError({
+			statusCode: 403,
+		});
+	}
 
-	await session.clear();
+	await lucia.invalidateSession(event.context.session.id);
+	appendHeader(event, "Set-Cookie", lucia.createBlankSessionCookie().serialize());
 
 	return { success: true };
 });

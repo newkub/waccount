@@ -1,12 +1,8 @@
-// This endpoint is now protected by the auth middleware, which populates `event.context.user`
+import { defineEventHandler } from "h3";
+import { requireAuthenticatedAuthkitSession } from "../../../utils/authkit-guard";
+import { mapWorkosUserToAppUser } from "../../../utils/workos-user";
 
 export default defineEventHandler(async (event) => {
-  if (!event.context.user) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Unauthorized',
-    });
-  }
-
-  return { profile: event.context.user };
+	const { user } = await requireAuthenticatedAuthkitSession(event);
+	return { user: mapWorkosUserToAppUser(user) };
 });

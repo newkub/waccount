@@ -1,20 +1,32 @@
-import { describe, it, expect, vi } from 'vitest';
-import { eventHandler } from 'h3';
-import profileEventHandler from './profile.get';
+import { describe, expect, it, vi } from "vitest";
 
-describe('GET /api/auth/workos/profile', () => {
-  it('should return 401 if user is not authenticated', async () => {
-    const event = { context: {} } as any;
+import { createMockWorkosUser, createTestEvent, mockWorkos, setTestRuntimeConfig } from "../../../test/setup";
 
-    await expect(profileEventHandler(event)).rejects.toThrowError();
-  });
+describe("server/api/auth/workos/profile.get", () => {
+	it("returns mapped user for authenticated session", async () => {
+		setTestRuntimeConfig({
+			workosApiKey: "api_key",
+			workosClientId: "client_id",
+			workosCookiePassword: "cookie_password",
+		});
 
-  it('should return user profile if authenticated', async () => {
-    const mockUser = { id: 'user_123', email: 'test@example.com' };
-    const event = { context: { user: mockUser } } as any;
+		const user = createMockWorkosUser();
+		const session = {
+			authenticate: vi
+				.fn()
+				.mockResolvedValueOnce({ authenticated: true, user }),
+			refresh: vi.fn(),
+		};
+		mockWorkos.userManagement.loadSealedSession.mockResolvedValueOnce(session);
 
-    const result = await profileEventHandler(event);
-
-    expect(result).toEqual({ profile: mockUser });
-  });
+		const { WORKOS_SESSION_COOKIE_NAME } = await import(
+			"../../../utils/authkit-session"
+		);
+		const handler = (await import("./profile.get")).default;
+		const event = createTestEvent({
+			__cookies: { [WORKOS_SESSION_COOKIE_NAME]: "sealed" },
+		});
+		const res = await handler(event as any);
+		expect(res.user.id).toBe("user_123");
+	});
 });

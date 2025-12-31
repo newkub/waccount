@@ -1,47 +1,40 @@
-import { describe, it, expect, vi, afterEach } from 'vitest'
-import { $fetch } from '@nuxt/test-utils'
-import { clearAuthCookies } from '../../../utils/auth'
+import { describe, expect, it, vi } from "vitest";
 
-// Mock utilities
-vi.mock('../../../utils/auth', () => ({
-  clearAuthCookies: vi.fn(),
-}))
+import { createTestEvent, mockWorkos, setTestRuntimeConfig } from "../../../test/setup";
 
-// Mock Nuxt composables
-vi.mock('#imports', async (importOriginal) => {
-  const original = await importOriginal().catch(() => ({}))
-  return {
-    ...(typeof original === 'object' && original !== null ? original : {}),
-    defineEventHandler: (handler: any) => handler,
-    createError: vi.fn((err) => { throw { ...err, __isError: true } }),
-  }
-})
+const setCfg = () => {
+	setTestRuntimeConfig({
+		workosApiKey: "api_key",
+		workosClientId: "client_id",
+		workosCookiePassword: "cookie_password",
+	});
+};
 
-describe('POST /api/auth/workos/logout', () => {
-  afterEach(() => {
-    vi.clearAllMocks()
-  })
+describe("server/api/auth/workos/logout.post", () => {
+	it("returns success when no session", async () => {
+		setCfg();
+		const handler = (await import("./logout.post")).default;
+		const res = await handler(createTestEvent({ __cookies: {} }) as any);
+		expect(res).toEqual({ success: true });
+	});
 
-  it('should clear auth cookies and return success', async () => {
-    // Act
-    const response = await $fetch('/api/auth/workos/logout', { method: 'POST' })
+	it("returns logoutUrl when session exists", async () => {
+		setCfg();
+		const { WORKOS_SESSION_COOKIE_NAME } = await import(
+			"../../../utils/authkit-session"
+		);
+		const session = {
+			authenticate: vi.fn(),
+			refresh: vi.fn(),
+			getLogoutUrl: vi.fn().mockResolvedValueOnce("https://workos/logout"),
+		};
+		mockWorkos.userManagement.loadSealedSession.mockResolvedValueOnce(session);
 
-    // Assert
-    expect(clearAuthCookies).toHaveBeenCalledOnce()
-    expect(response).toEqual({ success: true, message: 'Logged out successfully' })
-  })
-
-  it('should return 500 error if clearing cookies fails', async () => {
-    // Arrange
-    const errorMessage = 'Failed to clear cookies'
-    vi.mocked(clearAuthCookies).mockImplementation(() => {
-      throw new Error(errorMessage)
-    })
-
-    // Act & Assert
-    await expect($fetch('/api/auth/workos/logout', { method: 'POST' })).rejects.toMatchObject({
-      statusCode: 500,
-      statusMessage: errorMessage,
-    })
-  })
-})
+		const handler = (await import("./logout.post")).default;
+		const event = createTestEvent({
+			__cookies: { [WORKOS_SESSION_COOKIE_NAME]: "sealed" },
+		});
+		const res = await handler(event as any);
+		expect(res).toEqual({ success: true, logoutUrl: "https://workos/logout" });
+	});
+});

@@ -1,57 +1,51 @@
 <script setup lang="ts">
-useHead({
-  title: "Authenticating - Account Wrikka",
-});
+import { getUserHandle } from "#shared/utils/user-handle";
+import { useAuth } from "~/composables/facade/useAuth";
 
 definePageMeta({
-  layout: "auth",
+	layout: false,
 });
 
 const route = useRoute();
-const error = computed(() => route.query.error as string);
 
-// The server-side API route `/api/auth/workos/callback` handles the code exchange and redirection.
-// This page is just a fallback UI to show the status to the user.
-// The `useFetch` below will trigger the server route.
-useFetch(computed(() => `/api/auth/workos/callback?code=${route.query.code}`), { 
-  immediate: true,
-  server: false, // We only want this to run on the client after the redirect from the provider
-});
+const { refreshUser, user } = useAuth();
 
-const retry = () => {
-  navigateTo('/auth/login');
+const redirectToProviderCallback = () => {
+	const queryString = route.fullPath.includes("?")
+		? route.fullPath.slice(route.fullPath.indexOf("?"))
+		: "";
+	window.location.href = `/api/auth/workos/callback${queryString}`;
 };
+
+onMounted(async () => {
+	try {
+		await refreshUser();
+		if (user.value) {
+			await navigateTo(`/${getUserHandle(user.value)}`);
+			return;
+		}
+		await navigateTo("/");
+	} catch {
+		redirectToProviderCallback();
+	}
+});
 </script>
 
 <template>
-  <div>
-    <!-- Error State -->
-    <div v-if="error" class="text-center">
-      <div class="mb-6">
-        <i class="i-mdi-alert-circle-outline text-6xl text-red-500"></i>
-      </div>
-      <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-        Authentication Failed
-      </h2>
-      <p class="text-gray-600 dark:text-gray-400 mb-6">
-        {{ error }}
-      </p>
-      <UiButton @click="retry" variant="primary" size="lg">
-        Return to Login
-      </UiButton>
-    </div>
-
-    <!-- Loading State -->
-    <div v-else class="text-center">
-      <div class="mb-6">
-        <i class="i-mdi-loading animate-spin text-6xl text-primary-500"></i>
-      </div>
-      <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-        Authenticating...
-      </h2>
-      <p class="text-gray-600 dark:text-gray-400">
-        Please wait while we complete your sign-in.
-      </p>
-    </div>
-  </div>
+	<LayoutAuthShell>
+		<div class="space-y-4">
+			<div class="text-center space-y-2">
+				<h1 class="text-2xl font-bold text-gray-900">Finishing sign in…</h1>
+				<p class="text-gray-600">
+					Please wait while we securely complete your session.
+				</p>
+			</div>
+			<div class="flex items-center justify-center">
+				<Icon
+					name="mdi:loading"
+					class="animate-spin text-4xl text-primary-500"
+				/>
+			</div>
+		</div>
+	</LayoutAuthShell>
 </template>

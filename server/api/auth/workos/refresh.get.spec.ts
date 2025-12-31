@@ -1,86 +1,72 @@
-import { describe, it, expect, vi, afterEach } from 'vitest'
-import { $fetch } from '@nuxt/test-utils'
-import { refreshSession, setAuthCookies } from '../../../utils/auth'
+import { describe, expect, it, vi } from "vitest";
 
-// Mock utilities
-vi.mock('../../../utils/auth', async (importOriginal) => {
-  const original = await importOriginal()
-  return {
-    ...original,
-    refreshSession: vi.fn(),
-    setAuthCookies: vi.fn(),
-  }
-})
+import { createMockWorkosUser, createTestEvent, mockWorkos, setTestRuntimeConfig } from "../../../test/setup";
 
-const mockGetCookie = vi.fn()
-const mockDeleteCookie = vi.fn()
+describe("server/api/auth/workos/refresh.get", () => {
+	it("returns null user when no session cookie", async () => {
+		setTestRuntimeConfig({
+			workosApiKey: "api_key",
+			workosClientId: "client_id",
+			workosCookiePassword: "cookie_password",
+		});
+		const handler = (await import("./refresh.get")).default;
+		const res = await handler(createTestEvent({ __cookies: {} }) as any);
+		expect(res).toEqual({ user: null });
+	});
 
-// Mock Nuxt composables
-vi.mock('#imports', async (importOriginal) => {
-  const original = await importOriginal().catch(() => ({}))
-  return {
-    ...(typeof original === 'object' && original !== null ? original : {}),
-    defineEventHandler: (handler: any) => handler,
-    getCookie: mockGetCookie,
-    deleteCookie: mockDeleteCookie,
-    createError: vi.fn((err) => { throw { ...err, __isError: true } }),
-  }
-})
+	it("returns user when session.authenticate is authenticated", async () => {
+		setTestRuntimeConfig({
+			workosApiKey: "api_key",
+			workosClientId: "client_id",
+			workosCookiePassword: "cookie_password",
+		});
+		const user = createMockWorkosUser();
+		const session = {
+			authenticate: vi
+				.fn()
+				.mockResolvedValueOnce({ authenticated: true, user }),
+			refresh: vi.fn(),
+		};
+		mockWorkos.userManagement.loadSealedSession.mockResolvedValueOnce(session);
 
-describe('GET /api/auth/workos/refresh', () => {
-  afterEach(() => {
-    vi.clearAllMocks()
-  })
+		const { WORKOS_SESSION_COOKIE_NAME } = await import(
+			"../../../utils/authkit-session"
+		);
+		const handler = (await import("./refresh.get")).default;
+		const event = createTestEvent({
+			__cookies: { [WORKOS_SESSION_COOKIE_NAME]: "sealed" },
+		});
+		const res = await handler(event as any);
+		expect(res.user?.id).toBe("user_123");
+	});
 
-  it('should refresh session and return user on success', async () => {
-    // Arrange
-    const oldRefreshToken = 'old_refresh_token'
-    const refreshResult = {
-      user: { id: 'user_123' },
-      accessToken: 'new_access_token',
-      refreshToken: 'new_refresh_token',
-    }
-    mockGetCookie.mockReturnValue(oldRefreshToken)
-    vi.mocked(refreshSession).mockResolvedValue(refreshResult)
+	it("refreshes session and sets cookie when refresh returns sealedSession", async () => {
+		setTestRuntimeConfig({
+			workosApiKey: "api_key",
+			workosClientId: "client_id",
+			workosCookiePassword: "cookie_password",
+		});
+		const user = createMockWorkosUser();
+		const session = {
+			authenticate: vi.fn().mockResolvedValueOnce({ authenticated: false }),
+			refresh: vi.fn().mockResolvedValueOnce({
+				authenticated: true,
+				user,
+				sealedSession: "sealed_new",
+			}),
+		};
+		mockWorkos.userManagement.loadSealedSession.mockResolvedValueOnce(session);
 
-    // Act
-    const response = await $fetch('/api/auth/workos/refresh', { method: 'GET' })
+		const { WORKOS_SESSION_COOKIE_NAME } = await import(
+			"../../../utils/authkit-session"
+		);
+		const handler = (await import("./refresh.get")).default;
+		const event = createTestEvent({
+			__cookies: { [WORKOS_SESSION_COOKIE_NAME]: "sealed" },
+		});
+		const res = await handler(event as any);
 
-    // Assert
-    expect(mockGetCookie).toHaveBeenCalledWith(expect.anything(), 'workos-refresh')
-    expect(refreshSession).toHaveBeenCalledWith(oldRefreshToken)
-    expect(setAuthCookies).toHaveBeenCalledWith(expect.anything(), refreshResult.accessToken, refreshResult.refreshToken)
-    expect(response).toEqual({ user: refreshResult.user })
-  })
-
-  it('should return 401 if no refresh token is found', async () => {
-    // Arrange
-    mockGetCookie.mockReturnValue(undefined)
-
-    // Act & Assert
-    await expect($fetch('/api/auth/workos/refresh', { method: 'GET' })).rejects.toMatchObject({
-      statusCode: 401,
-      statusMessage: 'No refresh token found',
-    })
-    expect(refreshSession).not.toHaveBeenCalled()
-  })
-
-  it('should clear cookies and return 401 if refresh fails', async () => {
-    // Arrange
-    const oldRefreshToken = 'invalid_token'
-    const errorMessage = 'Invalid token'
-    mockGetCookie.mockReturnValue(oldRefreshToken)
-    vi.mocked(refreshSession).mockRejectedValue(new Error(errorMessage))
-
-    // Act & Assert
-    await expect($fetch('/api/auth/workos/refresh', { method: 'GET' })).rejects.toMatchObject({
-      statusCode: 401,
-      statusMessage: errorMessage,
-    })
-
-    expect(refreshSession).toHaveBeenCalledWith(oldRefreshToken)
-    expect(setAuthCookies).not.toHaveBeenCalled()
-    expect(mockDeleteCookie).toHaveBeenCalledWith(expect.anything(), 'workos-session')
-    expect(mockDeleteCookie).toHaveBeenCalledWith(expect.anything(), 'workos-refresh')
-  })
-})
+		expect(event.__cookies?.[WORKOS_SESSION_COOKIE_NAME]).toBe("sealed_new");
+		expect(res.user?.id).toBe("user_123");
+	});
+});

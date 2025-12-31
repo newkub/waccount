@@ -1,14 +1,26 @@
-import { updateUserProfile } from "../../../utils/user";
-import { readValidatedBody, defineApiHandler } from "../../../utils/api";
-import { UpdateProfileDataSchema } from "../../../../shared/types";
+import { createError, defineEventHandler, readBody } from "h3";
+import { requireAuthenticatedAuthkitSession } from "../../../utils/authkit-guard";
+import { getWorkosAuthkitConfig } from "../../../utils/authkit-session";
+import { mapWorkosUserToAppUser } from "../../../utils/workos-user";
 
-export default defineApiHandler(async (event) => {
-    if (!event.context.user?.id) {
-        throw createError({ statusCode: 401, statusMessage: "Not authenticated" });
-    }
-    const userId = event.context.user.id;
+export default defineEventHandler(async (event) => {
+	const { user } = await requireAuthenticatedAuthkitSession(event);
 
-    const body = await readValidatedBody(event, UpdateProfileDataSchema);
-    const profile = await updateUserProfile(userId, body);
-    return { profile };
+	const body = await readBody<{ firstName?: string; lastName?: string }>(event);
+	if (!body || (!body.firstName && !body.lastName)) {
+		throw createError({
+			statusCode: 400,
+			statusMessage: "No profile fields provided",
+		});
+	}
+
+	const { workos } = getWorkosAuthkitConfig();
+
+	const updated = await workos.userManagement.updateUser({
+		userId: user.id,
+		firstName: body.firstName,
+		lastName: body.lastName,
+	});
+
+	return { profile: mapWorkosUserToAppUser(updated) };
 });

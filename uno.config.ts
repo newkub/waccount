@@ -1,17 +1,22 @@
-import { defineConfig, presetWind, presetIcons } from "unocss";
+import {
+	defineConfig,
+	presetWind4,
+	transformerCompileClass,
+	transformerDirectives,
+	transformerVariantGroup,
+} from "unocss";
 
 export default defineConfig({
 	presets: [
-		presetWind({
+		presetWind4({
 			preflights: {
 				reset: true,
 			},
 		}),
-		presetIcons({
-			collections: {
-				mdi: () =>
-					import("@iconify-json/mdi/icons.json").then((i) => i.default),
-			},
-		}),
+	],
+	transformers: [
+		transformerVariantGroup(),
+		transformerDirectives(),
+		transformerCompileClass(),
 	],
 });

@@ -1,90 +1,64 @@
-import { describe, it, expect, vi, afterEach } from 'vitest'
-import { $fetch } from '@nuxt/test-utils'
-import { updateUserProfile } from '../../../utils/user'
-import { readValidatedBody } from '../../../utils/api'
+import { describe, expect, it, vi } from "vitest";
 
-// Mock utilities
-vi.mock('../../../utils/user', () => ({
-  updateUserProfile: vi.fn(),
-}))
-vi.mock('../../../utils/api', () => ({
-  readValidatedBody: vi.fn(),
-}))
+import { createMockWorkosUser, createTestEvent, mockWorkos, setTestRuntimeConfig } from "../../../test/setup";
 
-const mockGetCookie = vi.fn()
+describe("server/api/auth/workos/profile.patch", () => {
+	it("rejects when no profile fields provided", async () => {
+		setTestRuntimeConfig({
+			workosApiKey: "api_key",
+			workosClientId: "client_id",
+			workosCookiePassword: "cookie_password",
+		});
 
-// Mock Nuxt composables
-vi.mock('#imports', async (importOriginal) => {
-  const original = await importOriginal().catch(() => ({}))
-  return {
-    ...(typeof original === 'object' && original !== null ? original : {}),
-    defineEventHandler: (handler: any) => handler,
-    getCookie: mockGetCookie,
-    createError: vi.fn((err) => { throw { ...err, __isError: true } }),
-  }
-})
+		const user = createMockWorkosUser();
+		const session = {
+			authenticate: vi
+				.fn()
+				.mockResolvedValueOnce({ authenticated: true, user }),
+			refresh: vi.fn(),
+		};
+		mockWorkos.userManagement.loadSealedSession.mockResolvedValueOnce(session);
 
-describe('PATCH /api/auth/workos/profile', () => {
-  afterEach(() => {
-    vi.clearAllMocks()
-  })
+		const { WORKOS_SESSION_COOKIE_NAME } = await import(
+			"../../../utils/authkit-session"
+		);
+		const handler = (await import("./profile.patch")).default;
+		const event = createTestEvent({
+			__cookies: { [WORKOS_SESSION_COOKIE_NAME]: "sealed" },
+			__body: {},
+		});
+		await expect(handler(event as any)).rejects.toMatchObject({
+			statusCode: 400,
+		});
+	});
 
-  it('should update profile and return it on success', async () => {
-    // Arrange
-    const userId = 'user_123'
-    const body = { firstName: 'John', lastName: 'Doe' }
-    const updatedProfile = { id: userId, ...body }
-    mockGetCookie.mockReturnValue(userId)
-    vi.mocked(readValidatedBody).mockResolvedValue(body)
-    vi.mocked(updateUserProfile).mockResolvedValue(updatedProfile)
+	it("updates profile and returns mapped profile", async () => {
+		setTestRuntimeConfig({
+			workosApiKey: "api_key",
+			workosClientId: "client_id",
+			workosCookiePassword: "cookie_password",
+		});
 
-    // Act
-    const response = await $fetch('/api/auth/workos/profile', { method: 'PATCH', body })
+		const user = createMockWorkosUser();
+		const session = {
+			authenticate: vi
+				.fn()
+				.mockResolvedValueOnce({ authenticated: true, user }),
+			refresh: vi.fn(),
+		};
+		mockWorkos.userManagement.loadSealedSession.mockResolvedValueOnce(session);
+		mockWorkos.userManagement.updateUser.mockResolvedValueOnce(user);
 
-    // Assert
-    expect(mockGetCookie).toHaveBeenCalledWith(expect.anything(), 'user_id')
-    expect(readValidatedBody).toHaveBeenCalledOnce()
-    expect(updateUserProfile).toHaveBeenCalledWith(userId, body)
-    expect(response).toEqual({ profile: updatedProfile })
-  })
-
-  it('should return 401 if not authenticated', async () => {
-    // Arrange
-    mockGetCookie.mockReturnValue(undefined)
-
-    // Act & Assert
-    await expect($fetch('/api/auth/workos/profile', { method: 'PATCH', body: {} })).rejects.toMatchObject({
-      statusCode: 401,
-      statusMessage: 'Not authenticated',
-    })
-    expect(updateUserProfile).not.toHaveBeenCalled()
-  })
-
-  it('should return 400 for invalid body', async () => {
-    // Arrange
-    const userId = 'user_123'
-    const validationError = { statusCode: 400, statusMessage: 'Validation failed' }
-    mockGetCookie.mockReturnValue(userId)
-    vi.mocked(readValidatedBody).mockRejectedValue(validationError)
-
-    // Act & Assert
-    await expect($fetch('/api/auth/workos/profile', { method: 'PATCH', body: {} })).rejects.toMatchObject(validationError)
-    expect(updateUserProfile).not.toHaveBeenCalled()
-  })
-
-  it('should return 500 if updateUserProfile fails', async () => {
-    // Arrange
-    const userId = 'user_123'
-    const body = { firstName: 'John' }
-    const errorMessage = 'Database error'
-    mockGetCookie.mockReturnValue(userId)
-    vi.mocked(readValidatedBody).mockResolvedValue(body)
-    vi.mocked(updateUserProfile).mockRejectedValue(new Error(errorMessage))
-
-    // Act & Assert
-    await expect($fetch('/api/auth/workos/profile', { method: 'PATCH', body })).rejects.toMatchObject({
-      statusCode: 500,
-      statusMessage: errorMessage,
-    })
-  })
-})
+		const { WORKOS_SESSION_COOKIE_NAME } = await import(
+			"../../../utils/authkit-session"
+		);
+		const handler = (await import("./profile.patch")).default;
+		const event = createTestEvent({
+			__cookies: { [WORKOS_SESSION_COOKIE_NAME]: "sealed" },
+			__body: { firstName: "New" },
+		});
+		const res = await handler(event as any);
+		expect(mockWorkos.userManagement.updateUser).toHaveBeenCalled();
+		expect(res.profile.id).toBe("user_123");
+	});
+});

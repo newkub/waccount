@@ -1,57 +1,70 @@
 <script setup lang="ts">
-interface Props {
-  showSignUpLink?: boolean;
-  title?: string;
-  subtitle?: string;
-  noWrapper?: boolean;
-}
+import type { LoginFormData } from "#shared/types/auth";
+import { LoginFormDataSchema } from "#shared/types/schemas";
+import { toTypedSchema } from "@vee-validate/zod";
+import { ErrorMessage, Field, useForm } from "vee-validate";
 
-const props = withDefaults(defineProps<Props>(), {
-  showSignUpLink: true,
-  title: "Welcome Back",
-  subtitle: "Sign in to your account",
-  noWrapper: false,
+const emit = defineEmits<{ (e: "submit", data: LoginFormData): void }>();
+
+const { handleSubmit } = useForm({
+	validationSchema: toTypedSchema(LoginFormDataSchema),
 });
 
-const emit = defineEmits<{
-  (e: 'success'): void;
-  (e: 'error', error: string): void;
-}>();
-
-const { form, loading, error, handleSubmit, clearMessages } = useLoginForm(emit);</script>
+const onSubmit = handleSubmit((values) => {
+	emit("submit", values);
+});
+</script>
 
 <template>
-  <component :is="props.noWrapper ? 'div' : 'div'" :class="{ 'p-8 max-w-md mx-auto': !props.noWrapper }">
-    <div v-if="!noWrapper && (title || subtitle)" class="text-center mb-8">
-      <h1 v-if="title" class="text-3xl font-bold text-gray-900 dark:text-white mb-2">{{ title }}</h1>
-      <p v-if="subtitle" class="text-gray-600 dark:text-gray-300">{{ subtitle }}</p>
-    </div>
+	<form class="p-6 space-y-4" @submit="onSubmit">
+		<div class="space-y-1.5">
+			<label class="text-sm font-medium text-gray-700" for="email">Email</label>
+			<Field name="email" v-slot="{ field, meta }">
+				<UiInput
+					id="email"
+					type="email"
+					placeholder="you@company.com"
+					v-bind="field"
+					:class="{ 'border-red-500': !meta.valid && meta.touched }"
+				/>
+			</Field>
+			<ErrorMessage name="email" class="text-sm text-red-600" />
+		</div>
 
-    <form class="space-y-6" @submit.prevent="handleSubmit">
-      <div>
-        <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email Address</label>
-        <UiInput id="email" v-model="form.email" type="email" required :disabled="loading" placeholder="Enter your email" />
-      </div>
+		<div class="space-y-1.5">
+			<label class="text-sm font-medium text-gray-700" for="password"
+			>Password</label>
+			<Field name="password" v-slot="{ field, meta }">
+				<UiInput
+					id="password"
+					type="password"
+					placeholder="••••••••"
+					v-bind="field"
+					:class="{ 'border-red-500': !meta.valid && meta.touched }"
+				/>
+			</Field>
+			<ErrorMessage name="password" class="text-sm text-red-600" />
+		</div>
 
-      <div>
-        <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Password</label>
-        <UiInput id="password" v-model="form.password" type="password" required :disabled="loading" placeholder="Enter your password" />
-      </div>
+		<div class="flex items-center justify-end">
+			<NuxtLink
+				to="/auth/forgot-password"
+				class="text-sm font-medium text-primary-600 hover:underline"
+			>
+				Forgot password?
+			</NuxtLink>
+		</div>
 
-      <UiButton type="submit" :loading="loading" :disabled="!form.email || !form.password" class="w-full">
-        Sign In
-      </UiButton>
-    </form>
+		<UiButton type="submit" class="w-full">
+			Sign in
+		</UiButton>
 
-    <div v-if="error" class="mt-4">
-      <UiAlert type="error" :message="error" @close="clearMessages" />
-    </div>
-
-    <div v-if="!noWrapper && showSignUpLink" class="mt-6 text-center">
-      <p class="text-gray-600 dark:text-gray-400">
-        Don't have an account?
-        <NuxtLink to="/auth/register" class="text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 font-medium">Sign up</NuxtLink>
-      </p>
-    </div>
-  </component>
+		<div class="text-center text-sm text-gray-600">
+			Don’t have an account?
+			<NuxtLink
+				to="/auth/signup"
+				class="font-medium text-primary-600 hover:underline"
+			>Create one</NuxtLink>
+		</div>
+	</form>
 </template>

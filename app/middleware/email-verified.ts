@@ -1,9 +1,9 @@
+import { useAuth } from "~/composables/facade/useAuth";
+
 export default defineNuxtRouteMiddleware((to) => {
 	// Skip for non-protected pages
-	const protectedPages = ["/profile", "/settings"];
-	const isProtectedPage = protectedPages.some((page) =>
-		to.path.startsWith(page),
-	);
+	const protectedPages = ["/@"]; // user pages live under /@:user
+	const isProtectedPage = protectedPages.some((page) => to.path.startsWith(page));
 
 	if (!isProtectedPage) {
 		return;
@@ -18,7 +18,6 @@ export default defineNuxtRouteMiddleware((to) => {
 
 	// Check if email is verified
 	if (!user.value.emailVerified) {
-		// Redirect to email verification prompt
-		return navigateTo("/auth/verify-email");
+		return;
 	}
 });

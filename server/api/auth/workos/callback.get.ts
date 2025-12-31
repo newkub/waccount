@@ -1,23 +1,40 @@
-import { setAuthCookies, authenticateWithCode } from "../../../utils/auth";
+import { createError, defineEventHandler, getQuery, sendRedirect } from "h3";
+import { getUserHandle } from "../../../../shared/utils/user-handle";
+import { getWorkosAuthkitConfig, setSealedSessionCookie } from "../../../utils/authkit-session";
 
 export default defineEventHandler(async (event) => {
-    const { code } = getQuery(event);
+	const { code } = getQuery(event);
+	if (typeof code !== "string" || !code) {
+		throw createError({ statusCode: 400, statusMessage: "No code provided" });
+	}
 
-    if (!code || typeof code !== 'string') {
-        return sendRedirect(event, '/auth/login?error=invalid_code');
-    }
+	const { workos, clientId, cookiePassword } = getWorkosAuthkitConfig();
 
-    try {
-        const { user, accessToken, refreshToken } = await authenticateWithCode(code as string);
+	const authenticateResponse = await workos.userManagement.authenticateWithCode(
+		{
+			clientId,
+			code,
+			session: {
+				sealSession: true,
+				cookiePassword,
+			},
+		},
+	);
 
-        setAuthCookies(event, user.id, accessToken, refreshToken);
-        
-        // @ai: The redirect URL should probably go to a generic dashboard/account page, not a user-specific one.
-        // For now, I'll keep it, but this is a candidate for improvement.
-        return sendRedirect(event, '/account');
+	if (!authenticateResponse.sealedSession) {
+		throw createError({
+			statusCode: 500,
+			statusMessage: "Missing sealed session",
+		});
+	}
 
-    } catch (error: any) {
-        console.error('OAuth callback error:', error);
-        return sendRedirect(event, `/auth/login?error=${encodeURIComponent(error.message)}`);
-    }
+	setSealedSessionCookie(event, authenticateResponse.sealedSession);
+
+	const userHandle = getUserHandle({
+		firstName: authenticateResponse.user.firstName ?? null,
+		lastName: authenticateResponse.user.lastName ?? null,
+		email: authenticateResponse.user.email,
+	});
+
+	return sendRedirect(event, `/${userHandle}`, 302);
 });
