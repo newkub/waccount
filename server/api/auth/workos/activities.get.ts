@@ -1,5 +1,5 @@
-import { defineEventHandler } from "h3";
 import type { Activity } from "#shared/types";
+import { defineEventHandler } from "h3";
 import { requireAuthenticatedAuthkitSession } from "../../../utils/authkit-guard";
 import { getWorkosAuthkitConfig } from "../../../utils/authkit-session";
 
@@ -10,19 +10,19 @@ const toActivity = (evt: {
 	data: any;
 }): Activity => {
 	// This is a temporary mapping. You might want to create a more robust mapping.
-	const typeMap: Record<string, Activity['type']> = {
-		'user.signed_in': 'login',
+	const typeMap: Record<string, Activity["type"]> = {
+		"user.signed_in": "login",
 	};
 
 	return {
 		id: evt.id,
-		type: typeMap[evt.event] || 'security', // Default to 'security' or another appropriate type
+		type: typeMap[evt.event] || "security", // Default to 'security' or another appropriate type
 		timestamp: evt.createdAt,
 		action: evt.event,
 		description: `User event: ${evt.event}`,
-		ipAddress: evt.data?.ip_address || 'N/A',
-		location: 'N/A',
-		userAgent: evt.data?.user_agent || 'N/A',
+		ipAddress: evt.data?.ip_address || "N/A",
+		location: "N/A",
+		userAgent: evt.data?.user_agent || "N/A",
 		success: true,
 		metadata: evt.data,
 	};

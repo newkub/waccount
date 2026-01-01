@@ -1,9 +1,5 @@
 <script setup lang="ts">
 import type { NavItem } from "#shared/types";
-import { useAccountNavigation } from "~/composables/core/useAccountNavigation";
-import { useOrgNavigation } from "~/composables/core/useOrgNavigation";
-import { useWorkspaceNavigation } from "~/composables/core/useWorkspaceNavigation";
-import { useAuth } from "~/composables/facade/useAuth";
 
 const route = useRoute();
 

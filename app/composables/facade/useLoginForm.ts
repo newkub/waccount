@@ -1,7 +1,7 @@
 import type { LoginFormData } from "#shared/types";
 
 export function useLoginForm() {
-	const { signInWithPassword, loading, error, clearMessages } = useAuth();
+	const { signInWithPassword, loading, clearMessages } = useAuth();
 
 	const form = reactive<LoginFormData>({
 		email: "",
@@ -23,6 +23,5 @@ export function useLoginForm() {
 		form,
 		submit,
 		loading,
-		error,
 	};
 }

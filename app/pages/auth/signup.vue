@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { useAuth } from "~/composables/facade/useAuth";
-
 definePageMeta({
 	layout: false,
 });
@@ -11,13 +9,22 @@ useHead({
 
 const { signUp, signInWithOAuth, loading, clearMessages } = useAuth();
 
-const onSubmit = async (formData: { email: any; password: any; firstName?: string; lastName?: string }) => {
+const onSubmit = async (
+	formData: {
+		email: any;
+		password: any;
+		firstName?: string;
+		lastName?: string;
+	},
+) => {
 	clearMessages();
 	await signUp({ ...formData, confirmPassword: formData.password });
 	// On success, the user will see a success message.
 };
 
-const onSignInWithProvider = async (provider: "google" | "github" | "microsoft") => {
+const onSignInWithProvider = async (
+	provider: "google" | "github" | "microsoft",
+) => {
 	clearMessages();
 	await signInWithOAuth(provider);
 };

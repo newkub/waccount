@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { useAuth } from "~/composables/facade/useAuth";
-
 const showPasswordForm = ref(false);
 const { startAuthKit, loading, clearMessages } = useAuth();
 

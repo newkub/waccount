@@ -3,7 +3,7 @@ import VueMacros from "unplugin-vue-macros/vite";
 import checker from "vite-plugin-checker";
 
 export default defineNuxtConfig({
-	srcDir: 'app/',
+	srcDir: "app/",
 	compatibilityDate: "latest",
 	devtools: { enabled: true },
 
@@ -23,14 +23,13 @@ export default defineNuxtConfig({
 		"@scalar/nuxt",
 	],
 
-	css: ["@unocss/reset/tailwind-compat.css"],
 
 	imports: {
 		dirs: ["composables/**", "stores", "utils", "vue-macros/api"],
 	},
 
 	alias: {
-		"#shared": "../shared",
+		"~/shared": "../shared",
 	},
 
 	typescript: {

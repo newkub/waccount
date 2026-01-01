@@ -1,8 +1,8 @@
-import { defineStore } from "pinia";
 import type { UpdateProfileData, UserProfile } from "#shared/types";
+import { defineStore } from "pinia";
 
+import { useUserService } from "~/composables/services/userService";
 import { useAuthStore } from "./auth";
-import { useUserService } from '~/composables/services/userService';
 
 export const useUserStore = defineStore("user", () => {
 	const user = ref<UserProfile | null>(null);

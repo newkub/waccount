@@ -3,7 +3,7 @@
  * - Validates user authentication and admin privileges
  * - Supports both role-based and flag-based admin access
  */
-import { useAuth } from '~/composables/facade/useAuth';
+import { useAuth } from "~/composables/facade/useAuth";
 
 export default defineNuxtRouteMiddleware((to) => {
 	// Skip for non-admin pages
@@ -28,7 +28,7 @@ export default defineNuxtRouteMiddleware((to) => {
 		.split(",")
 		.map((s) => s.trim())
 		.filter(Boolean);
-	
+
 	const isEmailAdmin = adminEmails.includes(user.value.email);
 	if (!isEmailAdmin) {
 		throw createError({

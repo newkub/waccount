@@ -1,5 +1,5 @@
-import { createError, defineEventHandler } from "h3";
 import { OrgHealthResponseSchema } from "#shared/types";
+import { createError, defineEventHandler } from "h3";
 import { requireAuthenticatedAuthkitSession } from "../../../utils/authkit-guard";
 import { getWorkosAuthkitConfig } from "../../../utils/authkit-session";
 import { getOrCreateOrganizationByExternalId } from "../../../utils/workos-org";

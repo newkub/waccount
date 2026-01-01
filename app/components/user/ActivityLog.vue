@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { useActivity } from "~/composables/core/useActivity";
-import type { Activity } from "#shared/types";
+import type { Activity } from "~/shared/types";
 
 const props = defineProps<{
 	activities: Activity[];
@@ -13,7 +12,7 @@ const formattedActivities = computed(() =>
 	props.activities.map((activity) => ({
 		...activity,
 		icon: getActivityIcon(activity.type),
-		formattedTimestamp: formatTimeAgo(activity.timestamp),
+		formattedTimestamp: formatTimestamp(activity.timestamp),
 		formattedType: activity.type
 			.replace(/\./g, " ")
 			.replace(/\b\w/g, (l) => l.toUpperCase()),

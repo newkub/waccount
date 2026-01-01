@@ -25,8 +25,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-
 const props = defineProps<{
 	message: string;
 	type: "success" | "error" | "info";

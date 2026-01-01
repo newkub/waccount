@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { useAuth } from "~/composables/facade/useAuth";
-
 definePageMeta({
 	layout: false,
 });
@@ -9,15 +7,21 @@ useHead({
 	title: "Sign In - Account Wrikka",
 });
 
-const { signInWithPassword, signInWithOAuth, loading, clearMessages } = useAuth();
+const { signInWithPassword, signInWithOAuth, loading, clearMessages } =
+	useAuth();
 
 const onSubmit = async (formData: { email: any; password: any }) => {
 	clearMessages();
-	await signInWithPassword({ email: formData.email, password: formData.password });
+	await signInWithPassword({
+		email: formData.email,
+		password: formData.password,
+	});
 	await navigateTo("/dashboard");
 };
 
-const onSignInWithProvider = async (provider: "google" | "github" | "microsoft") => {
+const onSignInWithProvider = async (
+	provider: "google" | "github" | "microsoft",
+) => {
 	clearMessages();
 	await signInWithOAuth(provider);
 };

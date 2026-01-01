@@ -4,14 +4,6 @@ import type { User } from "#shared/types";
 defineProps<{
 	user: User;
 }>();
-
-const formatDate = (dateString: string) => {
-	return new Date(dateString).toLocaleDateString("en-US", {
-		month: "short",
-		day: "numeric",
-		year: "numeric",
-	});
-};
 </script>
 
 <template>

@@ -3,15 +3,15 @@
  * - Protects routes that require authentication
  * - Redirects unauthenticated users to the login page
  */
-import { useAuth } from '~/composables/facade/useAuth';
+import { useAuth } from "~/composables/facade/useAuth";
 
 export default defineNuxtRouteMiddleware((to) => {
 	// Public pages that do not require authentication
 	const publicPages = [
-		'/',
-		'/auth/login',
-		'/auth/signup',
-		'/auth/reset-password',
+		"/",
+		"/auth/login",
+		"/auth/signup",
+		"/auth/reset-password",
 	];
 
 	// Skip middleware if the page is public

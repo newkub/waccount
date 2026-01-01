@@ -10,12 +10,12 @@ export type RegisterFormEmit = {
 };
 
 export interface AuthConfig {
-  provider?: 'workos' | 'clerk' | 'auth0';
-  clientId?: string;
-  redirectUri?: string;
-  apiKey?: string;
+	provider?: "workos" | "clerk" | "auth0";
+	clientId?: string;
+	redirectUri?: string;
+	apiKey?: string;
 }
 
 export interface ModuleOptions {
-  auth?: AuthConfig;
+	auth?: AuthConfig;
 }

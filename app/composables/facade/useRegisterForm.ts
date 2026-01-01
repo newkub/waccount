@@ -1,8 +1,12 @@
 import type { RegisterFormData, RegisterFormEmit } from "#shared/types";
 import { useAuth } from "~/composables/facade/useAuth";
+import { useAuthStore } from "~/stores/auth";
+import { storeToRefs } from "pinia";
 
 export const useRegisterForm = (emit: RegisterFormEmit, redirectTo: string) => {
-	const { signUp, loading, error, success, clearMessages } = useAuth();
+	const { signUp, loading, clearMessages } = useAuth();
+	const authStore = useAuthStore();
+	const { error, success } = storeToRefs(authStore);
 
 	const form = reactive<RegisterFormData & { confirmPassword: string }>({
 		email: "",

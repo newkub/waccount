@@ -1,17 +1,24 @@
 <script setup lang="ts">
 import type { User } from "#shared/types";
+import { computed } from 'vue';
 
 const props = defineProps<{
 	user: User;
 	loading?: boolean;
-	formData: { firstName: string; lastName: string };
+	modelValue: { firstName: string; lastName: string };
 	isChanged: boolean;
 }>();
 
 const emit = defineEmits<{
 	(e: "submit"): void;
 	(e: "upload-avatar", file: File): void;
+	(e: "update:modelValue", value: { firstName: string; lastName: string }): void;
 }>();
+
+const formData = computed({
+	get: () => props.modelValue,
+	set: (value) => emit("update:modelValue", value),
+});
 </script>
 
 <template>
@@ -31,7 +38,7 @@ const emit = defineEmits<{
 					>First Name</label>
 					<UiInput
 						id="firstName"
-						v-model="props.formData.firstName"
+						v-model="formData.firstName"
 						type="text"
 						:disabled="loading"
 						placeholder="Enter first name"
@@ -44,7 +51,7 @@ const emit = defineEmits<{
 					>Last Name</label>
 					<UiInput
 						id="lastName"
-						v-model="props.formData.lastName"
+						v-model="formData.lastName"
 						type="text"
 						:disabled="loading"
 						placeholder="Enter last name"

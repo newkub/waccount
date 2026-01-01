@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { useAuth } from "~/composables/facade/useAuth";
+import { useAuthStore } from '~/stores/auth';
+import { storeToRefs } from 'pinia';
 
 definePageMeta({
 	layout: false,
 });
 
-const { requestPasswordReset, loading, error, success, clearMessages } =
-	useAuth();
+const { requestPasswordReset, loading, clearMessages } = useAuth();
+const authStore = useAuthStore();
+const { error, success } = storeToRefs(authStore);
 
 const form = reactive({
 	email: "",

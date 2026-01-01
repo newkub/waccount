@@ -1,8 +1,8 @@
 import type { LoginFormData, RegisterFormData } from "#shared/types/auth";
 import { storeToRefs } from "pinia";
+import { useFeedback } from "~/composables/core/useFeedback";
 import { useAuthStore } from "~/stores/auth";
 import { useUserStore } from "~/stores/user";
-import { useFeedback } from '~/composables/core/useFeedback';
 
 /**
  * @module useAuth

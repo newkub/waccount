@@ -11,15 +11,15 @@
 // - reset-password: Password reset
 
 export const workosAuthModule = {
-  endpoints: [
-    'authorize',
-    'callback',
-    'refresh',
-    'logout',
-    'password',
-    'register',
-    'profile',
-    'magic-link',
-    'reset-password'
-  ]
-}
+	endpoints: [
+		"authorize",
+		"callback",
+		"refresh",
+		"logout",
+		"password",
+		"register",
+		"profile",
+		"magic-link",
+		"reset-password",
+	],
+};
