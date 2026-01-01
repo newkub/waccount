@@ -1,52 +1,28 @@
 <script setup lang="ts">
-import type { RegisterFormData } from "#shared/types/auth";
-import { getUserHandle } from "#shared/utils/user-handle";
-import { useAuth } from "~/composables/facade/useAuth";
+import { useAuth } from "~/composables/auth";
 
 definePageMeta({
 	layout: false,
 });
 
-const route = useRoute();
-const {
-	signUp,
-	signInWithOAuth,
-	startAuthKit,
-	loading,
-	error,
-	success,
-	clearMessages,
-	user,
-} = useAuth();
-
-const redirect = computed(() => {
-	const q = route.query.redirect;
-	if (typeof q === "string" && q) return q;
-	if (user.value) return `/${getUserHandle(user.value)}`;
-	return "/";
+useHead({
+	title: "Sign Up - Account Wrikka",
 });
 
-const localError = ref<string | null>(null);
-const displayError = computed(() => localError.value || error.value);
+const { signUp, signInWithProvider, loading, error, success, clearMessages } = useAuth();
 
-const onSubmit = async (formData: RegisterFormData) => {
+const onSubmit = async (formData: { email: any; password: any; firstName?: string; lastName?: string }) => {
 	clearMessages();
-	localError.value = null;
-
-	const result = await signUp(formData);
-	if (result) {
-		await navigateTo(redirect.value);
-	}
+	await signUp(formData.email, formData.password, {
+		firstName: formData.firstName,
+		lastName: formData.lastName,
+	});
+	// On success, the user will see a success message.
 };
 
-const onSignUpWithAuthKit = async () => {
+const onSignInWithProvider = async (provider: "google" | "github" | "microsoft") => {
 	clearMessages();
-	await startAuthKit();
-};
-
-const onSignUpWithProvider = async (provider: "google" | "github") => {
-	clearMessages();
-	await signInWithOAuth(provider);
+	await signInWithProvider(provider);
 };
 
 onBeforeUnmount(() => {
@@ -64,10 +40,10 @@ onBeforeUnmount(() => {
 				@close="clearMessages()"
 			/>
 			<UiAlert
-				v-if="displayError"
+				v-if="error"
 				type="error"
-				:message="displayError"
-				@close="localError = null"
+				:message="error"
+				@close="clearMessages()"
 			/>
 
 			<div class="text-center space-y-2">
@@ -76,11 +52,8 @@ onBeforeUnmount(() => {
 			</div>
 
 			<UiCard>
-				<AuthProviders
-					@authKit="onSignUpWithAuthKit"
-					@provider="onSignUpWithProvider"
-				/>
-				<AuthSignupForm @submit="onSubmit" />
+				<AuthProviders @provider="onSignInWithProvider" />
+				<AuthSignupForm @submit="onSubmit" :loading="loading" />
 			</UiCard>
 		</div>
 	</LayoutAuthShell>

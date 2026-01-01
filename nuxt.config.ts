@@ -10,10 +10,12 @@ const isVitest = process.env.VITEST === "true";
 export default defineNuxtConfig({
 	compatibilityDate: "latest",
 	devtools: { enabled: true },
+
 	routeRules: {
 		"/account": { redirect: "/me" },
 		"/account/**": { redirect: "/me" },
 	},
+
 	modules: [
 		"@vue-macros/nuxt",
 		"@vueuse/nuxt",
@@ -23,13 +25,18 @@ export default defineNuxtConfig({
 		"@vueuse/motion/nuxt",
 		"@pinia/nuxt",
 		"@scalar/nuxt",
+		"./modules/auth",
 	],
+
+	css: ["@unocss/reset/tailwind-compat.css"],
+
 	imports: {
 		dirs: ["composables/**", "stores", "utils", "vue-macros/api"],
 	},
 
 	alias: {
 		"#shared": resolve(projectRoot, "shared"),
+		"~/shared": "./shared",
 	},
 
 	typescript: {
@@ -61,7 +68,13 @@ export default defineNuxtConfig({
 			openAPI: true,
 		},
 	},
+
 	vite: {
+		resolve: {
+			alias: {
+				"~/shared": "./shared",
+			},
+		},
 		plugins: [
 			VueMacros(),
 			checker({
@@ -71,13 +84,10 @@ export default defineNuxtConfig({
 				typescript: true,
 				vueTsc: true,
 				oxlint: true,
-				/*
-                biome: {
-                    command: 'check',
-                },*/
 			}),
 		],
 	},
+
 	runtimeConfig: {
 		workosApiKey: process.env.NUXT_WORKOS_API_KEY,
 		workosClientId: process.env.NUXT_WORKOS_CLIENT_ID,
