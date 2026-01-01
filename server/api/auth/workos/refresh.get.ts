@@ -1,26 +1,32 @@
-import { defineEventHandler } from "h3";
-import { loadSessionFromCookie, setSealedSessionCookie } from "../../../utils/authkit-session";
-import { mapWorkosUserToAppUser } from "../../../utils/workos-user";
+import { defineEventHandler } from 'h3';
+import { unsealSession, sealSession } from '~/server/utils/authkit-session'
 
 export default defineEventHandler(async (event) => {
-	const session = await loadSessionFromCookie(event);
+	const session = await unsealSession(event)
+
 	if (!session) {
-		return { user: null };
+		return { user: null }
 	}
 
-	const authResponse = await session.authenticate();
+	// First, try to authenticate the session
+	let authResponse = await session.authenticate()
+
 	if (authResponse.authenticated) {
-		return { user: mapWorkosUserToAppUser(authResponse.user) };
+		return { user: authResponse.user }
 	}
 
-	const refreshResponse = await session.refresh();
-	if (!refreshResponse.authenticated) {
-		return { user: null };
+	// If authentication fails, try to refresh the session
+	authResponse = await session.refresh()
+
+	if (!authResponse.authenticated) {
+		return { user: null }
 	}
 
-	if (refreshResponse.sealedSession) {
-		setSealedSessionCookie(event, refreshResponse.sealedSession);
+	// If refresh is successful, seal the new session
+	if (authResponse.sealedSession) {
+		await sealSession(event, authResponse.sealedSession)
 	}
 
-	return { user: mapWorkosUserToAppUser(refreshResponse.user) };
-});
+	return { user: authResponse.user }
+})
+

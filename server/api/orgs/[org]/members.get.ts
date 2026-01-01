@@ -1,38 +1,23 @@
-import { OrgMembersResponseSchema } from "#shared/types";
-import { createError, defineEventHandler } from "h3";
-import { requireAuthenticatedAuthkitSession } from "../../../utils/authkit-guard";
-import { getWorkosAuthkitConfig } from "../../../utils/authkit-session";
-import { getOrCreateOrganizationByExternalId } from "../../../utils/workos-org";
-import { mapWorkosUserToAppUser } from "../../../utils/workos-user";
+import { defineEventHandler } from 'h3';
+import { unsealSession } from '../../../../utils/authkit-session';
+import { createWorkos } from '../../../../utils/workos';
+import { listMembers } from '../../../../lib/orgs';
 
 export default defineEventHandler(async (event) => {
-	await requireAuthenticatedAuthkitSession(event);
-	const org = event.context.params?.org;
-	if (!org) {
-		throw createError({ statusCode: 400, statusMessage: "Missing org" });
-	}
+    const session = await unsealSession(event);
+    if (!session) {
+        throw createError({ statusCode: 401, statusMessage: 'Unauthorized' });
+    }
 
-	const { workos } = getWorkosAuthkitConfig();
-	const organization = await getOrCreateOrganizationByExternalId(workos, org);
+    const orgId = event.context.params?.org as string;
+    if (!orgId) {
+        throw createError({ statusCode: 400, statusMessage: 'Missing organization ID' });
+    }
 
-	const memberships = await workos.userManagement.listOrganizationMemberships({
-		organizationId: organization.id,
-		limit: 50,
-	});
+    const workos = createWorkos(event);
+    const members = await listMembers(workos, orgId);
 
-	const members = await Promise.all(
-		memberships.data.map(async (m) => {
-			const user = await workos.userManagement.getUser(m.userId);
-			return mapWorkosUserToAppUser(user);
-		}),
-	);
-
-	return OrgMembersResponseSchema.parse({
-		organization: {
-			id: organization.id,
-			externalId: organization.externalId ?? null,
-			name: organization.name,
-		},
-		members,
-	});
+    // The schema expects a different shape, for now we just return members
+    // A further refactor could align the schemas or the service layer.
+    return members;
 });

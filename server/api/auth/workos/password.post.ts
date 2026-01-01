@@ -1,39 +1,40 @@
-import { createError, defineEventHandler, getHeader, readBody } from "h3";
-import { getWorkosAuthkitConfig, setSealedSessionCookie } from "../../../utils/authkit-session";
-import { mapWorkosUserToAppUser } from "../../../utils/workos-user";
+import { z } from 'zod'
+import { sealSession } from '~/server/utils/authkit-session'
+import { createWorkos } from '~/server/utils/workos'
+
+const LoginBody = z.object({
+	email: z.string().email(),
+	password: z.string(),
+})
 
 export default defineEventHandler(async (event) => {
-	const body = await readBody<{ email?: string; password?: string }>(event);
-	if (!body?.email || !body.password) {
-		throw createError({
-			statusCode: 400,
-			statusMessage: "Missing email or password",
-		});
+	const body = await readValidatedBody(event, LoginBody.safeParse)
+
+	if (!body.success) {
+		throw createError({ statusCode: 400, statusMessage: 'Validation failed', data: body.error.issues })
 	}
 
-	const { workos, clientId, cookiePassword } = getWorkosAuthkitConfig();
+	const { email, password } = body.data
+	const workos = createWorkos(event)
 
-	const userAgent = getHeader(event, "user-agent") ?? undefined;
+	try {
+		const { user, sealedSession } = await workos.userManagement.authenticateWithPassword({
+			clientId: useRuntimeConfig(event).public.workosClientId,
+			email,
+			password,
+		})
 
-	const authResponse = await workos.userManagement.authenticateWithPassword({
-		clientId,
-		email: body.email,
-		password: body.password,
-		userAgent,
-		session: {
-			sealSession: true,
-			cookiePassword,
-		},
-	});
+		await sealSession(event, sealedSession)
 
-	if (!authResponse.sealedSession) {
+		return {
+			user,
+		}
+	} catch (error: any) {
 		throw createError({
-			statusCode: 500,
-			statusMessage: "Missing sealed session",
-		});
+			statusCode: 401, // Unauthorized
+			statusMessage: 'Authentication failed',
+			data: error.message,
+		})
 	}
+})
 
-	setSealedSessionCookie(event, authResponse.sealedSession);
-
-	return { user: mapWorkosUserToAppUser(authResponse.user) };
-});

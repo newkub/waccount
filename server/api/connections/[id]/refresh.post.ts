@@ -1,6 +1,7 @@
-import { defineEventHandler } from "h3";
+import { defineEventHandler } from 'h3';
+import { refreshConnection } from '~/server/lib/connections';
 
-export default defineEventHandler(async (_event) => {
-	// TODO: Implement connection refresh logic
-	return { success: true };
+export default defineEventHandler(async (event) => {
+  const connectionId = event.context.params?.id as string;
+  return refreshConnection(connectionId);
 });

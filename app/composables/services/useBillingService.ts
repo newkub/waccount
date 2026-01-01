@@ -1,4 +1,4 @@
-import type { Invoice, Subscription, Usage } from '~/shared/types';
+import type { Invoice, Subscription, Usage, Plan } from '#shared/types';
 
 export const useBillingService = () => {
   const fetchBillingData = async () => {
@@ -9,6 +9,10 @@ export const useBillingService = () => {
     ]);
 
     return { subscription: subscription.value, invoices: invoices.value, usage: usage.value };
+  };
+
+  const fetchPlans = async () => {
+    return useFetch<Plan[]>('/api/billing/plans');
   };
 
   const changePlan = async (newPlanId: string) => {
@@ -26,6 +30,7 @@ export const useBillingService = () => {
 
   return {
     fetchBillingData,
+    fetchPlans,
     changePlan,
     cancelSubscription,
   };

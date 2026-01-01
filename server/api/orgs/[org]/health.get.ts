@@ -1,44 +1,42 @@
-import { OrgHealthResponseSchema } from "#shared/schemas";
 import { createError, defineEventHandler } from "h3";
-import { requireAuthenticatedAuthkitSession } from "../../../utils/authkit-guard";
-import { getWorkosAuthkitConfig } from "../../../utils/authkit-session";
 import { getOrCreateOrganizationByExternalId } from "../../../utils/workos-org";
+import { createWorkos } from "../../../utils/workos";
+import { OrgHealthResponseSchema } from "../../../../shared/schemas";
 
 export default defineEventHandler(async (event) => {
-	await requireAuthenticatedAuthkitSession(event);
 	const org = event.context.params?.org;
 	if (!org) {
 		throw createError({ statusCode: 400, statusMessage: "Missing org" });
 	}
 
-	const { workos } = getWorkosAuthkitConfig();
+	const countActiveInactive = <T extends { state?: unknown }>(items: readonly T[]) => {
+		const activeCount = items.filter((item) => String(item.state ?? "").toLowerCase() === "active").length;
+		const inactiveCount = items.length - activeCount;
+		return { count: items.length, activeCount, inactiveCount };
+	};
+
+	const workos = createWorkos(event);
 	const organization = await getOrCreateOrganizationByExternalId(workos, org);
 
 	const [connections, directories] = await Promise.all([
 		workos.sso.listConnections({ organizationId: organization.id, limit: 50 }),
 		workos.directorySync.listDirectories({ organizationId: organization.id, limit: 50 }),
 	]);
-
-	const connectionStates = connections.data.map((c: any) => String(c?.state ?? ""));
-	const activeCount = connectionStates.filter((s) => s.toLowerCase() === "active").length;
-	const inactiveCount = connectionStates.length - activeCount;
-
-	const directoryStates = directories.data.map((d: any) => String(d?.state ?? ""));
-	const healthyCount = directoryStates.filter((s) => s.toLowerCase() === "active").length;
-	const unhealthyCount = directoryStates.length - healthyCount;
+	const ssoCounts = countActiveInactive(connections.data);
+	const directoryCounts = countActiveInactive(directories.data);
 
 	return OrgHealthResponseSchema.parse({
 		orgExternalId: org,
 		organizationId: organization.id,
 		ssoConnections: {
-			count: connections.data.length,
-			activeCount,
-			inactiveCount,
+			count: ssoCounts.count,
+			activeCount: ssoCounts.activeCount,
+			inactiveCount: ssoCounts.inactiveCount,
 		},
 		directories: {
-			count: directories.data.length,
-			healthyCount,
-			unhealthyCount,
+			count: directoryCounts.count,
+			healthyCount: directoryCounts.activeCount,
+			unhealthyCount: directoryCounts.inactiveCount,
 		},
 		generatedAt: new Date().toISOString(),
 	});

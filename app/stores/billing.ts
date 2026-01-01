@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
-import type { Invoice, Subscription, Usage } from '~/shared/types';
+import type { Invoice, Subscription, Usage, Plan } from '~/shared/types';
+import { useBillingService } from '~/composables/services/useBillingService';
 
 export const useBillingStore = defineStore('billing', () => {
   const subscription = ref<Subscription | null>(null);
@@ -7,12 +8,24 @@ export const useBillingStore = defineStore('billing', () => {
   const usage = ref<Usage | null>(null);
   const loading = ref(false);
   const error = ref<string | null>(null);
+  const planOptions = ref<Plan[]>([]);
 
-  const planOptions = ref([
-    { id: 'basic', name: 'Basic', price: 1999, currency: 'USD', features: [], popular: false },
-    { id: 'pro', name: 'Pro', price: 2999, currency: 'USD', features: [], popular: true },
-    { id: 'enterprise', name: 'Enterprise', price: 9999, currency: 'USD', features: [], popular: false },
-  ]);
+  const billingService = useBillingService();
+
+  const fetchPlans = async () => {
+    loading.value = true;
+    error.value = null;
+    try {
+      const { data } = await billingService.fetchPlans();
+      if (data.value) {
+        planOptions.value = data.value;
+      }
+    } catch (e: any) {
+      error.value = e.message;
+    } finally {
+      loading.value = false;
+    }
+  };
 
   const currentPlan = computed(() => {
     return planOptions.value.find(plan => plan.id === subscription.value?.plan);
@@ -36,5 +49,6 @@ export const useBillingStore = defineStore('billing', () => {
     planOptions,
     currentPlan,
     daysUntilRenewal,
+    fetchPlans,
   };
 });

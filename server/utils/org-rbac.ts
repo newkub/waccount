@@ -1,8 +1,8 @@
 import type { H3Event } from "h3";
-import type { OrgRole } from "~/shared/types/org";
+import type { OrgRole } from "../../shared/types/org";
 import { createError } from "h3";
 import { requireAuthenticatedAuthkitSession } from "./authkit-guard";
-import { getWorkosAuthkitConfig } from "./authkit-session";
+import { createWorkos } from "./workos";
 import { getOrCreateOrganizationByExternalId } from "./workos-org";
 
 
@@ -21,7 +21,7 @@ export const requireOrgRole = async (
 	allowedRoles: readonly OrgRole[],
 ) => {
 	const { user } = await requireAuthenticatedAuthkitSession(event);
-	const { workos } = getWorkosAuthkitConfig();
+	const workos = createWorkos(event);
 	const organization = await getOrCreateOrganizationByExternalId(workos, orgExternalId);
 
 	const memberships = await workos.userManagement.listOrganizationMemberships({
@@ -34,7 +34,7 @@ export const requireOrgRole = async (
 		throw createError({ statusCode: 403, statusMessage: "Not a member of this organization" });
 	}
 
-	const role = normalizeRole((membership as any).role);
+	const role = normalizeRole(membership.role.slug);
 	if (!role || !allowedRoles.includes(role)) {
 		throw createError({ statusCode: 403, statusMessage: "Insufficient permissions" });
 	}

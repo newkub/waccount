@@ -1,4 +1,4 @@
-import type { OrgDashboardLayoutResponse } from '#shared/types';
+import type { OrgDashboardLayoutResponse, AccountOrganization, User } from '#shared/types';
 
 export const useOrgService = () => {
   const fetchDashboardLayout = (orgId: string) => {
@@ -10,7 +10,17 @@ export const useOrgService = () => {
     );
   };
 
+  const fetchOrganizations = () => {
+    return useFetch<AccountOrganization[]>('/api/users/me/organizations');
+  };
+
+  const fetchMembers = (orgId: string) => {
+    return useFetch<User[]>(`/api/orgs/${orgId}/members`);
+  };
+
   return {
     fetchDashboardLayout,
+    fetchOrganizations,
+    fetchMembers,
   };
 };

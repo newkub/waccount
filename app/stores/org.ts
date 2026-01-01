@@ -1,12 +1,47 @@
 import { defineStore } from 'pinia';
 import type { NavItem } from '~/composables/core/useWorkspaceNavigation';
-import type { OrgDashboardLayoutResponse } from '#shared/types';
+import type { OrgDashboardLayoutResponse, AccountOrganization, User } from '#shared/types';
+import { useOrgService } from '~/composables/services/useOrgService';
 
 export const useOrgStore = defineStore('org', () => {
   const layoutData = ref<OrgDashboardLayoutResponse | null>(null);
+  const organizations = ref<AccountOrganization[]>([]);
+  const members = ref<User[]>([]);
   const loading = ref(false);
   const error = ref<string | null>(null);
   const isMobileMenuOpen = ref(false);
+
+  const orgService = useOrgService();
+
+  const fetchOrganizations = async () => {
+    loading.value = true;
+    error.value = null;
+    try {
+      const { data } = await orgService.fetchOrganizations();
+      if (data.value) {
+        organizations.value = data.value;
+      }
+    } catch (e: any) {
+      error.value = e.message;
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  const fetchMembers = async (orgId: string) => {
+    loading.value = true;
+    error.value = null;
+    try {
+      const { data } = await orgService.fetchMembers(orgId);
+      if (data.value) {
+        members.value = data.value;
+      }
+    } catch (e: any) {
+      error.value = e.message;
+    } finally {
+      loading.value = false;
+    }
+  };
 
   const navItemsBase = (orgId: string): NavItem[] => [
     {
@@ -56,9 +91,13 @@ export const useOrgStore = defineStore('org', () => {
 
   return {
     layoutData,
+    organizations,
+    members,
     loading,
     error,
     isMobileMenuOpen,
     navItems,
+    fetchOrganizations,
+    fetchMembers,
   };
 });

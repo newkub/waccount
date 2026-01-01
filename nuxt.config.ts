@@ -1,5 +1,4 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-import VueMacros from "unplugin-vue-macros/vite";
 import checker from "vite-plugin-checker";
 
 export default defineNuxtConfig({
@@ -68,7 +67,6 @@ export default defineNuxtConfig({
 
 	vite: {
 		plugins: [
-			VueMacros(),
 			checker({
 				overlay: {
 					initialIsOpen: false,
@@ -85,6 +83,7 @@ export default defineNuxtConfig({
 		workosRedirectUri: process.env.NUXT_WORKOS_REDIRECT_URI,
 		workosCookiePassword: process.env.NUXT_WORKOS_COOKIE_PASSWORD,
 		luciaSessionPassword: process.env.NUXT_LUCIA_SESSION_PASSWORD,
+		stripeSecretKey: process.env.NUXT_STRIPE_SECRET_KEY,
 		public: {
 			baseUrl: process.env.NUXT_PUBLIC_BASE_URL,
 			adminEmails: process.env.NUXT_PUBLIC_ADMIN_EMAILS,

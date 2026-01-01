@@ -41,6 +41,16 @@ vi.mock("h3", () => {
 	const defineEventHandler = <T extends (...args: any[]) => any>(handler: T) => handler;
 
 	const readBody = async <T = unknown>(event: H3TestEvent): Promise<T> => event.__body as T;
+	const readValidatedBody = async <T = unknown>(event: H3TestEvent, parser: any) => {
+		const body = event.__body as T;
+		// If a parser is provided, use it. Otherwise, just return the body.
+		if (parser) {
+			const result = parser(body);
+			if (result.success) return result;
+			return { success: false, error: { issues: [] } }; // Mocked failure
+		}
+		return body;
+	};
 	const getQuery = (event: H3TestEvent) => event.__query ?? {};
 	const getHeader = (event: H3TestEvent, name: string) => event.__headers?.[name.toLowerCase()];
 
@@ -82,10 +92,20 @@ vi.mock("h3", () => {
 
 	const getRouterParams = (event: H3TestEvent) => event.context.params ?? {};
 
+	const useRuntimeConfig = () => ({
+			workosApiKey: "sk_test_123",
+			workosCookiePassword: "your-cookie-password-for-testing",
+			public: {
+				workosClientId: "client_test_123",
+				baseUrl: "http://test.host",
+			},
+		});
+
 	return {
 		createError,
 		defineEventHandler,
 		readBody,
+		readValidatedBody,
 		getQuery,
 		getHeader,
 		sendRedirect,
@@ -93,5 +113,6 @@ vi.mock("h3", () => {
 		setCookie,
 		deleteCookie,
 		getRouterParams,
+		useRuntimeConfig,
 	};
 });
