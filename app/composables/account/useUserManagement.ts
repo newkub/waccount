@@ -1,4 +1,4 @@
-import type { UserProfile, UpdateProfileData } from "~/types";
+import type { UserProfile, UpdateProfileData } from '#shared/types';
 
 /**
  * User Management composable - Pure Vue/Nuxt approach

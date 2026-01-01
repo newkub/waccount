@@ -5,7 +5,7 @@ export type User = z.infer<typeof UserSchema>;
 export type UserProfile = User;
 export type UpdateProfileData = z.infer<typeof UpdateProfileDataSchema>;
 
-export interface Activity {
+export interface UserActivity {
 	id: string;
 	type: string;
 	timestamp: string;

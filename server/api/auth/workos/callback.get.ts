@@ -1,5 +1,5 @@
 import { createError, defineEventHandler, getQuery, sendRedirect } from "h3";
-import { getUserHandle } from "../../../../shared/utils/user-handle";
+import { getUserHandle } from "#shared/utils/user-handle";
 import { getWorkosAuthkitConfig, setSealedSessionCookie } from "../../../utils/authkit-session";
 
 export default defineEventHandler(async (event) => {

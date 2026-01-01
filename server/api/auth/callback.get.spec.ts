@@ -1,6 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { createApp, eventHandler, toNodeListener } from 'h3'
-import supertest from 'supertest'
+import { H3Event, createError, getQuery, sendRedirect, appendHeader } from 'h3'
 import callbackEventHandler from './callback.get'
 
 // Mock dependencies
@@ -34,16 +33,22 @@ const mockWorkos = {
 }
 vi.stubGlobal('createWorkos', vi.fn(() => mockWorkos))
 vi.stubGlobal('useRuntimeConfig', vi.fn(() => ({ workosClientId: 'mock-client-id' })))
+vi.stubGlobal('getQuery', vi.fn())
+vi.stubGlobal('sendRedirect', vi.fn())
+vi.stubGlobal('appendHeader', vi.fn())
 
 describe('GET /api/auth/callback', () => {
-  const app = createApp()
-  app.use('/api/auth/callback', eventHandler(callbackEventHandler))
-  const request = supertest(toNodeListener(app))
+  
+    it('should throw 400 if code is missing', async () => {
+    vi.mocked(getQuery).mockReturnValue({})
+    const mockEvent = {} as H3Event
 
-  it('should throw 400 if code is missing', async () => {
-    const response = await request.get('/api/auth/callback')
-    expect(response.status).toBe(400)
-    expect(response.body.message).toBe('Missing authorization code')
+    await expect(callbackEventHandler(mockEvent)).rejects.toThrow(
+      createError({
+        statusCode: 400,
+        statusMessage: 'Missing authorization code',
+      }),
+    )
   })
 
   it('should create a new user and redirect', async () => {
@@ -56,11 +61,13 @@ describe('GET /api/auth/callback', () => {
     vi.mocked(db.returning).mockResolvedValue([mockDbUser])
     mockLucia.createSession.mockResolvedValue({ id: 'session-1' })
 
-    const response = await request.get('/api/auth/callback?code=test-code')
+        vi.mocked(getQuery).mockReturnValue({ code: 'test-code' })
+    const mockEvent = {} as H3Event
 
-    expect(response.status).toBe(302)
-    expect(response.headers.location).toBe('/me')
-    expect(response.headers['set-cookie']).toContain('mock-cookie')
+    await callbackEventHandler(mockEvent)
+
+    expect(sendRedirect).toHaveBeenCalledWith(mockEvent, '/me')
+    expect(appendHeader).toHaveBeenCalledWith(mockEvent, 'Set-Cookie', 'mock-cookie')
     expect(db.insert).toHaveBeenCalled()
   })
 
@@ -73,11 +80,13 @@ describe('GET /api/auth/callback', () => {
     vi.mocked(db.query.users.findFirst).mockResolvedValue(mockDbUser)
     mockLucia.createSession.mockResolvedValue({ id: 'session-2' })
 
-    const response = await request.get('/api/auth/callback?code=another-code')
+        vi.mocked(getQuery).mockReturnValue({ code: 'another-code' })
+    const mockEvent = {} as H3Event
 
-    expect(response.status).toBe(302)
-    expect(response.headers.location).toBe('/me')
-    expect(response.headers['set-cookie']).toContain('mock-cookie')
+    await callbackEventHandler(mockEvent)
+
+    expect(sendRedirect).toHaveBeenCalledWith(mockEvent, '/me')
+    expect(appendHeader).toHaveBeenCalledWith(mockEvent, 'Set-Cookie', 'mock-cookie')
     expect(db.insert).not.toHaveBeenCalled()
   })
 
@@ -89,9 +98,14 @@ describe('GET /api/auth/callback', () => {
     vi.mocked(db.query.users.findFirst).mockResolvedValue(undefined)
     vi.mocked(db.returning).mockResolvedValue([]) // Simulate failed insert
 
-    const response = await request.get('/api/auth/callback?code=fail-code')
+        vi.mocked(getQuery).mockReturnValue({ code: 'fail-code' })
+    const mockEvent = {} as H3Event
 
-    expect(response.status).toBe(500)
-    expect(response.body.message).toBe('Failed to create user')
+    await expect(callbackEventHandler(mockEvent)).rejects.toThrow(
+      createError({
+        statusCode: 500,
+        statusMessage: 'Failed to create user',
+      }),
+    )
   })
 })

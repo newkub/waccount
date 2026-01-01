@@ -80,7 +80,7 @@ export interface Provider {
 	color: string
 }
 
-export interface Organization {
+export interface UserOrganization {
 	id: string
 	name: string
 	role: 'admin' | 'member' | 'owner'

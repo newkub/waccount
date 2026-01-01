@@ -2,7 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { createError, defineEventHandler, readBody } from "h3";
 import { randomUUID } from "node:crypto";
 import { db } from "~~/server/db";
-import { OrgDashboardLayoutResponseSchema, OrgDashboardLayoutUpsertRequestSchema } from "../../../../shared/types";
+import { OrgDashboardLayoutResponseSchema, OrgDashboardLayoutUpsertRequestSchema } from "#shared/types";
 import { orgDashboardLayouts } from "../../../db/schema";
 import { requireOrgRole } from "../../../utils/org-rbac";
 

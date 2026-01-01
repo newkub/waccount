@@ -1,5 +1,5 @@
 import { ref, computed, readonly } from 'vue'
-import { useAuth } from '~/composables/auth'
+import { useAuth } from '~/composables/facade/useAuth'
 
 interface AuthForm {
   email: string
@@ -31,8 +31,7 @@ export const useAuthUI = (initialMode: 'signin' | 'signup' = 'signin') => {
   const { 
     signInWithPassword, 
     signUp, 
-    signInWithProvider,
-    signInWithMagicLink,
+    signInWithOAuth,
     loading,
     error,
     success,
@@ -71,9 +70,9 @@ export const useAuthUI = (initialMode: 'signin' | 'signup' = 'signin') => {
       clearMessages()
       
       if (state.value.activeTab === 'signup') {
-        await signUp(state.value.form.email, state.value.form.password)
+        await signUp({ ...state.value.form, confirmPassword: state.value.form.password })
       } else {
-        await signInWithPassword(state.value.form.email, state.value.form.password)
+        await signInWithPassword(state.value.form)
       }
     } catch (err: any) {
       // Error is handled by useAuth composable
@@ -81,9 +80,9 @@ export const useAuthUI = (initialMode: 'signin' | 'signup' = 'signin') => {
     }
   }
 
-  const handleSocialAuth = async (provider: string) => {
+  const handleSocialAuth = async (provider: 'google' | 'github' | 'microsoft') => {
     try {
-      await signInWithProvider(provider)
+      await signInWithOAuth(provider)
     } catch (err: any) {
       // Error is handled by useAuth composable
       console.error('Social auth error:', err)
@@ -139,8 +138,7 @@ export const useAuthUI = (initialMode: 'signin' | 'signup' = 'signin') => {
     // Direct auth methods
     signInWithPassword,
     signUp,
-    signInWithProvider,
-    signInWithMagicLink,
+    signInWithOAuth,
     clearMessages,
   }
 }

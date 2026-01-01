@@ -1,0 +1,4 @@
+- ไม่ใช้ clerk, auth0, lucia,
+- ใช้ nuxt + workos + stripe +  nuxt utils uath
+- ไม่ใช่ vueuse motion, jose, postgres
+- ใช้ nuxtlink แทน a ทั้งหมด

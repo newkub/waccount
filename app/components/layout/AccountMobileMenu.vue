@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { NavItem, User } from "../../../shared/types";
+import type { NavItem, User } from "#shared/types";
 
 interface Props {
 	user: User | null;

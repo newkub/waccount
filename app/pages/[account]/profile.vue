@@ -1,10 +1,10 @@
 <script setup lang="ts">
 definePageMeta({
-	layout: 'account',
+	layout: 'dashboard',
 	middleware: ['auth']
 });
 
-import { useAuth } from '~/composables/auth';
+import { useAuth } from '~/composables/facade/useAuth';
 
 const { user } = useAuth();
 </script>
@@ -20,7 +20,7 @@ const { user } = useAuth();
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div>
 						<label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
-						<p class="text-gray-900">{{ user?.name || 'Not set' }}</p>
+						<p class="text-gray-900">{{ user?.firstName }} {{ user?.lastName }}</p>
 					</div>
 					<div>
 						<label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
@@ -46,7 +46,7 @@ const { user } = useAuth();
 				<h3 class="text-lg font-semibold text-gray-900 mb-4">Profile Picture</h3>
 				<div class="flex items-center gap-6">
 					<div class="w-20 h-20 bg-gray-300 rounded-full flex items-center justify-center">
-						<img v-if="user?.avatar" :src="user.avatar" :alt="user.name" class="w-full h-full rounded-full object-cover" />
+						<img v-if="user?.avatar" :src="user.avatar" :alt="`${user.firstName} ${user.lastName}`" class="w-full h-full rounded-full object-cover" />
 						<i v-else class="i-mdi-account text-3xl text-gray-600"></i>
 					</div>
 					<div>

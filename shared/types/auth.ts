@@ -8,3 +8,14 @@ export type RegisterFormEmit = {
 	(e: "success"): void;
 	(e: "error", error: string): void;
 };
+
+export interface AuthConfig {
+  provider?: 'workos' | 'clerk' | 'auth0';
+  clientId?: string;
+  redirectUri?: string;
+  apiKey?: string;
+}
+
+export interface ModuleOptions {
+  auth?: AuthConfig;
+}

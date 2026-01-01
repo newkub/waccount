@@ -3,7 +3,7 @@
  * - Validates user authentication and admin privileges
  * - Supports both role-based and flag-based admin access
  */
-import { useAuth } from '~/composables/auth';
+import { useAuth } from '~/composables/facade/useAuth';
 
 export default defineNuxtRouteMiddleware((to) => {
 	// Skip for non-admin pages
@@ -30,10 +30,7 @@ export default defineNuxtRouteMiddleware((to) => {
 		.filter(Boolean);
 	
 	const isEmailAdmin = adminEmails.includes(user.value.email);
-	const hasAdminRole = user.value.role === "admin";
-	const hasAdminFlag = user.value.isAdmin === true;
-
-	if (!isEmailAdmin && !hasAdminRole && !hasAdminFlag) {
+	if (!isEmailAdmin) {
 		throw createError({
 			statusCode: 403,
 			statusMessage: "Access denied. Admin privileges required.",

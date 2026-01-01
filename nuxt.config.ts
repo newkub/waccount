@@ -1,13 +1,9 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-import { resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import VueMacros from "unplugin-vue-macros/vite";
 import checker from "vite-plugin-checker";
 
-const projectRoot = fileURLToPath(new URL(".", import.meta.url));
-const isVitest = process.env.VITEST === "true";
-
 export default defineNuxtConfig({
+	srcDir: 'app/',
 	compatibilityDate: "latest",
 	devtools: { enabled: true },
 
@@ -21,11 +17,10 @@ export default defineNuxtConfig({
 		"@vueuse/nuxt",
 		"@unocss/nuxt",
 		"@nuxt/icon",
-		...(isVitest ? [] : ["@nuxtjs/color-mode"]),
+		"@nuxtjs/color-mode",
 		"@vueuse/motion/nuxt",
 		"@pinia/nuxt",
 		"@scalar/nuxt",
-		"./modules/auth",
 	],
 
 	css: ["@unocss/reset/tailwind-compat.css"],
@@ -35,8 +30,7 @@ export default defineNuxtConfig({
 	},
 
 	alias: {
-		"#shared": resolve(projectRoot, "shared"),
-		"~/shared": "./shared",
+		"#shared": "../shared",
 	},
 
 	typescript: {
@@ -70,11 +64,6 @@ export default defineNuxtConfig({
 	},
 
 	vite: {
-		resolve: {
-			alias: {
-				"~/shared": "./shared",
-			},
-		},
 		plugins: [
 			VueMacros(),
 			checker({

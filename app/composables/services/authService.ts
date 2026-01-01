@@ -51,6 +51,13 @@ export const useAuthService = () => {
 		return $fetch<{ user: User }>("/api/auth/workos/refresh");
 	};
 
+	const signInWithMagicLink = (email: string) => {
+		return $fetch<{ success: boolean }>("/api/auth/workos/magic-link", {
+			method: "POST",
+			body: { email },
+		});
+	};
+
 	return {
 		signInWithPassword,
 		signUp,
@@ -60,5 +67,6 @@ export const useAuthService = () => {
 		resetPassword,
 		signOut,
 		refreshUser,
+		signInWithMagicLink,
 	};
 };

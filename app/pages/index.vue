@@ -1,40 +1,18 @@
 <script setup lang="ts">
-<<<<<<< HEAD
+import { useAuth } from '~/composables/facade/useAuth';
+
 definePageMeta({
 	layout: false,
 });
-||||||| e08b327
-const { user, isAuthenticated } = useAuth();
-=======
-import AuthUI from '~/components/AuthUI.vue';
->>>>>>> origin/main
 
 useHead({
-<<<<<<< HEAD
 	title: "Welcome - Account Wrikka",
-||||||| e08b327
-	title: "Home - Account Wrikka",
-=======
-	title: "Sign In - Account Wrikka",
 });
 
-definePageMeta({
-	middleware: ["guest"],
->>>>>>> origin/main
-});
+const { user, isAuthenticated } = useAuth();
 </script>
 
 <template>
-<<<<<<< HEAD
-	<LayoutPublicShell>
-		<div class="space-y-16">
-			<LandingHeroSection />
-			<LandingFeatureCards />
-			<LandingCTAButtons />
-		</div>
-	</LayoutPublicShell>
-</template>
-||||||| e08b327
 	<div class="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 relative overflow-hidden">
 		<!-- Color Mode Switcher -->
 		<ColorModeSwitcher />
@@ -167,7 +145,7 @@ definePageMeta({
 								<i class="i-mdi-account text-4xl text-primary-600 dark:text-primary-400"></i>
 							</div>
 							<h2 class="text-4xl font-bold text-gray-900 dark:text-white mb-6">
-								Welcome back, {{ user?.name }}!
+								Welcome back, {{ user?.firstName }}!
 							</h2>
 
 							<p class="text-xl text-gray-600 dark:text-gray-300 mb-10 max-w-2xl mx-auto">
@@ -209,9 +187,3 @@ definePageMeta({
 	background-size: 20px 20px;
 }
 </style>
-=======
-	<div class="min-h-screen flex items-center justify-center px-4">
-		<AuthUI mode="signin" />
-	</div>
-</template>
->>>>>>> origin/main

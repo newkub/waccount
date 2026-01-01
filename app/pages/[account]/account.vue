@@ -3,11 +3,11 @@ import { onMounted } from 'vue'
 import { useAccount } from '~/composables/account/useAccount'
 
 definePageMeta({
-	layout: 'account',
+	layout: 'dashboard',
 	middleware: ['auth']
 });
 
-import { useAuth } from '~/composables/auth';
+import { useAuth } from '~/composables/facade/useAuth';
 
 const { user, signOut } = useAuth();
 const {
@@ -44,8 +44,7 @@ const handleDeleteAccount = async () => {
 					</div>
 					<div>
 						<label class="block text-sm font-medium text-gray-700 mb-1">Account Type</label>
-						<p class="text-gray-900">{{ user?.isAdmin ? 'Administrator' : 'Standard User' }}</p>
-					</div>
+											</div>
 					<div>
 						<label class="block text-sm font-medium text-gray-700 mb-1">Account Status</label>
 						<p class="text-green-600">Active</p>

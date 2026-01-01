@@ -3,7 +3,32 @@
 
 export * from "./auth";
 export * from "./nav";
-export * from "./org";
+export type {
+	AuditLogsExportRequest,
+	Directory,
+	OrgDashboardLayoutResponse,
+	OrgDashboardLayoutUpsertRequest,
+	OrgHealthResponse,
+	OrgIntegrationsResponse,
+	OrgMembership,
+	OrgMembershipsResponse,
+	OrgMembersResponse,
+	Organization,
+	SsoConnection,
+} from "./org";
 export * from "./schemas";
-export * from "./user";
-export * from './account';
+export type { UpdateProfileData, User, UserActivity, UserProfile } from "./user";
+export type {
+	AccountOrganization,
+	Activity,
+	Connection,
+	Invitation,
+	Invoice,
+	Metadata,
+	Provider,
+	Subscription,
+	Usage,
+	UsageMetric,
+	UserOrganization,
+	UserPreferences,
+} from "./account";

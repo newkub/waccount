@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useAuth } from '~/composables/auth';
+import { useAuth } from '~/composables/facade/useAuth';
 
 useHead({
   title: "Processing Sign In - Account Wrikka",

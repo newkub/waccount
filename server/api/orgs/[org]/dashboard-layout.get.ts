@@ -1,6 +1,6 @@
 import { createError, defineEventHandler } from "h3";
 import { db } from "~~/server/db";
-import { OrgDashboardLayoutResponseSchema } from "../../../../shared/types";
+import { OrgDashboardLayoutResponseSchema } from "#shared/types";
 import { requireAuthenticatedAuthkitSession } from "../../../utils/authkit-guard";
 
 const DEFAULT_LAYOUT = {

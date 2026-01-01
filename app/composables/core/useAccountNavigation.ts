@@ -1,4 +1,3 @@
-import { getUserHandle } from "#shared/utils/user-handle";
 import { useAuth } from "~/composables/facade/useAuth";
 
 export const useAccountNavigation = () => {
@@ -7,7 +6,8 @@ export const useAccountNavigation = () => {
 
 	const accountHref = computed(() => {
 		if (!user.value) return "/";
-		return `/${getUserHandle(user.value)}`;
+		// The handle is now part of the route params
+		return `/${route.params.user}`;
 	});
 
 	const navItems = [
@@ -26,8 +26,11 @@ export const useAccountNavigation = () => {
 	];
 
 	const currentTab = computed(() => {
-		if (route.path.endsWith("/settings")) return "settings";
-		return "profile";
+		if (route.path.includes("/settings")) {
+			return "settings";
+		}
+		// The main account page is now the dashboard
+		return "account";
 	});
 
 	const isMobileMenuOpen = ref(false);

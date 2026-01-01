@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useActivity } from "~/composables/core/useActivity";
-import type { Activity } from "../../../shared/types";
+import type { Activity } from "#shared/types";
 
 const props = defineProps<{
 	activities: Activity[];

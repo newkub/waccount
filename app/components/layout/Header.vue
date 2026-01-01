@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useAuth } from "~/composables/facade/useAuth";
-import { getUserHandle } from "../../../shared/utils/user-handle";
+import { getUserHandle } from "#shared/utils/user-handle";
 
 const { user, isAuthenticated, signOut } = useAuth();
 

@@ -5,11 +5,11 @@ import { formatTimestamp } from '~/utils/formatters'
 import { getActivityIcon, getActivityColor } from '~/utils/activityHelpers'
 
 definePageMeta({
-  layout: 'account',
+  layout: 'dashboard',
   middleware: ['auth']
 })
 
-import { useAuth } from '~/composables/auth';
+import { useAuth } from '~/composables/facade/useAuth';
 
 const { user } = useAuth()
 const { 

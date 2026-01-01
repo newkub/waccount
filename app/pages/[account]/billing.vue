@@ -5,11 +5,11 @@ import { formatCurrency, formatDate } from '~/utils/formatters'
 import { getBillingStatusColor, getUsageColor } from '~/utils/billingHelpers'
 
 definePageMeta({
-	layout: 'account',
+	layout: 'dashboard',
 	middleware: ['auth']
 })
 
-import { useAuth } from '~/composables/auth';
+import { useAuth } from '~/composables/facade/useAuth';
 
 const { user } = useAuth()
 const {

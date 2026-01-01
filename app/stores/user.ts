@@ -1,7 +1,8 @@
 import { defineStore } from "pinia";
-import type { Activity, UpdateProfileData, UserProfile } from "../../shared/types";
+import type { UpdateProfileData, UserProfile } from "#shared/types";
 
 import { useAuthStore } from "./auth";
+import { useUserService } from '~/composables/services/userService';
 
 export const useUserStore = defineStore("user", () => {
 	const user = ref<UserProfile | null>(null);
@@ -16,100 +17,63 @@ export const useUserStore = defineStore("user", () => {
 
 	const apiHandler = useApiHandler(loading);
 	const updatingApiHandler = useApiHandler(updating);
+	const userService = useUserService();
 
-	const fetchUserProfile = (userId?: string) => {
-		const endpoint = userId
-			? `/api/users/${userId}`
-			: "/api/auth/workos/profile";
-		return apiHandler.handle<{ profile?: UserProfile; user?: UserProfile }>(
-			() => $fetch<{ profile?: UserProfile; user?: UserProfile }>(endpoint),
-			{
-				errorMessage: "Failed to fetch profile",
-				onSuccess: (result: { profile?: UserProfile; user?: UserProfile }) => {
-					const userProfile = result?.profile || result?.user || null;
-					user.value = userProfile;
-				},
+	const fetchUserProfile = (userId?: string) =>
+		apiHandler.handle(() => userService.fetchUserProfile(userId), {
+			errorMessage: "Failed to fetch profile",
+			onSuccess: (result) => {
+				const userProfile = result?.profile || result?.user || null;
+				user.value = userProfile;
 			},
-		);
-	};
+		});
 
 	const updateUserProfile = (data: UpdateProfileData) =>
-		updatingApiHandler.handle<{ profile: UserProfile }>(
-			() =>
-				$fetch<{ profile: UserProfile }>("/api/auth/workos/profile", {
-					method: "PATCH",
-					body: data,
-				}),
-			{
-				successMessage: "Profile updated successfully",
-				errorMessage: "Failed to update profile",
-				onSuccess: (result: { profile: UserProfile } | null) => {
-					if (result) user.value = result.profile;
-				},
+		updatingApiHandler.handle(() => userService.updateUserProfile(data), {
+			successMessage: "Profile updated successfully",
+			errorMessage: "Failed to update profile",
+			onSuccess: (result) => {
+				if (result) user.value = result.profile;
 			},
-		);
+		});
 
-	const uploadUserAvatar = (file: File) => {
-		const formData = new FormData();
-		formData.append("avatar", file);
-		return updatingApiHandler.handle<{ avatarUrl: string }>(
-			() =>
-				$fetch<{ avatarUrl: string }>("/api/auth/workos/profile/avatar", {
-					method: "POST",
-					body: formData,
-				}),
-			{
-				successMessage: "Profile picture uploaded successfully",
-				errorMessage: "Failed to upload profile picture",
-				onSuccess: (result: { avatarUrl: string } | null) => {
-					if (result && user.value) {
-						user.value.avatar = result.avatarUrl;
-					}
-				},
+	const uploadUserAvatar = (file: File) =>
+		updatingApiHandler.handle(() => userService.uploadUserAvatar(file), {
+			successMessage: "Profile picture uploaded successfully",
+			errorMessage: "Failed to upload profile picture",
+			onSuccess: (result) => {
+				if (result && user.value) {
+					user.value.avatar = result.avatarUrl;
+				}
 			},
-		);
-	};
+		});
 
 	const deleteAccount = () =>
-		apiHandler.handle<{ success: boolean }>(
-			() => $fetch("/api/auth/workos/account", { method: "DELETE" }),
-			{
-				successMessage: "Account deleted successfully",
-				errorMessage: "Failed to delete account",
-				onSuccess: async () => {
-					const authStore = useAuthStore();
-					authStore.signOut();
-				},
+		apiHandler.handle(() => userService.deleteAccount(), {
+			successMessage: "Account deleted successfully",
+			errorMessage: "Failed to delete account",
+			onSuccess: async () => {
+				const authStore = useAuthStore();
+				authStore.signOut();
 			},
-		);
+		});
 
 	const getUserActivities = () =>
-		apiHandler.handle<{ activities: Activity[] }>(
-			() => $fetch<{ activities: Activity[] }>("/api/auth/workos/activities"),
-			{ errorMessage: "Failed to fetch activities" },
-		);
+		apiHandler.handle(() => userService.getUserActivities(), {
+			errorMessage: "Failed to fetch activities",
+		});
 
 	const resendVerificationEmail = () =>
-		apiHandler.handle(
-			() => $fetch("/api/auth/workos/verify-email", { method: "POST" }),
-			{
-				successMessage: "Verification email has been sent.",
-				errorMessage: "Failed to send verification email.",
-			},
-		);
+		apiHandler.handle(() => userService.resendVerificationEmail(), {
+			successMessage: "Verification email has been sent.",
+			errorMessage: "Failed to send verification email.",
+		});
 
 	const updateEmail = (newEmail: string) =>
-		updatingApiHandler.handle<{ success: boolean }>(
-			() =>
-				$fetch("/api/auth/workos/email", {
-					method: "PATCH",
-					body: { email: newEmail },
-				}),
-			{
-				successMessage: "Email update request sent. Please check your new email for verification.",
-				errorMessage: "Failed to update email",
-			},
-		);
+		updatingApiHandler.handle(() => userService.updateEmail(newEmail), {
+			successMessage: "Email update request sent. Please check your new email for verification.",
+			errorMessage: "Failed to update email",
+		});
 
 	return {
 		user,

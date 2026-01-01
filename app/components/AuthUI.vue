@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import SocialButton from './auth/SocialButton.vue'
-import { useAuthUI } from '~/composables/auth'
+import { useAuthUI } from '~/composables/auth/useAuthUI'
+
+definePageMeta({
+  layout: false,
+});
 
 interface Props {
   mode?: 'signin' | 'signup' | 'forgot-password'
@@ -23,7 +27,6 @@ const {
   error,
   success,
   handleSocialAuth,
-  signInWithMagicLink,
   clearMessages,
   setMode,
 } = useAuthUI(props.mode as 'signin' | 'signup')
@@ -31,16 +34,6 @@ const {
 // Set initial mode
 setMode(props.mode as 'signin' | 'signup')
 
-// Handle email submission with magic link
-const handleAuth = async () => {
-  const email = (form as any).email
-  if (!email) return
-  try {
-    await signInWithMagicLink(email)
-  } catch (err) {
-    console.error('Magic link error:', err)
-  }
-}
 </script>
 
 <template>
@@ -84,8 +77,7 @@ const handleAuth = async () => {
 
 			<!-- Continue Button -->
 			<button 
-				@click="handleAuth"
-				:disabled="loading"
+								:disabled="loading"
 				:class="[
 					'w-full py-3 px-4 font-semibold rounded-lg transition-colors mb-6 cursor-pointer',
 					loading ? 'opacity-50 cursor-not-allowed' : '',

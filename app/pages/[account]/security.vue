@@ -1,10 +1,10 @@
 <script setup lang="ts">
 definePageMeta({
-	layout: 'account',
+	layout: 'dashboard',
 	middleware: ['auth']
 });
 
-import { useAuth } from '~/composables/auth';
+import { useAuth } from '~/composables/facade/useAuth';
 
 const { user } = useAuth();
 </script>

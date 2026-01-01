@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { User } from '../../types'
+import type { User } from '#shared/types'
 
 interface UserState {
   user: User | null

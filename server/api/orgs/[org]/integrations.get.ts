@@ -1,6 +1,6 @@
 import { createError, defineEventHandler } from "h3";
 import { useRuntimeConfig } from "nitropack/runtime";
-import { OrgIntegrationsResponseSchema } from "../../../../shared/types";
+import { OrgIntegrationsResponseSchema } from "#shared/types";
 import { requireAuthenticatedAuthkitSession } from "../../../utils/authkit-guard";
 import { getWorkosAuthkitConfig } from "../../../utils/authkit-session";
 import { getOrCreateOrganizationByExternalId } from "../../../utils/workos-org";

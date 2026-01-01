@@ -2,6 +2,7 @@ import type { LoginFormData, RegisterFormData } from "#shared/types/auth";
 import { storeToRefs } from "pinia";
 import { useAuthStore } from "~/stores/auth";
 import { useUserStore } from "~/stores/user";
+import { useFeedback } from '~/composables/core/useFeedback';
 
 /**
  * @module useAuth
@@ -25,12 +26,18 @@ export const useAuth = () => {
 		return authStore.signUp(data);
 	};
 
+	const { showError, showSuccess } = useFeedback();
+	watch(error, (newError) => {
+		if (newError) showError(newError);
+	});
+	watch(success, (newSuccess) => {
+		if (newSuccess) showSuccess(newSuccess);
+	});
+
 	return {
 		// State
 		user: readonly(user),
 		loading: readonly(loading),
-		error: readonly(error),
-		success: readonly(success),
 		isAuthenticated: readonly(isAuthenticated),
 
 		// Actions

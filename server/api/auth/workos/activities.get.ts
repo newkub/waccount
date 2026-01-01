@@ -1,5 +1,5 @@
 import { defineEventHandler } from "h3";
-import type { Activity } from "../../../../shared/types";
+import type { Activity } from "#shared/types";
 import { requireAuthenticatedAuthkitSession } from "../../../utils/authkit-guard";
 import { getWorkosAuthkitConfig } from "../../../utils/authkit-session";
 
@@ -7,13 +7,24 @@ const toActivity = (evt: {
 	id: string;
 	event: string;
 	createdAt: string;
-	data: unknown;
+	data: any;
 }): Activity => {
+	// This is a temporary mapping. You might want to create a more robust mapping.
+	const typeMap: Record<string, Activity['type']> = {
+		'user.signed_in': 'login',
+	};
+
 	return {
 		id: evt.id,
-		type: evt.event,
+		type: typeMap[evt.event] || 'security', // Default to 'security' or another appropriate type
 		timestamp: evt.createdAt,
-		data: evt.data,
+		action: evt.event,
+		description: `User event: ${evt.event}`,
+		ipAddress: evt.data?.ip_address || 'N/A',
+		location: 'N/A',
+		userAgent: evt.data?.user_agent || 'N/A',
+		success: true,
+		metadata: evt.data,
 	};
 };
 
@@ -59,7 +70,7 @@ export default defineEventHandler(async (event) => {
 			})
 		)
 		.filter((a) => {
-			const eventUserId = getUserIdFromEventData(a.data);
+			const eventUserId = getUserIdFromEventData(a.metadata);
 			if (!eventUserId) {
 				return true;
 			}

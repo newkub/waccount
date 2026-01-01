@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue'
-import type { Organization, Invitation } from '../../types/account'
+import type { UserOrganization as Organization, Invitation } from '#shared/types/account'
 
 export const useTeams = () => {
   const loading = ref(false)
