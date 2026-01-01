@@ -1,5 +1,5 @@
 import { createError, defineEventHandler } from "h3";
-import { getWorkosAuthkitConfig } from "../../utils/authkit-session";
+import { createWorkos } from "../../utils/workos";
 import { mapWorkosUserToAppUser } from "../../utils/workos-user";
 
 export default defineEventHandler(async (event) => {
@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
 		throw createError({ statusCode: 400, statusMessage: "Missing user id" });
 	}
 
-	const { workos } = getWorkosAuthkitConfig();
+	const workos = createWorkos(event);
 	const user = await workos.userManagement.getUser(id);
 
 	return { user: mapWorkosUserToAppUser(user) };

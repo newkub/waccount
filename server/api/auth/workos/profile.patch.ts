@@ -1,9 +1,9 @@
-import { createError, defineEventHandler, readBody } from "h3";
-import { requireAuthenticatedAuthkitSession } from "../../../utils/authkit-guard";
-import { getWorkosAuthkitConfig } from "../../../utils/authkit-session";
-import { mapWorkosUserToAppUser } from "../../../utils/workos-user";
-import { UserPreferencesSchema } from "../../../../shared/schemas";
 import type { UserPreferences } from "#shared/types";
+import { createError, defineEventHandler, readBody } from "h3";
+import { UserPreferencesSchema } from "../../../../shared/schemas";
+import { requireAuthenticatedAuthkitSession } from "../../../utils/authkit-guard";
+import { createWorkos } from "../../../utils/workos";
+import { mapWorkosUserToAppUser } from "../../../utils/workos-user";
 
 export default defineEventHandler(async (event) => {
 	const { user } = await requireAuthenticatedAuthkitSession(event);
@@ -16,12 +16,12 @@ export default defineEventHandler(async (event) => {
 		});
 	}
 
-	const { workos } = getWorkosAuthkitConfig();
+	const workos = createWorkos(event);
 
-	const unsafeMetadata = {
-		...user.unsafeMetadata,
+	const metadata = {
+		...(user as any).metadata,
 		preferences: {
-			...(user.unsafeMetadata?.preferences as object),
+			...((user as any).metadata?.preferences as object),
 			...UserPreferencesSchema.partial().parse(body.preferences ?? {}),
 		},
 	};
@@ -30,7 +30,7 @@ export default defineEventHandler(async (event) => {
 		userId: user.id,
 		firstName: body.firstName,
 		lastName: body.lastName,
-		unsafeMetadata,
+		metadata,
 	});
 
 	return { profile: mapWorkosUserToAppUser(updated) };

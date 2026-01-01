@@ -17,7 +17,7 @@ const {
 	changePlan,
 	cancelSubscription,
 	downloadInvoice,
-} = useBilling();
+} = useBillingFacade();
 
 onMounted(fetchBillingData);
 </script>

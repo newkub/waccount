@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useAuthUI } from "~/composables/facade/useAuthUI";
 import SocialButton from "~/components/auth/SocialButton.vue";
+import { useAuthUI } from "~/composables/facade/useAuthUI";
 
 definePageMeta({
 	layout: false,
@@ -134,7 +134,6 @@ setMode(props.mode as "signin" | "signup");
 					@click="handleSocialAuth('github')"
 				/>
 			</div>
-
 		</div>
 	</div>
 </template>

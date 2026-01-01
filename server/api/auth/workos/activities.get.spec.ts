@@ -4,7 +4,6 @@ import { createMockWorkosUser, createTestEvent, mockWorkos } from "../../../test
 
 describe("server/api/auth/workos/activities.get", () => {
 	it("returns mapped activities list", async () => {
-
 		const user = createMockWorkosUser({ id: "user_123" });
 		const session = {
 			authenticate: vi

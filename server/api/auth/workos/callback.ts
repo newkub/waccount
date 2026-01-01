@@ -1,4 +1,3 @@
-
 export default defineEventHandler(async (event) => {
 	try {
 		const query = getQuery(event) as Record<string, string | string[]>;

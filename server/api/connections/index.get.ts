@@ -1,6 +1,6 @@
-import { defineEventHandler } from 'h3';
-import { getConnections } from '~/server/lib/connections';
+import { defineEventHandler } from "h3";
+import { getConnections } from "../../lib/connections";
 
-export default defineEventHandler(async (_event) => {
-  return getConnections();
+export default defineEventHandler(async (event) => {
+	return getConnections(event);
 });

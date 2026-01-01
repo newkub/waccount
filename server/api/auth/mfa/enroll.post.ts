@@ -1,16 +1,20 @@
 import { defineEventHandler } from "h3";
 import { requireAuthenticatedAuthkitSession } from "../../../utils/authkit-guard";
-import { getWorkosAuthkitConfig } from "../../../utils/authkit-session";
+import { createWorkos } from "../../../utils/workos";
 
 export default defineEventHandler(async (event) => {
 	const { user } = await requireAuthenticatedAuthkitSession(event);
-	const { workos } = getWorkosAuthkitConfig();
+	const workos = createWorkos(event);
 
 	const factor = await workos.mfa.enrollFactor({
 		type: "totp",
 		issuer: "Wrikka", // Or your app's name
 		user: user.email,
 	});
+
+	if (!factor.totp) {
+		throw createError({ statusCode: 500, statusMessage: "Failed to enroll MFA factor" });
+	}
 
 	return {
 		id: factor.id,

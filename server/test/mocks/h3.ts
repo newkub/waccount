@@ -93,13 +93,13 @@ vi.mock("h3", () => {
 	const getRouterParams = (event: H3TestEvent) => event.context.params ?? {};
 
 	const useRuntimeConfig = () => ({
-			workosApiKey: "sk_test_123",
-			workosCookiePassword: "your-cookie-password-for-testing",
-			public: {
-				workosClientId: "client_test_123",
-				baseUrl: "http://test.host",
-			},
-		});
+		workosApiKey: "sk_test_123",
+		workosCookiePassword: "your-cookie-password-for-testing",
+		public: {
+			workosClientId: "client_test_123",
+			baseUrl: "http://test.host",
+		},
+	});
 
 	return {
 		createError,

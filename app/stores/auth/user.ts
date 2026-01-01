@@ -1,6 +1,6 @@
 import type { UpdateProfileData, User, UserProfile } from "#shared/types";
 import { defineStore } from "pinia";
-import { ref, computed } from "vue";
+import { computed, ref } from "vue";
 
 export const useUserStore = defineStore("user", () => {
 	// State

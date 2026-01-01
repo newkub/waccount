@@ -1,5 +1,5 @@
 import { createError, defineEventHandler, readBody } from "h3";
-import { getWorkosAuthkitConfig } from "../../../utils/authkit-session";
+import { createWorkos } from "../../../utils/workos";
 
 export default defineEventHandler(async (event) => {
 	const body = await readBody<{ token?: string; newPassword?: string }>(event);
@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
 		});
 	}
 
-	const { workos } = getWorkosAuthkitConfig();
+	const workos = createWorkos(event);
 	await workos.userManagement.resetPassword({
 		token: body.token,
 		newPassword: body.newPassword,

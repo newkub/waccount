@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { messages, removeMessage } = useFeedback();
+const { messages, removeMessage } = useFeedbackFacade();
 
 const getIcon = (type: string) => {
 	switch (type) {

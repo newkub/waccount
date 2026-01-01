@@ -1,7 +1,7 @@
-import { OrgMembershipsResponseSchema } from "#shared/types";
+import { OrgMembershipsResponseSchema } from "#shared/schemas";
 import { createError, defineEventHandler } from "h3";
 import { requireAuthenticatedAuthkitSession } from "../../../utils/authkit-guard";
-import { getWorkosAuthkitConfig } from "../../../utils/authkit-session";
+import { createWorkos } from "../../../utils/workos";
 import { getOrCreateOrganizationByExternalId } from "../../../utils/workos-org";
 
 export default defineEventHandler(async (event) => {
@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
 		throw createError({ statusCode: 400, statusMessage: "Missing org" });
 	}
 
-	const { workos } = getWorkosAuthkitConfig();
+	const workos = createWorkos(event);
 	const organization = await getOrCreateOrganizationByExternalId(workos, org);
 
 	const memberships = await workos.userManagement.listOrganizationMemberships({

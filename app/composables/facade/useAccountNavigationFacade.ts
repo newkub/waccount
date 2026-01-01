@@ -7,7 +7,11 @@ export const useAccountNavigationFacade = () => {
 	const accountHref = computed(() => {
 		if (!user.value) return "/";
 		// The handle is now part of the route params
-		return `/${route.params.user}`;
+		const userParam = route.params.user;
+		if (typeof userParam === "string") {
+			return `/${userParam}`;
+		}
+		return "/";
 	});
 
 	const navItems = [

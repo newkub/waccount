@@ -14,7 +14,7 @@ const {
 	updatePreference,
 	deleteAccount,
 	enableTwoFactor,
-} = useAccount();
+} = useAccountFacade();
 
 onMounted(fetchAccountData);
 
@@ -28,7 +28,7 @@ const handleDeleteAccount = async () => {
 	<div>
 		<h2 class="text-2xl font-bold text-gray-900 mb-6">Account Settings</h2>
 
-		<div class="space-y-6">
+		<div v-if="preferences" class="space-y-6">
 			<!-- Account Information -->
 			<div class="bg-gray-50 rounded-lg p-6">
 				<h3 class="text-lg font-semibold text-gray-900 mb-4">
@@ -127,7 +127,7 @@ const handleDeleteAccount = async () => {
 							</p>
 						</div>
 						<div
-							v-if="preferences.twoFactorEnabled"
+							v-if="preferences?.twoFactorEnabled"
 							class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full"
 						>
 							Enabled

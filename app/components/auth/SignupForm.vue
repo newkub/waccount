@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import { RegisterFormDataSchema } from "#shared/schemas";
 import type { RegisterFormData } from "#shared/types/auth";
-import { RegisterFormDataSchema } from "#shared/types/schemas";
 import { toTypedSchema } from "@vee-validate/zod";
 import { ErrorMessage, Field, useForm } from "vee-validate";
 

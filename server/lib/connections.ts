@@ -1,70 +1,60 @@
-// This is a mock connections provider service. In a real application, this would be replaced
-// with an actual integration with a service like WorkOS Directory Sync.
+import type { Connection, Provider } from "#shared/types/connections";
+import type { H3Event } from "h3";
+import { ensureUserHasOrganization } from "../utils/session";
+import { createWorkos } from "../utils/workos";
 
-import type { Connection, Provider } from '../../shared/types';
+// This is now a real connections provider service using WorkOS.
 
-const mockConnections: Connection[] = [
-    {
-        id: 'conn_google_123',
-        provider: 'Google',
-        type: 'sso',
-        status: 'active',
-        email: 'user@example.com',
-        connectedAt: '2024-01-15',
-        lastUsed: '2024-03-20',
-        permissions: ['email', 'profile', 'calendar'],
-    },
-    {
-        id: 'conn_slack_456',
-        provider: 'Slack',
-        type: 'integration',
-        status: 'active',
-        email: 'user@example.com',
-        connectedAt: '2024-02-10',
-        lastUsed: '2024-03-19',
-        workspace: 'wrikka-team',
-        permissions: ['channels:read', 'messages:write'],
-    },
+// This list can be static or fetched from a database, depending on the application's needs.
+const availableProviders: Provider[] = [
+	{
+		id: "GoogleOAuth",
+		name: "Google",
+		type: "sso",
+		description: "Connect with your Google account",
+		icon: "mdi:google",
+	},
+	{
+		id: "MicrosoftOAuth",
+		name: "Microsoft",
+		type: "sso",
+		description: "Connect with your Microsoft account",
+		icon: "mdi:microsoft",
+	},
 ];
 
-const mockProviders: Provider[] = [
-    {
-        id: 'microsoft',
-        name: 'Microsoft 365',
-        type: 'sso',
-        description: 'Connect with Microsoft Azure AD',
-        icon: 'mdi:microsoft',
-        color: 'blue',
-    },
-    {
-        id: 'slack',
-        name: 'Slack',
-        type: 'integration',
-        description: 'Connect your Slack workspace',
-        icon: 'mdi:slack',
-        color: 'purple',
-    },
-];
+export const getConnections = async (event: H3Event): Promise<Connection[]> => {
+	const organizationId = await ensureUserHasOrganization(event);
 
-export const getConnections = async (): Promise<Connection[]> => {
-    return Promise.resolve(mockConnections);
-}
+	const workos = createWorkos(event);
+	const { data: connections } = await workos.sso.listConnections({
+		organizationId,
+	});
+
+	// Map the WorkOS connection data to our application's Connection type
+	return connections.map((conn): SSOConnection => ({
+		id: conn.id,
+		provider: conn.connectionType,
+		type: "sso",
+		status: conn.state,
+		connectedAt: conn.createdAt,
+		lastUsed: conn.updatedAt, // Using updatedAt as a proxy for lastUsed
+	}));
+};
 
 export const getProviders = async (): Promise<Provider[]> => {
-    return Promise.resolve(mockProviders);
-}
+	return Promise.resolve(availableProviders);
+};
 
-export const deleteConnection = async (connectionId: string): Promise<{ success: boolean }> => {
-    // In a real scenario, you would call the provider's API to delete the connection
-    const index = mockConnections.findIndex(c => c.id === connectionId);
-    if (index > -1) {
-        mockConnections.splice(index, 1);
-    }
-    return Promise.resolve({ success: true });
-}
+export const deleteConnection = async (event: H3Event, connectionId: string): Promise<{ success: boolean }> => {
+	const workos = createWorkos(event);
+	await workos.sso.deleteConnection(connectionId);
+	return { success: true };
+};
 
-export const refreshConnection = async (connectionId: string): Promise<{ success: boolean }> => {
-    // In a real scenario, you would call the provider's API to refresh the connection
-    console.log(`Refreshing connection ${connectionId}`);
-    return Promise.resolve({ success: true });
-}
+export const refreshConnection = async (event: H3Event, connectionId: string): Promise<{ success: boolean }> => {
+	// The WorkOS SDK does not have a 'refresh' concept for SSO connections.
+	// The client-side logic handles re-fetching the connection list, which is sufficient.
+	console.log(`'Refresh' requested for connection ${connectionId}, but no server-side action is needed.`);
+	return { success: true };
+};

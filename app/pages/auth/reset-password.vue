@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useAuthStore } from '~/stores/auth';
-import { storeToRefs } from 'pinia';
+import { storeToRefs } from "pinia";
+import { useAuthStore } from "~/stores/auth";
 
 definePageMeta({
 	layout: false,
@@ -20,7 +20,7 @@ const token = computed(() => {
 const { resetPassword: updatePasswordWithToken, loading, clearMessages } =
 	useAuth();
 const authStore = useAuthStore();
-	const { error } = storeToRefs(authStore);
+const { error } = storeToRefs(authStore);
 
 const form = reactive({
 	newPassword: "",

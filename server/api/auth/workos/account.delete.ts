@@ -1,13 +1,14 @@
 import { defineEventHandler } from "h3";
 import { requireAuthenticatedAuthkitSession } from "../../../utils/authkit-guard";
-import { clearSealedSessionCookie, getWorkosAuthkitConfig } from "../../../utils/authkit-session";
+import { clearSession } from "../../../utils/authkit-session";
+import { createWorkos } from "../../../utils/workos";
 
 export default defineEventHandler(async (event) => {
 	const { user } = await requireAuthenticatedAuthkitSession(event);
-	const { workos } = getWorkosAuthkitConfig();
+	const workos = createWorkos(event);
 
 	await workos.userManagement.deleteUser(user.id);
-	clearSealedSessionCookie(event);
+	await clearSession(event);
 
 	return { success: true };
 });

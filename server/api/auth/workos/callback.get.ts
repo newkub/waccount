@@ -1,6 +1,8 @@
 import { getUserHandle } from "#shared/utils/user-handle";
 import { createError, defineEventHandler, getQuery, sendRedirect } from "h3";
-import { getWorkosAuthkitConfig, setSealedSessionCookie } from "../../../utils/authkit-session";
+import { useRuntimeConfig } from "nitropack/runtime";
+import { sealSession } from "../../../utils/authkit-session";
+import { createWorkos } from "../../../utils/workos";
 
 export default defineEventHandler(async (event) => {
 	const { code } = getQuery(event);
@@ -8,15 +10,16 @@ export default defineEventHandler(async (event) => {
 		throw createError({ statusCode: 400, statusMessage: "No code provided" });
 	}
 
-	const { workos, clientId, cookiePassword } = getWorkosAuthkitConfig();
+	const workos = createWorkos(event);
+	const { public: { workosClientId }, workosCookiePassword } = useRuntimeConfig(event);
 
 	const authenticateResponse = await workos.userManagement.authenticateWithCode(
 		{
-			clientId,
+			clientId: workosClientId,
 			code,
 			session: {
 				sealSession: true,
-				cookiePassword,
+				cookiePassword: workosCookiePassword,
 			},
 		},
 	);
@@ -28,7 +31,7 @@ export default defineEventHandler(async (event) => {
 		});
 	}
 
-	setSealedSessionCookie(event, authenticateResponse.sealedSession);
+	await sealSession(event, authenticateResponse.sealedSession);
 
 	const userHandle = getUserHandle({
 		firstName: authenticateResponse.user.firstName ?? null,

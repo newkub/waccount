@@ -1,7 +1,7 @@
 import { createError, defineEventHandler } from "h3";
-import { getOrCreateOrganizationByExternalId } from "../../../utils/workos-org";
-import { createWorkos } from "../../../utils/workos";
 import { OrgHealthResponseSchema } from "../../../../shared/schemas";
+import { createWorkos } from "../../../utils/workos";
+import { getOrCreateOrganizationByExternalId } from "../../../utils/workos-org";
 
 export default defineEventHandler(async (event) => {
 	const org = event.context.params?.org;
@@ -10,7 +10,9 @@ export default defineEventHandler(async (event) => {
 	}
 
 	const countActiveInactive = <T extends { state?: unknown }>(items: readonly T[]) => {
-		const activeCount = items.filter((item) => String(item.state ?? "").toLowerCase() === "active").length;
+		const activeCount = items.filter((item) =>
+			typeof item.state === "string" && item.state.toLowerCase() === "active"
+		).length;
 		const inactiveCount = items.length - activeCount;
 		return { count: items.length, activeCount, inactiveCount };
 	};

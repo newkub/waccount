@@ -14,7 +14,7 @@ const {
 	connectProvider,
 	disconnectProvider,
 	refreshConnection,
-} = useConnections();
+} = useConnectionsFacade();
 
 onMounted(fetchConnections);
 </script>

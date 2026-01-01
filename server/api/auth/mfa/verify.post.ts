@@ -1,10 +1,10 @@
 import { defineEventHandler, readBody } from "h3";
 import { requireAuthenticatedAuthkitSession } from "../../../utils/authkit-guard";
-import { getWorkosAuthkitConfig } from "../../../utils/authkit-session";
+import { createWorkos } from "../../../utils/workos";
 
 export default defineEventHandler(async (event) => {
 	const { user } = await requireAuthenticatedAuthkitSession(event);
-	const { workos } = getWorkosAuthkitConfig();
+	const workos = createWorkos(event);
 	const { factorId, code } = await readBody<{ factorId: string; code: string }>(event);
 
 	const challenge = await workos.mfa.challengeFactor({
@@ -17,10 +17,10 @@ export default defineEventHandler(async (event) => {
 	});
 
 	if (valid) {
-		const unsafeMetadata = {
-			...user.unsafeMetadata,
+		const metadata = {
+			...(user as any).metadata,
 			preferences: {
-				...(user.unsafeMetadata?.preferences as object),
+				...((user as any).metadata?.preferences as object),
 				twoFactorEnabled: true,
 			},
 			mfaFactorId: factorId,
@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
 
 		await workos.userManagement.updateUser({
 			userId: user.id,
-			unsafeMetadata,
+			metadata,
 		});
 	}
 

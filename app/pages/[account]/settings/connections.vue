@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
-import { useConnections } from "~/composables/account/useConnections";
 import {
 	getConnectionStatusColor,
 	getProviderIcon,
@@ -18,7 +17,7 @@ const {
 	connectProvider,
 	disconnectProvider,
 	refreshConnection,
-} = useConnections();
+} = useConnectionsFacade();
 
 onMounted(fetchConnections);
 </script>

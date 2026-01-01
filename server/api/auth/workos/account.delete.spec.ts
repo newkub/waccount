@@ -4,7 +4,6 @@ import { createMockWorkosUser, createTestEvent, mockWorkos } from "../../../test
 
 describe("server/api/auth/workos/account.delete", () => {
 	it("deletes user and clears session cookie", async () => {
-
 		const user = createMockWorkosUser();
 		const session = {
 			authenticate: vi

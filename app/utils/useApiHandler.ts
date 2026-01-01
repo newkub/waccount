@@ -1,7 +1,5 @@
 import type { Ref } from "vue";
 
-import { useToasts } from "~/composables/core/useToasts";
-
 /**
  * Represents a structured error from an API fetch call.
  */
@@ -40,7 +38,7 @@ export const useApiHandler = (
 	error?: Ref<string | null>,
 	success?: Ref<string | null>,
 ) => {
-	const { addToast } = useToasts();
+	const { addToast } = useToastsFacade();
 	/**
 	 * Executes an API call and handles its lifecycle (loading, success, error).
 	 * @param {() => Promise<T>} apiCall The function that performs the API call.

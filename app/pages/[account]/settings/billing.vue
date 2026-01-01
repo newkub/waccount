@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
-import { useBilling } from "~/composables/account/useBilling";
 import { getBillingStatusColor, getUsageColor } from "~/utils/billingHelpers";
 import { formatCurrency, formatDate } from "~/utils/formatters";
 
@@ -19,7 +18,7 @@ const {
 	changePlan,
 	cancelSubscription,
 	downloadInvoice,
-} = useBilling();
+} = useBillingFacade();
 
 onMounted(fetchBillingData);
 </script>

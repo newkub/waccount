@@ -1,7 +1,7 @@
-import { AuditLogsExportRequestSchema } from "#shared/types";
+import { AuditLogsExportRequestSchema } from "#shared/schemas";
 import { createError, defineEventHandler, readBody } from "h3";
 import { requireAuthenticatedAuthkitSession } from "../../../../utils/authkit-guard";
-import { getWorkosAuthkitConfig } from "../../../../utils/authkit-session";
+import { createWorkos } from "../../../../utils/workos";
 import { getOrCreateOrganizationByExternalId } from "../../../../utils/workos-org";
 
 export default defineEventHandler(async (event) => {
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
 		throw createError({ statusCode: 400, statusMessage: "Invalid rangeStart/rangeEnd" });
 	}
 
-	const { workos } = getWorkosAuthkitConfig();
+	const workos = createWorkos(event);
 	const organization = await getOrCreateOrganizationByExternalId(workos, org);
 
 	const exportJob = await workos.auditLogs.createExport({

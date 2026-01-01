@@ -1,4 +1,4 @@
-import type { Activity } from "~/shared/types";
+import type { Activity } from "#shared/types";
 
 export const useActivityFeed = () => {
 	const loading = ref(false);

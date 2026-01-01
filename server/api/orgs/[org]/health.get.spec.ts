@@ -4,7 +4,6 @@ import { createMockWorkosUser, createTestEvent, mockWorkos } from "../../../test
 
 describe("server/api/orgs/[org]/health.get", () => {
 	it("returns health summary", async () => {
-
 		const user = createMockWorkosUser({ id: "user_1" });
 		mockWorkos.userManagement.loadSealedSession.mockResolvedValueOnce({
 			authenticate: vi.fn().mockResolvedValueOnce({ authenticated: true, user }),

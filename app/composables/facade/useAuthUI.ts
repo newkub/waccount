@@ -36,7 +36,6 @@ export const useAuthUI = (initialMode: "signin" | "signup" = "signin") => {
 		clearMessages,
 	} = useAuth();
 
-
 	// Computed properties
 	const title = computed(() => {
 		if (state.value.activeTab === "signin") return "Welcome Back";

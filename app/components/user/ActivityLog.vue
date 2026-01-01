@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Activity } from "~/shared/types";
+import type { Activity } from "#shared/types";
 
 const props = defineProps<{
 	activities: Activity[];
@@ -15,7 +15,7 @@ const formattedActivities = computed(() =>
 		formattedTimestamp: formatTimestamp(activity.timestamp),
 		formattedType: activity.type
 			.replace(/\./g, " ")
-			.replace(/\b\w/g, (l) => l.toUpperCase()),
+			.replace(/\b\w/g, (l: string) => l.toUpperCase()),
 	}))
 );
 </script>

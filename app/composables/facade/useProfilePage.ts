@@ -1,18 +1,19 @@
 import type { UpdateProfileData } from "#shared/types";
 
 import type { Activity } from "#shared/types";
-import { useUserManagement } from "~/composables/core/useUserManagement";
 import { useAuth } from "~/composables/facade/useAuth";
 
 export const useProfilePage = () => {
 	const { user, refreshUser } = useAuth();
+	const userManagement = useUserManagementFacade();
+
 	const {
 		updateUserProfile,
 		uploadUserAvatar,
 		getUserActivities,
 		loading,
 		resendVerificationEmail,
-	} = useUserManagement();
+	} = userManagement;
 
 	const form = reactive({
 		firstName: user.value?.firstName ?? "",

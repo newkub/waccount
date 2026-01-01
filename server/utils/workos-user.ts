@@ -1,7 +1,5 @@
-import type { User, RegistrationData } from "#shared/types";
+import type { User } from "#shared/types";
 import { UserPreferencesSchema } from "../../shared/schemas";
-import { getWorkosAuthkitConfig } from "./authkit-session";
-
 
 export const mapWorkosUserToAppUser = (user: {
 	id: string;
@@ -29,28 +27,4 @@ export const mapWorkosUserToAppUser = (user: {
 		updatedAt: user.updatedAt,
 		preferences,
 	};
-};
-
-export const registerAndAuthenticateUser = async (data: RegistrationData) => {
-	const { workos, clientId, cookiePassword } = getWorkosAuthkitConfig();
-
-	await workos.userManagement.createUser({
-		email: data.email,
-		password: data.password,
-		firstName: data.firstName,
-		lastName: data.lastName,
-		emailVerified: false,
-	});
-
-	const authResponse = await workos.userManagement.authenticateWithPassword({
-		clientId,
-		email: data.email,
-		password: data.password,
-		session: {
-			sealSession: true,
-			cookiePassword,
-		},
-	});
-
-	return authResponse;
 };

@@ -1,10 +1,10 @@
 import { createError, defineEventHandler } from "h3";
 import { useRuntimeConfig } from "nitropack/runtime";
 
-import { getWorkosAuthkitConfig } from "../../../utils/authkit-session";
+import { createWorkos } from "../../../utils/workos";
 
-export default defineEventHandler(async () => {
-	const runtimeConfig = useRuntimeConfig();
+export default defineEventHandler(async (event) => {
+	const runtimeConfig = useRuntimeConfig(event);
 	if (!runtimeConfig.workosRedirectUri) {
 		throw createError({
 			statusCode: 500,
@@ -12,10 +12,10 @@ export default defineEventHandler(async () => {
 		});
 	}
 
-	const { workos, clientId } = getWorkosAuthkitConfig();
+	const workos = createWorkos(event);
 
 	const authorizationUrl = workos.userManagement.getAuthorizationUrl({
-		clientId,
+		clientId: runtimeConfig.public.workosClientId,
 		redirectUri: runtimeConfig.workosRedirectUri,
 	});
 

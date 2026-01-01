@@ -1,12 +1,12 @@
 import { defineEventHandler, getQuery } from "h3";
 import { requireAuthenticatedAuthkitSession } from "../../utils/authkit-guard";
-import { getWorkosAuthkitConfig } from "../../utils/authkit-session";
+import { createWorkos } from "../../utils/workos";
 import { getOrCreateOrganizationByExternalId } from "../../utils/workos-org";
 import { mapWorkosUserToAppUser } from "../../utils/workos-user";
 
 export default defineEventHandler(async (event) => {
 	const { user } = await requireAuthenticatedAuthkitSession(event);
-	const { workos } = getWorkosAuthkitConfig();
+	const workos = createWorkos(event);
 
 	const query = getQuery(event);
 	const org = typeof query.org === "string" ? query.org : null;

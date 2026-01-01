@@ -12,7 +12,7 @@ export default defineConfig({
 			preflights: {
 				reset: true,
 			},
-		})
+		}),
 	],
 	transformers: [
 		transformerVariantGroup(),

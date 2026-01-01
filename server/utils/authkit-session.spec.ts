@@ -3,7 +3,6 @@ import { describe, expect, it, vi } from "vitest";
 import { createTestEvent, mockWorkos } from "../test/setup";
 
 describe("server/utils/authkit-session", () => {
-
 	it("setSealedSessionCookie writes httpOnly cookie", async () => {
 		const { setSealedSessionCookie, WORKOS_SESSION_COOKIE_NAME } = await import(
 			"./authkit-session"

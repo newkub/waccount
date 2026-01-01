@@ -22,7 +22,6 @@ export default defineNuxtConfig({
 		"nuxt-mcp-dev",
 	],
 
-
 	imports: {
 		dirs: ["composables/**", "stores", "utils", "vue-macros/api"],
 	},

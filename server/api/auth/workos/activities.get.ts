@@ -1,7 +1,7 @@
 import type { Activity } from "#shared/types";
 import { defineEventHandler } from "h3";
 import { requireAuthenticatedAuthkitSession } from "../../../utils/authkit-guard";
-import { getWorkosAuthkitConfig } from "../../../utils/authkit-session";
+import { createWorkos } from "../../../utils/workos";
 
 const toActivity = (evt: {
 	id: string;
@@ -48,7 +48,7 @@ const mapWorkosEventToActivityType = (eventName: string) => {
 
 export default defineEventHandler(async (event) => {
 	const { user } = await requireAuthenticatedAuthkitSession(event);
-	const { workos } = getWorkosAuthkitConfig();
+	const workos = createWorkos(event);
 
 	const eventsResponse = await workos.events.listEvents({
 		events: [
@@ -61,7 +61,7 @@ export default defineEventHandler(async (event) => {
 	});
 
 	const activities = eventsResponse.data
-		.map((evt) =>
+		.map((evt: any) =>
 			toActivity({
 				id: evt.id,
 				event: mapWorkosEventToActivityType(evt.event),
@@ -69,7 +69,7 @@ export default defineEventHandler(async (event) => {
 				data: evt.data,
 			})
 		)
-		.filter((a) => {
+		.filter((a: any) => {
 			const eventUserId = getUserIdFromEventData(a.metadata);
 			if (!eventUserId) {
 				return true;

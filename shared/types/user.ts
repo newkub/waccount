@@ -72,27 +72,6 @@ export interface Usage {
 	integrations: UsageMetric;
 }
 
-export interface Connection {
-	id: string;
-	provider: string;
-	type: "sso" | "integration";
-	status: "active" | "error" | "expired";
-	email: string;
-	connectedAt: string;
-	lastUsed: string;
-	permissions: string[];
-	workspace?: string;
-}
-
-export interface Provider {
-	id: string;
-	name: string;
-	type: "sso" | "integration";
-	description: string;
-	icon: string;
-	color: string;
-}
-
 export interface UserOrganization {
 	id: string;
 	name: string;

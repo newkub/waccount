@@ -7,7 +7,8 @@ describe("server/api/auth/workos/profile/avatar.post", () => {
 		const handler = (await import("./avatar.post")).default;
 		await expect(handler(createTestEvent() as any)).rejects.toMatchObject({
 			statusCode: 501,
-			statusMessage: "Avatar upload is not supported by AuthKit. Configure your own storage and update user metadata instead.",
+			statusMessage:
+				"Avatar upload is not supported by AuthKit. Configure your own storage and update user metadata instead.",
 		});
 	});
 });

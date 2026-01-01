@@ -4,7 +4,6 @@ import { createMockWorkosUser, createTestEvent, mockWorkos } from "../../../test
 
 describe("server/api/auth/workos/email.patch", () => {
 	it("rejects missing email", async () => {
-
 		const user = createMockWorkosUser();
 		const session = {
 			authenticate: vi
@@ -28,7 +27,6 @@ describe("server/api/auth/workos/email.patch", () => {
 	});
 
 	it("updates email and sends verification", async () => {
-
 		const user = createMockWorkosUser();
 		const session = {
 			authenticate: vi

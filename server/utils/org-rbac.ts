@@ -1,10 +1,9 @@
 import type { H3Event } from "h3";
-import type { OrgRole } from "../../shared/types/org";
 import { createError } from "h3";
+import type { OrgRole } from "../../shared/types/org";
 import { requireAuthenticatedAuthkitSession } from "./authkit-guard";
 import { createWorkos } from "./workos";
 import { getOrCreateOrganizationByExternalId } from "./workos-org";
-
 
 const normalizeRole = (role: unknown): OrgRole | null => {
 	if (typeof role !== "string") return null;

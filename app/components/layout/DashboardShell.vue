@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { NavItem } from "~/composables/core/useWorkspaceNavigation";
-import { useAccountNavigationFacade } from '~/composables/facade/useAccountNavigationFacade';
+import { useAccountNavigationFacade } from "~/composables/facade/useAccountNavigationFacade";
 
 const route = useRoute();
 

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
-import { useTeams } from "~/composables/account/useTeams";
 
 import { useAuth } from "~/composables/facade/useAuth";
 
@@ -14,7 +13,7 @@ const {
 	acceptInvitation,
 	declineInvitation,
 	leaveOrganization,
-} = useTeams();
+} = useTeamsFacade();
 
 onMounted(fetchTeamsData);
 </script>

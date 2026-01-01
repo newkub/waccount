@@ -1,7 +1,7 @@
-import { defineEventHandler } from 'h3';
-import { changePlan } from '~/server/lib/billing';
+import { defineEventHandler } from "h3";
+import { changePlan } from "../../lib/billing";
 
 export default defineEventHandler(async (event) => {
-  const { newPlanId } = await readBody(event);
-  return changePlan(newPlanId);
+	const { newPlanId } = await readBody(event);
+	return changePlan(newPlanId);
 });

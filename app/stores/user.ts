@@ -54,7 +54,7 @@ export const useUserStore = defineStore("user", () => {
 			errorMessage: "Failed to delete account",
 			onSuccess: async () => {
 				const authStore = useAuthStore();
-				authStore.signOut();
+				await authStore.signOut();
 			},
 		});
 

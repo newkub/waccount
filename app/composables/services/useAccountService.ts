@@ -1,9 +1,9 @@
-import type { AccountOrganization, UserPreferences } from "~/shared/types";
+import type { AccountOrganization, UserPreferences } from "#shared/types";
 
 export const useAccountService = () => {
 	const fetchAccountData = async () => {
-		const { data: profileResponse } = await useFetch('/api/auth/workos/profile');
-		const { data: organizationsResponse } = await useFetch('/api/users/me/organizations');
+		const { data: profileResponse } = await useFetch("/api/auth/workos/profile");
+		const { data: organizationsResponse } = await useFetch("/api/users/me/organizations");
 
 		const organizations: AccountOrganization[] = Array.isArray(organizationsResponse.value)
 			? (organizationsResponse.value as AccountOrganization[])
@@ -21,27 +21,27 @@ export const useAccountService = () => {
 	};
 
 	const updatePreference = async (key: keyof UserPreferences, value: any) => {
-		return await useFetch('/api/auth/workos/profile', {
-			method: 'PATCH',
+		return await useFetch("/api/auth/workos/profile", {
+			method: "PATCH",
 			body: { preferences: { [key]: value } },
 		});
 	};
 
 	const deleteAccount = async () => {
-		return await useFetch('/api/auth/workos/account', {
-			method: 'DELETE',
+		return await useFetch("/api/auth/workos/account", {
+			method: "DELETE",
 		});
 	};
 
 	const enrollTwoFactor = async () => {
-		return await useFetch('/api/auth/mfa/enroll', {
-			method: 'POST',
+		return await useFetch("/api/auth/mfa/enroll", {
+			method: "POST",
 		});
 	};
 
 	const verifyTwoFactor = async (factorId: string, code: string) => {
-		return await useFetch('/api/auth/mfa/verify', {
-			method: 'POST',
+		return await useFetch("/api/auth/mfa/verify", {
+			method: "POST",
 			body: { factorId, code },
 		});
 	};

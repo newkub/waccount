@@ -26,9 +26,7 @@
 				<!-- Deployment -->
 				<div class="space-y-4">
 					<h4 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
-						<i
-							class="i-mdi-rocket text-primary-600 dark:text-primary-400"
-						></i>
+						<i class="i-mdi-rocket text-primary-600 dark:text-primary-400"></i>
 						Deploy Now
 					</h4>
 					<div class="grid grid-cols-2 gap-4">

@@ -14,7 +14,7 @@ const {
 	acceptInvitation,
 	declineInvitation,
 	leaveOrganization,
-} = useTeams();
+} = useTeamsFacade();
 
 onMounted(fetchTeamsData);
 </script>

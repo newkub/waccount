@@ -67,6 +67,7 @@
 		"lefthook": "^2.0.13",
 		"nuxt-mcp-dev": "^0.3.2",
 		"oxlint": "^1.36.0",
+		"oxlint-tsgolint": "^0.10.0",
 		"taze": "^19.9.2",
 		"unocss": "^66.5.11",
 		"unplugin-vue-macros": "^2.14.5",

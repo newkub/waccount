@@ -13,5 +13,4 @@ describe("server/api/auth/workos/authorize.get", () => {
 		const res = await handler(event as any);
 		expect(res).toEqual({ authorizationUrl: "https://auth/url" });
 	});
-
 });

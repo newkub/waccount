@@ -1,15 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 
-import {
-	createMockWorkosUser,
-	createTestEvent,
-	mockWorkos,
-	setMockOrgDashboardLayoutRow,
-} from "../../../test/setup";
+import { createMockWorkosUser, createTestEvent, mockWorkos, setMockOrgDashboardLayoutRow } from "../../../test/setup";
 
 describe("server/api/orgs/[org]/dashboard-layout.put", () => {
 	it("throws 403 when role not allowed", async () => {
-
 		const user = createMockWorkosUser({ id: "user_1" });
 		mockWorkos.userManagement.loadSealedSession.mockResolvedValueOnce({
 			authenticate: vi.fn().mockResolvedValueOnce({ authenticated: true, user }),
@@ -39,7 +33,6 @@ describe("server/api/orgs/[org]/dashboard-layout.put", () => {
 	});
 
 	it("upserts layout when admin", async () => {
-
 		const user = createMockWorkosUser({ id: "user_1" });
 		mockWorkos.userManagement.loadSealedSession.mockResolvedValueOnce({
 			authenticate: vi.fn().mockResolvedValueOnce({ authenticated: true, user }),

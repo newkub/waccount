@@ -4,9 +4,9 @@ export type RegisterFormEmit = {
 	(e: "success"): void;
 	(e: "error", error: string): void;
 };
+import { storeToRefs } from "pinia";
 import { useAuth } from "~/composables/facade/useAuth";
 import { useAuthStore } from "~/stores/auth";
-import { storeToRefs } from "pinia";
 
 export const useRegisterForm = (emit: RegisterFormEmit, redirectTo: string) => {
 	const { signUp, loading, clearMessages } = useAuth();

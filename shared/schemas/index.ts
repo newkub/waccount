@@ -16,6 +16,7 @@ export const UserSchema = z.object({
 	createdAt: z.string().datetime(),
 	updatedAt: z.string().datetime(),
 	preferences: UserPreferencesSchema.optional().nullable(),
+	metadata: z.record(z.string(), z.any()).optional().nullable(),
 });
 
 export const UpdateProfileDataSchema = z.object({

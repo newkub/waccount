@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { User } from "#shared/types";
-import { computed } from 'vue';
+import { computed } from "vue";
 
 const props = defineProps<{
 	user: User;
@@ -12,7 +12,10 @@ const props = defineProps<{
 const emit = defineEmits<{
 	(e: "submit"): void;
 	(e: "upload-avatar", file: File): void;
-	(e: "update:modelValue", value: { firstName: string; lastName: string }): void;
+	(
+		e: "update:modelValue",
+		value: { firstName: string; lastName: string },
+	): void;
 }>();
 
 const formData = computed({

@@ -1,4 +1,4 @@
-import { defineNitroPlugin } from '#imports';
+import { defineNitroPlugin } from "#imports";
 import { WorkOS } from "@workos-inc/node";
 import type { H3Event } from "h3";
 
@@ -28,10 +28,14 @@ export default defineNitroPlugin((nitroApp) => {
 	const appUrl = runtimeConfig.public?.appUrl || "http://localhost:3000";
 
 	if (!apiKey) {
-		throw new Error("WorkOS API key is required. Set WORKOS_API_KEY environment variable or runtimeConfig.workosApiKey");
+		throw new Error(
+			"WorkOS API key is required. Set WORKOS_API_KEY environment variable or runtimeConfig.workosApiKey",
+		);
 	}
 	if (!clientId) {
-		throw new Error("WorkOS Client ID is required. Set WORKOS_CLIENT_ID environment variable or runtimeConfig.public.workosClientId");
+		throw new Error(
+			"WorkOS Client ID is required. Set WORKOS_CLIENT_ID environment variable or runtimeConfig.public.workosClientId",
+		);
 	}
 
 	const config: WorkOSConfig = { apiKey, clientId, redirectUri, appUrl };

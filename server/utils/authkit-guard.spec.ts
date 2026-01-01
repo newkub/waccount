@@ -4,7 +4,6 @@ import { createMockWorkosUser, createTestEvent, mockWorkos } from "../test/setup
 
 describe("server/utils/authkit-guard", () => {
 	it("requireAuthenticatedAuthkitSession throws 401 when no session cookie", async () => {
-
 		const { requireAuthenticatedAuthkitSession } = await import(
 			"./authkit-guard"
 		);
@@ -16,7 +15,6 @@ describe("server/utils/authkit-guard", () => {
 	});
 
 	it("requireAuthenticatedAuthkitSession refreshes and sets cookie when needed", async () => {
-
 		const user = createMockWorkosUser();
 		const session = {
 			authenticate: vi.fn().mockResolvedValueOnce({ authenticated: false }),
