@@ -14,7 +14,7 @@ const getRuntimeConfigOrThrow = () => {
 			statusMessage: "Missing NUXT_WORKOS_API_KEY",
 		});
 	}
-	if (!runtimeConfig.workosClientId) {
+	if (!runtimeConfig.public.workosClientId) {
 		throw createError({
 			statusCode: 500,
 			statusMessage: "Missing NUXT_WORKOS_CLIENT_ID",
@@ -29,7 +29,7 @@ const getRuntimeConfigOrThrow = () => {
 
 	return {
 		workosApiKey: runtimeConfig.workosApiKey,
-		workosClientId: runtimeConfig.workosClientId,
+		workosClientId: runtimeConfig.public.workosClientId,
 		workosCookiePassword: runtimeConfig.workosCookiePassword,
 	};
 };

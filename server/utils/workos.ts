@@ -11,6 +11,6 @@ export function createWorkos(event: H3Event) {
 	const config = useRuntimeConfig(event);
 
 	return new WorkOS(config.workosApiKey, {
-		clientId: config.workosClientId,
+		clientId: config.public.workosClientId,
 	});
 }

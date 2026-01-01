@@ -1,4 +1,4 @@
-import { OrgHealthResponseSchema } from "#shared/types";
+import { OrgHealthResponseSchema } from "#shared/schemas";
 import { createError, defineEventHandler } from "h3";
 import { requireAuthenticatedAuthkitSession } from "../../../utils/authkit-guard";
 import { getWorkosAuthkitConfig } from "../../../utils/authkit-session";

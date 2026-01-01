@@ -1,4 +1,9 @@
-import type { RegisterFormData, RegisterFormEmit } from "#shared/types";
+import type { RegisterFormData } from "#shared/types";
+
+export type RegisterFormEmit = {
+	(e: "success"): void;
+	(e: "error", error: string): void;
+};
 import { useAuth } from "~/composables/facade/useAuth";
 import { useAuthStore } from "~/stores/auth";
 import { storeToRefs } from "pinia";

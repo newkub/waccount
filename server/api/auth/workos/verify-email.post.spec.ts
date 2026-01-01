@@ -1,14 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { createMockWorkosUser, createTestEvent, mockWorkos, setTestRuntimeConfig } from "../../../test/setup";
+import { createMockWorkosUser, createTestEvent, mockWorkos } from "../../../test/setup";
 
 describe("server/api/auth/workos/verify-email.post", () => {
 	it("sends verification email for authenticated user", async () => {
-		setTestRuntimeConfig({
-			workosApiKey: "api_key",
-			workosClientId: "client_id",
-			workosCookiePassword: "cookie_password",
-		});
 
 		const user = createMockWorkosUser();
 		const session = {

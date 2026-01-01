@@ -1,4 +1,4 @@
-import { OrgDashboardLayoutResponseSchema, OrgDashboardLayoutUpsertRequestSchema } from "#shared/types";
+import { OrgDashboardLayoutResponseSchema, OrgDashboardLayoutUpsertRequestSchema } from "#shared/schemas";
 import { and, eq } from "drizzle-orm";
 import { createError, defineEventHandler, readBody } from "h3";
 import { randomUUID } from "node:crypto";

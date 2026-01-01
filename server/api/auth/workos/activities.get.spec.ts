@@ -1,14 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { createMockWorkosUser, createTestEvent, mockWorkos, setTestRuntimeConfig } from "../../../test/setup";
+import { createMockWorkosUser, createTestEvent, mockWorkos } from "../../../test/setup";
 
 describe("server/api/auth/workos/activities.get", () => {
 	it("returns mapped activities list", async () => {
-		setTestRuntimeConfig({
-			workosApiKey: "api_key",
-			workosClientId: "client_id",
-			workosCookiePassword: "cookie_password",
-		});
 
 		const user = createMockWorkosUser({ id: "user_123" });
 		const session = {

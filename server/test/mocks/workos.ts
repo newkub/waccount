@@ -9,6 +9,7 @@ type MockWorkosUser = {
 	profilePictureUrl?: string | null;
 	createdAt: string;
 	updatedAt: string;
+	unsafeMetadata: Record<string, any>;
 };
 
 export const createMockWorkosUser = (
@@ -23,6 +24,7 @@ export const createMockWorkosUser = (
 		profilePictureUrl: null,
 		createdAt: "2025-01-01T00:00:00.000Z",
 		updatedAt: "2025-01-01T00:00:00.000Z",
+		unsafeMetadata: {},
 		...overrides,
 	};
 };

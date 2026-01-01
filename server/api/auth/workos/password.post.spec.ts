@@ -1,14 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { createMockWorkosUser, createTestEvent, mockWorkos, setTestRuntimeConfig } from "../../../test/setup";
+import { createMockWorkosUser, createTestEvent, mockWorkos } from "../../../test/setup";
 
 describe("server/api/auth/workos/password.post", () => {
 	it("rejects missing email/password", async () => {
-		setTestRuntimeConfig({
-			workosApiKey: "api_key",
-			workosClientId: "client_id",
-			workosCookiePassword: "cookie_password",
-		});
 		const handler = (await import("./password.post")).default;
 		await expect(
 			handler(createTestEvent({ __body: { email: "a@b.com" } }) as any),
@@ -18,11 +13,6 @@ describe("server/api/auth/workos/password.post", () => {
 	});
 
 	it("sets sealed session cookie and returns mapped user", async () => {
-		setTestRuntimeConfig({
-			workosApiKey: "api_key",
-			workosClientId: "client_id",
-			workosCookiePassword: "cookie_password",
-		});
 		mockWorkos.userManagement.authenticateWithPassword.mockResolvedValueOnce({
 			sealedSession: "sealed_pw",
 			user: createMockWorkosUser({ emailVerified: false }),

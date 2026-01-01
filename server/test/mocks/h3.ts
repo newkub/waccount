@@ -80,6 +80,8 @@ vi.mock("h3", () => {
 		];
 	};
 
+	const getRouterParams = (event: H3TestEvent) => event.context.params ?? {};
+
 	return {
 		createError,
 		defineEventHandler,
@@ -90,5 +92,6 @@ vi.mock("h3", () => {
 		getCookie,
 		setCookie,
 		deleteCookie,
+		getRouterParams,
 	};
 });

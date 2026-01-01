@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { NavItem } from "#shared/types";
+import type { NavItem } from "~/composables/core/useWorkspaceNavigation";
+import { useAccountNavigationFacade } from '~/composables/facade/useAccountNavigationFacade';
 
 const route = useRoute();
 
@@ -15,8 +16,8 @@ const isOrg = computed(() => {
 });
 
 const { user } = useAuth();
-const accountNav = useAccountNavigation();
-const orgNav = useOrgNavigation();
+const accountNav = useAccountNavigationFacade();
+const orgNav = useOrgNavigationFacade();
 const workspaceNav = useWorkspaceNavigation();
 
 const currentTab = computed<string>(() =>

@@ -1,15 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { createTestEvent, mockWorkos, setTestRuntimeConfig } from "../../../test/setup";
+import { createTestEvent, mockWorkos } from "../../../test/setup";
 
 describe("server/api/auth/workos/register.post", () => {
 	it("rejects missing email/password", async () => {
-		setTestRuntimeConfig({
-			workosApiKey: "api_key",
-			workosClientId: "client_id",
-			workosCookiePassword: "cookie_password",
-		});
-		const handler = (await import("./register.post")).default;
+		const { default: handler } = await import("./register.post");
 		await expect(
 			handler(createTestEvent({ __body: { email: "a@b.com" } }) as any),
 		).rejects.toMatchObject({
@@ -18,11 +13,6 @@ describe("server/api/auth/workos/register.post", () => {
 	});
 
 	it("creates user and returns success", async () => {
-		setTestRuntimeConfig({
-			workosApiKey: "api_key",
-			workosClientId: "client_id",
-			workosCookiePassword: "cookie_password",
-		});
 		mockWorkos.userManagement.createUser.mockResolvedValueOnce({});
 		mockWorkos.userManagement.authenticateWithPassword.mockResolvedValueOnce({
 			sealedSession: "sealed_new",
@@ -35,9 +25,10 @@ describe("server/api/auth/workos/register.post", () => {
 				profilePictureUrl: null,
 				createdAt: new Date().toISOString(),
 				updatedAt: new Date().toISOString(),
+				unsafeMetadata: {},
 			},
 		});
-		const handler = (await import("./register.post")).default;
+		const { default: handler } = await import("./register.post");
 		const res = await handler(
 			createTestEvent({ __body: { email: "a@b.com", password: "pw" } }) as any,
 		);

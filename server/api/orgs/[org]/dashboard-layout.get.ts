@@ -1,4 +1,4 @@
-import { OrgDashboardLayoutResponseSchema } from "#shared/types";
+import { OrgDashboardLayoutResponseSchema } from "#shared/schemas";
 import { createError, defineEventHandler } from "h3";
 import { db } from "~~/server/db";
 import { requireAuthenticatedAuthkitSession } from "../../../utils/authkit-guard";

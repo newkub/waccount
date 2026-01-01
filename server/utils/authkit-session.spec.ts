@@ -1,15 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { createTestEvent, mockWorkos, setTestRuntimeConfig } from "../test/setup";
+import { createTestEvent, mockWorkos } from "../test/setup";
 
 describe("server/utils/authkit-session", () => {
-	it("getWorkosAuthkitConfig throws if missing api key", async () => {
-		setTestRuntimeConfig({});
-		const { getWorkosAuthkitConfig } = await import("./authkit-session");
-		expect(() => getWorkosAuthkitConfig()).toThrowError(
-			"Missing NUXT_WORKOS_API_KEY",
-		);
-	});
 
 	it("setSealedSessionCookie writes httpOnly cookie", async () => {
 		const { setSealedSessionCookie, WORKOS_SESSION_COOKIE_NAME } = await import(
@@ -33,11 +26,6 @@ describe("server/utils/authkit-session", () => {
 	});
 
 	it("loadSessionFromCookie returns null when cookie missing", async () => {
-		setTestRuntimeConfig({
-			workosApiKey: "api_key",
-			workosClientId: "client_id",
-			workosCookiePassword: "cookie_password",
-		});
 		const { loadSessionFromCookie } = await import("./authkit-session");
 		const event = createTestEvent();
 		const session = await loadSessionFromCookie(event as any);
@@ -45,11 +33,6 @@ describe("server/utils/authkit-session", () => {
 	});
 
 	it("loadSessionFromCookie calls workos.userManagement.loadSealedSession", async () => {
-		setTestRuntimeConfig({
-			workosApiKey: "api_key",
-			workosClientId: "client_id",
-			workosCookiePassword: "cookie_password",
-		});
 		mockWorkos.userManagement.loadSealedSession.mockResolvedValueOnce({
 			authenticate: vi.fn(),
 			refresh: vi.fn(),

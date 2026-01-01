@@ -21,10 +21,10 @@ const form = defineModel<{
 
 const showPassword = ref(false);
 
-const { generatePassword, generatedPassword } = useGeneratePassword();
+const { generatePassword: handleGeneratePassword, generatedPassword } = useGeneratePasswordFacade();
 
-const handleGeneratePassword = () => {
-	generatePassword();
+const generatePassword = () => {
+	handleGeneratePassword();
 	form.value.password = generatedPassword.value;
 };
 

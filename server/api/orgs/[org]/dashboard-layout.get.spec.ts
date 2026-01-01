@@ -5,16 +5,10 @@ import {
 	createTestEvent,
 	mockWorkos,
 	setMockOrgDashboardLayoutRow,
-	setTestRuntimeConfig,
 } from "../../../test/setup";
 
 describe("server/api/orgs/[org]/dashboard-layout.get", () => {
 	it("returns default layout when no saved layout", async () => {
-		setTestRuntimeConfig({
-			workosApiKey: "api_key",
-			workosClientId: "client_id",
-			workosCookiePassword: "cookie_password",
-		});
 
 		const user = createMockWorkosUser({ id: "user_1" });
 		mockWorkos.userManagement.loadSealedSession.mockResolvedValueOnce({
@@ -46,11 +40,6 @@ describe("server/api/orgs/[org]/dashboard-layout.get", () => {
 	});
 
 	it("returns saved layout when exists", async () => {
-		setTestRuntimeConfig({
-			workosApiKey: "api_key",
-			workosClientId: "client_id",
-			workosCookiePassword: "cookie_password",
-		});
 
 		const user = createMockWorkosUser({ id: "user_1" });
 		mockWorkos.userManagement.loadSealedSession.mockResolvedValueOnce({

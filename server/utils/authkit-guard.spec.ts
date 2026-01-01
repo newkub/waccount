@@ -1,14 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { createMockWorkosUser, createTestEvent, mockWorkos, setTestRuntimeConfig } from "../test/setup";
+import { createMockWorkosUser, createTestEvent, mockWorkos } from "../test/setup";
 
 describe("server/utils/authkit-guard", () => {
 	it("requireAuthenticatedAuthkitSession throws 401 when no session cookie", async () => {
-		setTestRuntimeConfig({
-			workosApiKey: "api_key",
-			workosClientId: "client_id",
-			workosCookiePassword: "cookie_password",
-		});
 
 		const { requireAuthenticatedAuthkitSession } = await import(
 			"./authkit-guard"
@@ -21,11 +16,6 @@ describe("server/utils/authkit-guard", () => {
 	});
 
 	it("requireAuthenticatedAuthkitSession refreshes and sets cookie when needed", async () => {
-		setTestRuntimeConfig({
-			workosApiKey: "api_key",
-			workosClientId: "client_id",
-			workosCookiePassword: "cookie_password",
-		});
 
 		const user = createMockWorkosUser();
 		const session = {

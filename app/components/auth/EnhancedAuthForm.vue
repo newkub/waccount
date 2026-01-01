@@ -27,8 +27,7 @@ const {
 	generatePassword,
 	copyPassword,
 	togglePasswordVisibility,
-	calculatePasswordStrength,
-} = useGeneratePassword();
+} = useGeneratePasswordFacade(computed(() => form.value.password));
 
 const showPasswordGenerator = ref(false);
 const emailFocused = ref(false);
@@ -41,7 +40,7 @@ const handleSubmit = () => {
 const useGeneratedPassword = () => {
 	if (generatedPassword.value) {
 		form.value.password = generatedPassword.value;
-		calculatePasswordStrength(generatedPassword.value);
+		// Strength is now calculated automatically by the facade's watcher
 		showPasswordGenerator.value = false;
 	}
 };

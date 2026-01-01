@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
 	const authorizationUrl = workos.userManagement.getAuthorizationUrl({
 		provider: "authkit",
 		redirectUri: config.workosRedirectUri,
-		clientId: config.workosClientId,
+		clientId: config.public.workosClientId,
 	});
 
 	await sendRedirect(event, authorizationUrl);

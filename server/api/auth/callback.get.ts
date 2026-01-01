@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
 
 	const { user: workosUser } = await workos.userManagement.authenticateWithCode({
 		code,
-		clientId: useRuntimeConfig(event).workosClientId,
+		clientId: useRuntimeConfig(event).public.workosClientId,
 	});
 
 	let user = await db.query.users.findFirst({

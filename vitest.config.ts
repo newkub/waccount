@@ -10,6 +10,11 @@ export default defineConfig({
 					environment: "node",
 					setupFiles: ["./server/test/setup.ts"],
 					include: ["server/**/*.spec.ts"],
+					alias: {
+						"#shared": new URL("./shared", import.meta.url).pathname,
+						"~": new URL(".", import.meta.url).pathname,
+						"~~": new URL(".", import.meta.url).pathname,
+					},
 				},
 			},
 			defineVitestProject({

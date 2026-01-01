@@ -1,12 +1,7 @@
-import type { User } from "#shared/types";
+import type { User, RegistrationData } from "#shared/types";
+import { UserPreferencesSchema } from "../../shared/schemas";
 import { getWorkosAuthkitConfig } from "./authkit-session";
 
-interface RegistrationData {
-	email: string;
-	password: string;
-	firstName?: string;
-	lastName?: string;
-}
 
 export const mapWorkosUserToAppUser = (user: {
 	id: string;
@@ -17,7 +12,12 @@ export const mapWorkosUserToAppUser = (user: {
 	profilePictureUrl?: string | null;
 	createdAt: string;
 	updatedAt: string;
+	unsafeMetadata?: Record<string, any>;
 }): User => {
+	const preferences = UserPreferencesSchema.optional()
+		.nullable()
+		.parse(user.unsafeMetadata?.preferences ?? null);
+
 	return {
 		id: user.id,
 		email: user.email,
@@ -27,6 +27,7 @@ export const mapWorkosUserToAppUser = (user: {
 		avatar: user.profilePictureUrl ?? null,
 		createdAt: user.createdAt,
 		updatedAt: user.updatedAt,
+		preferences,
 	};
 };
 

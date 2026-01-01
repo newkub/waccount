@@ -1,15 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { createMockWorkosUser, createTestEvent, mockWorkos, setTestRuntimeConfig } from "../../../test/setup";
+import { createMockWorkosUser, createTestEvent, mockWorkos } from "../../../test/setup";
 
 describe("server/api/auth/workos/profile.patch", () => {
 	it("rejects when no profile fields provided", async () => {
-		setTestRuntimeConfig({
-			workosApiKey: "api_key",
-			workosClientId: "client_id",
-			workosCookiePassword: "cookie_password",
-		});
-
 		const user = createMockWorkosUser();
 		const session = {
 			authenticate: vi
@@ -22,7 +16,7 @@ describe("server/api/auth/workos/profile.patch", () => {
 		const { WORKOS_SESSION_COOKIE_NAME } = await import(
 			"../../../utils/authkit-session"
 		);
-		const handler = (await import("./profile.patch")).default;
+		const { default: handler } = await import("./profile.patch");
 		const event = createTestEvent({
 			__cookies: { [WORKOS_SESSION_COOKIE_NAME]: "sealed" },
 			__body: {},
@@ -33,12 +27,6 @@ describe("server/api/auth/workos/profile.patch", () => {
 	});
 
 	it("updates profile and returns mapped profile", async () => {
-		setTestRuntimeConfig({
-			workosApiKey: "api_key",
-			workosClientId: "client_id",
-			workosCookiePassword: "cookie_password",
-		});
-
 		const user = createMockWorkosUser();
 		const session = {
 			authenticate: vi
@@ -52,7 +40,7 @@ describe("server/api/auth/workos/profile.patch", () => {
 		const { WORKOS_SESSION_COOKIE_NAME } = await import(
 			"../../../utils/authkit-session"
 		);
-		const handler = (await import("./profile.patch")).default;
+		const { default: handler } = await import("./profile.patch");
 		const event = createTestEvent({
 			__cookies: { [WORKOS_SESSION_COOKIE_NAME]: "sealed" },
 			__body: { firstName: "New" },

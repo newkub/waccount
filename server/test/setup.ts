@@ -1,5 +1,4 @@
 import "./mocks/h3";
-import "./mocks/runtime-config";
 import "./mocks/workos";
 import "./mocks/db";
 

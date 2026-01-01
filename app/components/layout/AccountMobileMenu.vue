@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { NavItem, User } from "#shared/types";
+import type { User } from "#shared/types";
+import type { NavItem } from "~/composables/core/useWorkspaceNavigation";
 
 interface Props {
 	user: User | null;

@@ -1,7 +1,5 @@
 import { createError, H3Event } from "h3";
 import { describe, expect, it, vi } from "vitest";
-import resetPasswordEventHandler from "./reset-password.post";
-
 // Mocks
 const mockResetPassword = vi.fn();
 const mockWorkos = {
@@ -14,12 +12,19 @@ vi.mock("../../../utils/authkit-session", () => ({
 }));
 
 const mockReadBody = vi.fn();
-vi.stubGlobal("readBody", mockReadBody);
+vi.mock("h3", async (importOriginal) => {
+	const mod = await importOriginal<typeof import("h3")>();
+	return {
+		...mod,
+		readBody: mockReadBody,
+	};
+});
 
 describe("POST /api/auth/workos/reset-password", () => {
 	const mockEvent = {} as H3Event;
 
 	it("should throw 400 if token or newPassword is missing", async () => {
+		const { default: resetPasswordEventHandler } = await import("./reset-password.post");
 		const error = createError({ statusCode: 400, statusMessage: "Missing token or newPassword" });
 
 		mockReadBody.mockResolvedValue({ token: "test-token" });
@@ -30,6 +35,7 @@ describe("POST /api/auth/workos/reset-password", () => {
 	});
 
 	it("should call resetPassword and return success", async () => {
+		const { default: resetPasswordEventHandler } = await import("./reset-password.post");
 		const token = "valid-token";
 		const newPassword = "a-very-strong-password";
 		mockReadBody.mockResolvedValue({ token, newPassword });
@@ -42,6 +48,7 @@ describe("POST /api/auth/workos/reset-password", () => {
 	});
 
 	it("should propagate errors from WorkOS", async () => {
+		const { default: resetPasswordEventHandler } = await import("./reset-password.post");
 		const errorMessage = "Invalid token";
 		const token = "invalid-token";
 		const newPassword = "password";

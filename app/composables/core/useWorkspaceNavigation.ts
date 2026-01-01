@@ -1,4 +1,9 @@
-import type { NavItem } from "#shared/types";
+export interface NavItem {
+	id: string;
+	label: string;
+	icon: string;
+	href: (accountId?: string) => string;
+}
 
 export const useWorkspaceNavigation = () => {
 	const route = useRoute();

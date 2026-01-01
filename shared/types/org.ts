@@ -11,7 +11,7 @@ import type {
 	OrgMembershipsResponseSchema,
 	OrgMembersResponseSchema,
 	SsoConnectionSchema,
-} from "./schemas";
+} from "../schemas";
 
 export type Organization = z.infer<typeof OrganizationSchema>;
 export type SsoConnection = z.infer<typeof SsoConnectionSchema>;
@@ -28,3 +28,5 @@ export type OrgDashboardLayoutResponse = z.infer<typeof OrgDashboardLayoutRespon
 export type OrgDashboardLayoutUpsertRequest = z.infer<typeof OrgDashboardLayoutUpsertRequestSchema>;
 
 export type OrgHealthResponse = z.infer<typeof OrgHealthResponseSchema>;
+
+export type OrgRole = "owner" | "admin" | "member";

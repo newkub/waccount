@@ -1,14 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { createTestEvent, mockWorkos, setTestRuntimeConfig } from "../../../test/setup";
+import { createTestEvent, mockWorkos } from "../../../test/setup";
 
 describe("server/api/auth/workos/callback.get", () => {
 	it("rejects when code missing", async () => {
-		setTestRuntimeConfig({
-			workosApiKey: "api_key",
-			workosClientId: "client_id",
-			workosCookiePassword: "cookie_password",
-		});
 		const handler = (await import("./callback.get")).default;
 		await expect(
 			handler(createTestEvent({ __query: {} }) as any),
@@ -16,11 +11,6 @@ describe("server/api/auth/workos/callback.get", () => {
 	});
 
 	it("sets cookie then redirects", async () => {
-		setTestRuntimeConfig({
-			workosApiKey: "api_key",
-			workosClientId: "client_id",
-			workosCookiePassword: "cookie_password",
-		});
 		mockWorkos.userManagement.authenticateWithCode.mockResolvedValueOnce({
 			sealedSession: "sealed_new",
 			user: {

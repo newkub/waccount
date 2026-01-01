@@ -1,25 +1,15 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { createMockWorkosUser, createTestEvent, mockWorkos, setTestRuntimeConfig } from "../../../test/setup";
+import { createMockWorkosUser, createTestEvent, mockWorkos } from "../../../test/setup";
 
 describe("server/api/auth/workos/refresh.get", () => {
 	it("returns null user when no session cookie", async () => {
-		setTestRuntimeConfig({
-			workosApiKey: "api_key",
-			workosClientId: "client_id",
-			workosCookiePassword: "cookie_password",
-		});
 		const handler = (await import("./refresh.get")).default;
 		const res = await handler(createTestEvent({ __cookies: {} }) as any);
 		expect(res).toEqual({ user: null });
 	});
 
 	it("returns user when session.authenticate is authenticated", async () => {
-		setTestRuntimeConfig({
-			workosApiKey: "api_key",
-			workosClientId: "client_id",
-			workosCookiePassword: "cookie_password",
-		});
 		const user = createMockWorkosUser();
 		const session = {
 			authenticate: vi
@@ -41,11 +31,6 @@ describe("server/api/auth/workos/refresh.get", () => {
 	});
 
 	it("refreshes session and sets cookie when refresh returns sealedSession", async () => {
-		setTestRuntimeConfig({
-			workosApiKey: "api_key",
-			workosClientId: "client_id",
-			workosCookiePassword: "cookie_password",
-		});
 		const user = createMockWorkosUser();
 		const session = {
 			authenticate: vi.fn().mockResolvedValueOnce({ authenticated: false }),

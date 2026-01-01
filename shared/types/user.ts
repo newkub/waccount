@@ -1,5 +1,5 @@
 import type { z } from "zod";
-import type { UpdateProfileDataSchema, UserSchema } from "./schemas";
+import type { UpdateProfileDataSchema, UserSchema } from "../schemas";
 
 export type User = z.infer<typeof UserSchema>;
 export type UserProfile = User;
@@ -122,4 +122,11 @@ export interface AccountOrganization {
 	role: string;
 	plan: string;
 	memberCount: number;
+}
+
+export interface RegistrationData {
+	email: string;
+	password: string;
+	firstName?: string;
+	lastName?: string;
 }
