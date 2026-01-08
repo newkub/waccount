@@ -1,0 +1,40 @@
+{
+  "name": "@waccount/auth-dashboard",
+  "version": "0.0.1",
+  "description": "Auth Dashboard module for Nuxt with customizable tabs",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/module.d.ts",
+      "import": "./dist/module.mjs",
+      "require": "./dist/module.cjs"
+    }
+  },
+  "main": "./dist/module.cjs",
+  "types": "./dist/module.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "nuxt-module-build",
+    "dev": "nuxi dev playground",
+    "dev:build": "nuxi build playground",
+    "dev:prepare": "nuxt-module-build --stub && nuxt-module-build prepare playground",
+    "lint": "oxlint --fix --type-aware",
+    "test": "vitest run",
+    "test:ui": "vitest --ui"
+  },
+  "dependencies": {
+    "@nuxt/kit": "^3.15.4",
+    "defu": "^6.1.4"
+  },
+  "devDependencies": {
+    "@nuxt/module-builder": "^0.8.4",
+    "@nuxt/test-utils": "^3.21.0",
+    "oxlint": "^1.36.0",
+    "vitest": "^4.0.16"
+  },
+  "peerDependencies": {
+    "nuxt": "^4.0.0"
+  }
+}
