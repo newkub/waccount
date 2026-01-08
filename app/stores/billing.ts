@@ -20,8 +20,8 @@ export const useBillingStore = defineStore("billing", () => {
 			if (data.value) {
 				planOptions.value = data.value;
 			}
-		} catch (e: any) {
-			error.value = e.message;
+		} catch (e: unknown) {
+			error.value = e instanceof Error ? e.message : "Failed to fetch plans";
 		} finally {
 			loading.value = false;
 		}

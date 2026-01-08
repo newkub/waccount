@@ -24,8 +24,8 @@ export const useBillingFacade = () => {
 			billingStore.subscription = data.subscription ?? null;
 			billingStore.invoices = data.invoices ?? [];
 			billingStore.usage = data.usage ?? null;
-		} catch (e: any) {
-			billingStore.error = e.message || "Failed to fetch billing data";
+		} catch (e: unknown) {
+			billingStore.error = e instanceof Error ? e.message : "Failed to fetch billing data";
 		} finally {
 			billingStore.loading = false;
 		}
@@ -41,8 +41,8 @@ export const useBillingFacade = () => {
 				const newPlan = billingStore.planOptions.find(p => p.id === newPlanId);
 				billingStore.subscription.amount = newPlan?.price || 0;
 			}
-		} catch (e: any) {
-			billingStore.error = e.message || "Failed to change plan";
+		} catch (e: unknown) {
+			billingStore.error = e instanceof Error ? e.message : "Failed to change plan";
 		} finally {
 			billingStore.loading = false;
 		}
@@ -56,8 +56,8 @@ export const useBillingFacade = () => {
 			if (billingStore.subscription) {
 				billingStore.subscription.cancelAtPeriodEnd = true;
 			}
-		} catch (e: any) {
-			billingStore.error = e.message || "Failed to cancel subscription";
+		} catch (e: unknown) {
+			billingStore.error = e instanceof Error ? e.message : "Failed to cancel subscription";
 		} finally {
 			billingStore.loading = false;
 		}

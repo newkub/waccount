@@ -80,7 +80,7 @@ export const useUserStore = defineStore("user", () => {
 	async function getUserActivities() {
 		loading.value = true;
 		try {
-			const response = await $fetch<{ activities: any[] }>("/api/auth/workos/activities");
+			const response = await $fetch<{ activities: Activity[] }>("/api/auth/workos/activities");
 			return response.activities;
 		} finally {
 			loading.value = false;

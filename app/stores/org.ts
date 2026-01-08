@@ -21,8 +21,8 @@ export const useOrgStore = defineStore("org", () => {
 			if (data.value) {
 				organizations.value = data.value;
 			}
-		} catch (e: any) {
-			error.value = e.message;
+		} catch (e: unknown) {
+			error.value = e instanceof Error ? e.message : "Failed to fetch organizations";
 		} finally {
 			loading.value = false;
 		}
@@ -36,8 +36,8 @@ export const useOrgStore = defineStore("org", () => {
 			if (data.value) {
 				members.value = data.value;
 			}
-		} catch (e: any) {
-			error.value = e.message;
+		} catch (e: unknown) {
+			error.value = e instanceof Error ? e.message : "Failed to fetch members";
 		} finally {
 			loading.value = false;
 		}
