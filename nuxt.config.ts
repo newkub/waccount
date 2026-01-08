@@ -20,6 +20,7 @@ export default defineNuxtConfig({
 		"@pinia/nuxt",
 		"@scalar/nuxt",
 		"nuxt-mcp-dev",
+		"@waccount/auth-dashboard",
 	],
 
 	imports: {
@@ -87,6 +88,20 @@ export default defineNuxtConfig({
 			baseUrl: process.env.NUXT_PUBLIC_BASE_URL,
 			adminEmails: process.env.NUXT_PUBLIC_ADMIN_EMAILS,
 			workosClientId: process.env.NUXT_WORKOS_CLIENT_ID,
+			authDashboard: {
+				publicPages: [
+					"/",
+					"/auth/login",
+					"/auth/signup",
+					"/auth/reset-password",
+				],
+				navItems: [
+					{ id: "billing", label: "Billing", icon: "mdi:credit-card", path: "/billing" },
+					{ id: "connections", label: "Connections", icon: "mdi:link", path: "/connections" },
+				],
+				enableAuthMiddleware: true,
+				loginPath: "/auth/login",
+			},
 		},
 	},
 });

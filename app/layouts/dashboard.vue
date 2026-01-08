@@ -1,7 +1,7 @@
 <template>
-	<LayoutDashboardShell>
+	<AuthDashboardShell>
 		<slot />
-	</LayoutDashboardShell>
+	</AuthDashboardShell>
 </template>
 
 <script setup lang="ts"></script>
